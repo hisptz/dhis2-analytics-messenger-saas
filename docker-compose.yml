@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  whatsapp:
+    image: hisptanzania/whatsapp:latest
+    env_file:
+      - .env
+    volumes:
+      - ./whatsapp/tokens:/whatsapp/tokens
+  db:
+    image: postgres:latest
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    env_file:
+      - .env
+  #    profiles:
+  #      - donotstart
+
+  chat-bot:
+    image: hisptanzania/chat-bot:latest
+    env_file:
+      - .env
+
+  mediator:
+    image: hisptanzania/dhis2-mediator:latest
+    env_file:
+      - .env
+
+  visualizer:
+    image: hisptanzania/dhis2-visualizer:latest
+    env_file:
+      - .env
+
+  proxy:
+    image: hisptanzania/proxy:latest
+    ports:
+      - "${PROXY_PORT}:${PROXY_PORT}"
+    env_file:
+      - .env
