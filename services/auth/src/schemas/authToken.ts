@@ -1,0 +1,38 @@
+import { ParseField } from "../cloud/types";
+import { generateSchema } from "./base";
+
+const fields: ParseField[] = [
+	{
+		name: "user",
+		targetClass: "_User",
+		type: "Pointer",
+		options: {
+			required: true,
+		},
+	},
+	{
+		name: "dhis2Instance",
+		targetClass: "DHIS2Instance",
+		type: "Pointer",
+		options: {
+			required: true,
+		},
+	},
+	{
+		name: "token",
+		type: "String",
+		options: {
+			required: true,
+		},
+	},
+	{
+		name: "expiresIn",
+		type: "Object",
+		options: {
+			required: true,
+		},
+	},
+];
+export const authTokenSchema = generateSchema("AuthToken", fields, {
+	protectedFields: { "*": ["token"] },
+});

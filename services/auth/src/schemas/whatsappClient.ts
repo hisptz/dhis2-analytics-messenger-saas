@@ -1,5 +1,5 @@
-import { ParseField } from "../types";
-import { ParseSchema } from "./base";
+import { ParseField } from "../cloud/types";
+import { generateSchema } from "./base";
 
 const fields: ParseField[] = [
 	{
@@ -12,4 +12,4 @@ const fields: ParseField[] = [
 	},
 ];
 
-export const whatsappClientSchema = new ParseSchema("WhatsappClient", fields);
+export const whatsappClientSchema = generateSchema("WhatsappClient", fields);

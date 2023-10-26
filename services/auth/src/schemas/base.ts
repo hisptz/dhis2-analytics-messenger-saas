@@ -1,26 +1,27 @@
-import { ParseField } from "../types";
+import { ParseField } from "../cloud/types";
+import { fromPairs } from "lodash";
 
-export class ParseSchema extends Parse.Schema {
-	fields: ParseField[];
-
-	constructor(className: string, fields: ParseField[]) {
-		super(className);
-		this.fields = fields;
-		this.init();
-	}
-
-	init() {
-		this.fields.forEach(({ name, type, options, targetClass }) => {
-			if (type === "Pointer") {
-				if (!targetClass) {
-					throw Error(
-						`Field ${name} is marked as a pointer but does not have a target class.`,
-					);
-				}
-				this.addPointer(name, targetClass, options);
-				return;
-			}
-			this.addField(name, type, options);
-		});
-	}
+export function generateSchema(
+	className: string,
+	fields: ParseField[],
+	options?: {
+		protectedFields: Parse.Schema.CLP["protectedFields"];
+		overrideCLP?: Parse.Schema.CLP;
+	},
+) {
+	const { protectedFields, overrideCLP } = options ?? {};
+	return {
+		className,
+		fields: fromPairs(fields.map(({ name, ...rest }) => [name, rest])),
+		classLevelPermissions: {
+			find: { requiresAuthentication: true },
+			count: { requiresAuthentication: true },
+			get: { requiresAuthentication: true },
+			update: { requiresAuthentication: true },
+			create: { requiresAuthentication: true },
+			delete: { requiresAuthentication: true },
+			...(overrideCLP ?? {}),
+			protectedFields: protectedFields ?? {},
+		} as Parse.Schema.CLP,
+	};
 }

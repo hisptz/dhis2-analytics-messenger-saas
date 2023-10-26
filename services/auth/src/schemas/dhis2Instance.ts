@@ -1,5 +1,5 @@
-import { ParseField } from "../types";
-import { ParseSchema } from "./base";
+import { ParseField } from "../cloud/types";
+import { generateSchema } from "./base";
 
 const fields: ParseField[] = [
 	{
@@ -26,4 +26,8 @@ const fields: ParseField[] = [
 	},
 ];
 
-export const dhis2InstanceSchema = new ParseSchema("DHIS2Instance", fields);
+export const dhis2InstanceSchema = generateSchema("DHIS2Instance", fields, {
+	protectedFields: {
+		"*": ["pat"],
+	},
+});

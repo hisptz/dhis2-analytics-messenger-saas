@@ -16,9 +16,8 @@
  *  1. Collect the following info about the token:
  * 			 - id
  * 			 - expire time
- *  		 - session  - Generated to ensure access as the user who generated the token - (Tryout if parse allows more than one active session)
  * 			 - instanceId - ID of the DHIS2 instance that will be using
- * 	2. Create a AuthToken object with those fields.
+ * 	2. Create a AuthToken object with those fields. - Should this be saved?
  *  3. Generate a jwt token from those fields
  *  4. Share to the user
  *  5. Save the AuthToken
@@ -37,3 +36,35 @@
  *   -
 
  * */
+import jwt from "jsonwebtoken";
+import { head } from "lodash";
+
+Parse.Cloud.beforeSave("AuthToken", async (req) => {
+	const { original, object, user } = req;
+	if (original) {
+		throw Error(
+			"Editing authentication tokens is currently not supported. Create a new one instead.",
+		);
+	}
+
+	const expiresIn = object.get("expiresIn") as { key: string; value: number };
+
+	const payload = {
+		user: user?.id,
+		dhis2Instance: object.get("dhis2Instance")?.id,
+	};
+
+	const secretKey = process.env.PARSE_SERVER_JWT_SECRET_KEY;
+
+	if (!secretKey) {
+		throw Error(
+			"The variable `PARSE_SERVER_JWT_SECRET_KEY` is not set in the environment. ",
+		);
+	}
+
+	const token = jwt.sign(payload, secretKey, {
+		expiresIn: `${expiresIn.value}${head(expiresIn.key.split(""))}`,
+	});
+
+	object.set("token", token);
+});
