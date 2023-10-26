@@ -1,6 +1,10 @@
-import {range} from "lodash";
+import { range } from "lodash";
+import "./init";
 
-Parse.Cloud.define("Hello Auth", (req) => {
-		range(1, 2);
-		return "Hello!"
-})
+Parse.Cloud.job("sayHi", () => {
+	range(1, 2);
+	console.log("Hello!");
+	return;
+});
+
+console.log("Are these changes detectable?");

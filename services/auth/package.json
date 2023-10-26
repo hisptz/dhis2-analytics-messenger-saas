@@ -11,6 +11,7 @@
     "@types/lodash": "^4.14.199",
     "@types/parse": "^3.0.5",
     "bestzip": "^2.2.1",
+    "concurrently": "^8.2.2",
     "dotenv": "^16.3.1",
     "dotenv-cli": "^7.3.0",
     "nodemon": "^3.0.1",
@@ -24,6 +25,8 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
+    "@types/async": "^3.2.20",
+    "async": "^3.2.4",
     "lodash": "^4.17.21",
     "parse": "^4.2.0"
   },
@@ -31,6 +34,8 @@
     "build": "webpack",
     "postbuild": "./package.sh",
     "serve": "dotenv -- parse-server",
-    "dev": "tsc && pnpm run serve"
+    "dashboard": "dotenv -- parse-dashboard",
+    "predev": "pnpm run build && concurrently -n 'test|server|dashboard' --name-separator '|' 'pwd' 'pnpm run serve' 'pnpm run dashboard'",
+    "dev": "nodemon --exec 'pnpm run predev'"
   }
 }
