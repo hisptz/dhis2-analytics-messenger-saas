@@ -4,6 +4,7 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "dev:auth": "turbo run dev --filter=auth",
+    "dev:visualizer": "turbo run dev --filter=visualizer",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },

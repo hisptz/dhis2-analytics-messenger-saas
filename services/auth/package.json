@@ -43,7 +43,7 @@
     "postbuild": "./package.sh",
     "serve": "dotenv -- parse-server",
     "dashboard": "dotenv -- parse-dashboard",
-    "predev": "pnpm run build && node build/server.js",
+    "predev": "pnpm run build && node build/src/server.js",
     "dev": "nodemon --exec 'pnpm run predev'"
   }
 }

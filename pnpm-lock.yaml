@@ -20,9 +20,15 @@ importers:
 
   packages/auth-utils:
     dependencies:
+      axios:
+        specifier: ^1.6.0
+        version: 1.6.0
       jsonwebtoken:
         specifier: ^9.0.2
         version: 9.0.2
+      parse:
+        specifier: ^4.2.0
+        version: 4.2.0
     devDependencies:
       '@types/jsonwebtoken':
         specifier: ^9.0.4
@@ -249,7 +255,7 @@ importers:
     dependencies:
       '@nestjs/axios':
         specifier: ^2.0.0
-        version: 2.0.0(@nestjs/common@9.4.3)(axios@1.5.1)(reflect-metadata@0.1.13)(rxjs@7.8.1)
+        version: 2.0.0(@nestjs/common@9.4.3)(axios@1.6.0)(reflect-metadata@0.1.13)(rxjs@7.8.1)
       '@nestjs/cache-manager':
         specifier: ^1.0.0
         version: 1.0.0(@nestjs/common@9.4.3)(cache-manager@5.2.4)(reflect-metadata@0.1.13)(rxjs@7.8.1)
@@ -463,14 +469,32 @@ importers:
         specifier: ^8.13.0
         version: 8.14.9(@dhis2/app-runtime@3.9.4)(@dhis2/d2-i18n@1.1.2)(react-dom@18.2.0)(react@18.2.0)(styled-jsx@4.0.1)
       '@hisptz/dhis2-analytics':
-        specifier: ^1.0.53
+        specifier: ^1.0.60
         version: 1.0.60(@babel/core@7.23.2)(@dhis2/d2-i18n@1.1.2)(@dhis2/ui@8.14.9)(@react-three/fiber@8.15.7)(@types/react@18.2.32)(konva@9.2.2)(lodash@4.17.21)(prop-types@15.8.1)(react-dom@18.2.0)(react-hook-form@7.47.0)(react-is@18.2.0)(react-konva@18.2.10)(react-native@0.72.6)(react-zdog@1.2.2)(react@18.2.0)(recoil@0.7.7)(three@0.157.0)(zdog@1.1.3)
       '@hisptz/dhis2-ui':
         specifier: ^1.0.52
         version: 1.0.60(@babel/core@7.23.2)(@types/react@18.2.32)(lodash@4.17.21)(prop-types@15.8.1)(react-dom@18.2.0)(react-is@18.2.0)(react-native@0.72.6)(react@18.2.0)(recoil@0.7.7)
+      '@hisptz/dhis2-utils':
+        specifier: ^1.0.58
+        version: 1.0.58
+      '@tanstack/react-query':
+        specifier: ^5.0.5
+        version: 5.0.5(react-dom@18.2.0)(react-native@0.72.6)(react@18.2.0)
+      auth-utils:
+        specifier: workspace:^
+        version: link:../../packages/auth-utils
+      axios:
+        specifier: ^1.6.0
+        version: 1.6.0
+      highcharts:
+        specifier: ^11.1.0
+        version: 11.1.0
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
+      parse:
+        specifier: ^4.2.0
+        version: 4.2.0
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -521,7 +545,7 @@ importers:
         specifier: ^0.3.4
         version: 0.3.5(eslint@8.48.0)
       typescript:
-        specifier: ^5.0.2
+        specifier: ^5.2.2
         version: 5.2.2
       vite:
         specifier: ^4.3.2
@@ -5006,7 +5030,7 @@ packages:
     dev: false
     optional: true
 
-  /@nestjs/axios@2.0.0(@nestjs/common@9.4.3)(axios@1.5.1)(reflect-metadata@0.1.13)(rxjs@7.8.1):
+  /@nestjs/axios@2.0.0(@nestjs/common@9.4.3)(axios@1.6.0)(reflect-metadata@0.1.13)(rxjs@7.8.1):
     resolution: {integrity: sha512-F6oceoQLEn031uun8NiommeMkRIojQqVryxQy/mK7fx0CI0KbgkJL3SloCQcsOD+agoEnqKJKXZpEvL6FNswJg==}
     peerDependencies:
       '@nestjs/common': ^7.0.0 || ^8.0.0 || ^9.0.0
@@ -5015,7 +5039,7 @@ packages:
       rxjs: ^6.0.0 || ^7.0.0
     dependencies:
       '@nestjs/common': 9.4.3(cache-manager@5.2.4)(reflect-metadata@0.1.13)(rxjs@7.8.1)
-      axios: 1.5.1
+      axios: 1.6.0
       reflect-metadata: 0.1.13
       rxjs: 7.8.1
     dev: false
@@ -6236,6 +6260,28 @@ packages:
       defer-to-connect: 2.0.1
     dev: false
 
+  /@tanstack/query-core@5.0.5:
+    resolution: {integrity: sha512-MThCETMkHDHTnFZHp71L+SqTtD5d6XHftFCVR1xRJdWM3qGrlQ2VCXaj0SKVcyJej2e1Opa2c7iknu1llxCDNQ==}
+    dev: false
+
+  /@tanstack/react-query@5.0.5(react-dom@18.2.0)(react-native@0.72.6)(react@18.2.0):
+    resolution: {integrity: sha512-ZG0Q4HZ0iuI8mWiZ2/MdVYPHbrmAVhMn7+gLOkxJh6zLIgCL4luSZlohzN5Xt4MjxfxxWioO1nemwpudaTsmQg==}
+    peerDependencies:
+      react: ^18.0.0
+      react-dom: ^18.0.0
+      react-native: '*'
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+      react-native:
+        optional: true
+    dependencies:
+      '@tanstack/query-core': 5.0.5
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      react-native: 0.72.6(@babel/core@7.23.2)(@babel/preset-env@7.23.2)(react@18.2.0)
+    dev: false
+
   /@testing-library/dom@8.20.1:
     resolution: {integrity: sha512-/DiOQ5xBxgdYRC8LNk7U+RWat0S3qRLeIw3ZIkMQ9kkVlRmwD/Eg8k8CqIpD6GW7u20JIUOfMKbxtiLutpjQ4g==}
     engines: {node: '>=12'}
@@ -6299,7 +6345,7 @@ packages:
     resolution: {integrity: sha512-KqQnQbdYE54D7oa/UmYVMZKq7CO4l8DEENzOKc4aBRwxCXSlJXGz83flFx5L7AWrOQnmuN3kVsRdt+GZPPjiVQ==}
     deprecated: This is a stub types definition for axios (https://github.com/mzabriskie/axios). axios provides its own type definitions, so you don't need @types/axios installed!
     dependencies:
-      axios: 1.5.1
+      axios: 1.6.0
     transitivePeerDependencies:
       - debug
     dev: true
@@ -7355,7 +7401,7 @@ packages:
       '@wppconnect/wa-js': 2.27.0
       '@wppconnect/wa-version': 1.2.129
       atob: 2.1.2
-      axios: 1.5.1
+      axios: 1.6.0
       boxen: 5.1.2
       catch-exit: 1.2.2
       chalk: 4.1.2
@@ -7842,6 +7888,16 @@ packages:
 
   /axios@1.5.1:
     resolution: {integrity: sha512-Q28iYCWzNHjAm+yEAot5QaAMxhMghWLFVf7rRdwhUI+c2jix2DUXjAHXVi+s1ibs3mjPO/cCgbA++3BjD0vP/A==}
+    dependencies:
+      follow-redirects: 1.15.3
+      form-data: 4.0.0
+      proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
+  /axios@1.6.0:
+    resolution: {integrity: sha512-EZ1DYihju9pwVB+jg67ogm+Tmqc6JmhamRN6I4Zt8DfZu5lbcQGw3ozH9lFejSJgs/ibaef3A9PMXPLeefFGJg==}
     dependencies:
       follow-redirects: 1.15.3
       form-data: 4.0.0
@@ -11470,6 +11526,10 @@ packages:
 
   /highcharts@10.3.3:
     resolution: {integrity: sha512-r7wgUPQI9tr3jFDn3XT36qsNwEIZYcfgz4mkKEA6E4nn5p86y+u1EZjazIG4TRkl5/gmGRtkBUiZW81g029RIw==}
+    dev: false
+
+  /highcharts@11.1.0:
+    resolution: {integrity: sha512-vhmqq6/frteWMx0GKYWwEFL25g4OYc7+m+9KQJb/notXbNtIb8KVy+ijOF7XAFqF165cq0pdLIePAmyFY5ph3g==}
     dev: false
 
   /hoist-non-react-statics@3.3.2:

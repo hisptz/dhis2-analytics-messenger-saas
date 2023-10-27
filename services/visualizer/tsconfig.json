@@ -6,11 +6,10 @@
       "DOM.Iterable",
       "ESNext"
     ],
-    "module": "ESNext",
+    "module": "commonjs",
     "skipLibCheck": true,
     /* Bundler mode */
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
+    "moduleResolution": "node",
     "skipDefaultLibCheck": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -24,7 +23,8 @@
   },
   "include": [
     "src",
-    "../../types"
+    "../../types",
+    "vite.config.ts"
   ],
   "references": [
     {
