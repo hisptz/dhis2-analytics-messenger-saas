@@ -6,6 +6,7 @@ import { dhis2InstanceSchema } from "./schemas/dhis2Instance";
 import { whatsappClientSchema } from "./schemas/whatsappClient";
 import { authTokenSchema } from "./schemas/authToken";
 import dhis2Router from "./routes/dhis2";
+import { analyticsJobSchema } from "./schemas/push";
 
 config();
 
@@ -27,6 +28,7 @@ const parse = new ParseServer({
 			dhis2InstanceSchema,
 			whatsappClientSchema,
 			authTokenSchema,
+			...analyticsJobSchema,
 		],
 		recreateModifiedFields: true,
 		lockSchemas: true,
