@@ -3,7 +3,9 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "dev:auth": "turbo run dev --filter=auth",
+    "dev:core": "turbo run dev --filter=core",
+    "dev:app": "turbo run dev --filter=app",
+    "dev:panel": "turbo run dev --filter=panel",
     "dev:visualizer": "turbo run dev --filter=visualizer",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""

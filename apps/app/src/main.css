@@ -1,0 +1,12 @@
+body {
+    background: #F8F9FA;
+    word-break: keep-all;
+}
+
+td {
+    word-break: keep-all;
+}
+
+.page {
+    height: 70vh;
+}

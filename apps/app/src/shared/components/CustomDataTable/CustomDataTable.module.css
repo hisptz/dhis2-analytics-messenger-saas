@@ -1,0 +1,36 @@
+
+.data-table-row {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.data-table-body {
+    height: calc(100vh - (332px + 48px)) !important;
+}
+
+.data-table-cell {
+    background: transparent !important;
+}
+
+.table {
+    position: relative;
+}
+
+.actions-cell {
+    padding: 8px !important;
+}
+
+.loading {
+    height: 100% !important;
+}
+
+.pagination-area {
+    width: 100% !important;
+    z-index: 2;
+}
+
+
+.loading-cover {
+    background: rgba(255, 255, 255, 0.6) !important;
+    z-index: 1 !important;
+}
