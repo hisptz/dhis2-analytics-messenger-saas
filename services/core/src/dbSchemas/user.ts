@@ -9,9 +9,22 @@ const fields: ParseField[] = [
 			required: true,
 		},
 	},
+	{
+		name: "phoneNumber",
+		type: "String",
+	},
 ];
 
 export const userSchema = {
 	className: "_User",
 	fields: fromPairs(fields.map(({ name, ...rest }) => [name, rest])),
+	classLevelPermissions: {
+		find: { "*": true },
+		count: { "*": true },
+		get: { "*": true },
+		update: { requiresAuthentication: true },
+		create: { "*": true },
+		delete: { requiresAuthentication: true },
+		addField: {},
+	},
 };
