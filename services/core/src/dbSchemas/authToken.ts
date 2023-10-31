@@ -33,6 +33,8 @@ const fields: ParseField[] = [
 		},
 	},
 ];
-export const authTokenSchema = generateSchema("AuthToken", fields, {
+
+export const AUTH_TOKEN_CLASSNAME = "AuthToken";
+export const authTokenSchema = generateSchema(AUTH_TOKEN_CLASSNAME, fields, {
 	protectedFields: { "*": ["token"] },
 });

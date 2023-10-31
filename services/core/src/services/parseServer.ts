@@ -18,6 +18,7 @@ export const parseServer = new ParseServer({
 	mountPath: process.env.AUTH_MOUNT_PATH,
 	auth: {
 		dhis2Auth: {
+			enabled: true,
 			module: DHIS2AuthAdapter,
 			secretKey: process.env.AUTH_JWT_SECRET_KEY,
 		},
@@ -28,6 +29,7 @@ export const parseServer = new ParseServer({
 			: "./cloud/main.js",
 	schema: {
 		definitions: [
+			// userSchema,
 			dhis2InstanceSchema,
 			whatsappClientSchema,
 			authTokenSchema,

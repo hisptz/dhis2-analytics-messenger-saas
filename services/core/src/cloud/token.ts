@@ -1,100 +1,57 @@
 /*
- * Let's figure out why each service requires access to the user and instance details
+ *  - How to authenticate a user using a custom adapter
+ *  - Figure out the
  *
- * Engine
- *  - To generate a visualization
- *  - References to the chat-bot flow
- *
- * Mediator
- *  - To connect to the specific instance and provide a gateway (Should we bypass this? It seems like it may be redundant since we can use PAT to directly access the DHIS2 instance)
- *
- * Messaging
- *  - Figure out configuration for the client
- *
- * Plan for approaching this implementation:
- *
- *  1. Collect the following info about the token:
- * 			 - id
- * 			 - expire time
- * 			 - instanceId - ID of the DHIS2 instance that will be using
- * 	2. Create a AuthToken object with those fields. - Should this be saved?
- *  3. Generate a jwt token from those fields
- *  4. Share to the user
- *  5. Save the AuthToken
- *
- *
- *  How do services use this token:
- *
- * 	Whenever a service has a request, the generated token should be in the headers (header can be `token` for now. )
- *   - The service then gets the AuthToken from the token by verifying the token
- *   - The service then uses the session token from the payload to become the user requesting the service (https://parseplatform.org/Parse-SDK-JS/api/4.0.1/Parse.User.html#.become)
- *   - From here on the service can request any of the data/services it requires from the auth system
- *   - If a service requires a service from any of the other service, it should request while passing down the token.
- *
- *  Notes:
- *   - Handle token error issues as early as possible. Preferably in the proxy service. A token should only be passed down if it is correct
- *   -
-
  * */
 
-// Parse.Cloud.beforeSave("AuthToken", async (req) => {
-// 	const { original, object, user } = req;
-// 	if (original) {
-// 		throw Error(
-// 			"Editing authentication tokens is currently not supported. Create a new one instead.",
-// 		);
-// 	}
-//
-// 	const expiresIn = object.get("expiresIn") as { key: string; value: number };
-//
-// 	const payload = {
-// 		user: user?.id,
-// 		dhis2Instance: object.get("dhis2Instance")?.id,
-// 	};
-//
-// 	const secretKey = process.env.AUTH_JWT_SECRET_KEY;
-//
-// 	if (!secretKey) {
-// 		throw Error(
-// 			"The variable `PARSE_SERVER_JWT_SECRET_KEY` is not set in the environment. ",
-// 		);
-// 	}
-//
-// 	const token = jwt.sign(payload, secretKey, {
-// 		expiresIn: `${expiresIn.value}${head(expiresIn.key.split(""))}`,
-// 	});
-//
-// 	object.set("token", token);
-// });
-
 import jwt from "jsonwebtoken";
-Parse.Cloud.define("generateAuthToken", async (req) => {
-	// const { user, params } = req;
-	// const { dhis2InstanceId } = params;
-	// if (!user) {
-	// 	throw new Parse.Error(400, "You must be logged in to generate a token");
-	// }
-	//
-	// const session = new Parse.Session();
-	// session.set("installationId", dhis2InstanceId);
-	// session.setACL(new Parse.ACL(user));
-	// await session.save();
-	//
-	// const payload = {
-	// 	sessionToken: session.getSessionToken(),
-	// 	dhis2InstanceId,
-	// };
-	//
-	// const secretKey = process.env.AUTH_JWT_SECRET_KEY;
-	//
-	// if (!secretKey) {
-	// 	throw new Parse.Error(
-	// 		500,
-	// 		"The variable `PARSE_SERVER_JWT_SECRET_KEY` is not set in the environment.",
-	// 	);
-	// }
-	//
-	// return jwt.sign(payload, secretKey, {
-	// 	expiresIn: "1y",
-	// });
+import { head } from "lodash";
+import { config } from "dotenv";
+
+config();
+
+Parse.Cloud.beforeSave("AuthToken", async (req) => {
+	const { original, object, user } = req;
+
+	if (!user) {
+		throw new Parse.Error(Parse.Error.OBJECT_NOT_FOUND, "User not found");
+	}
+	if (original) {
+		throw Error(
+			"Editing authentication tokens is currently not supported. Create a new one instead.",
+		);
+	}
+
+	const expiresIn = object.get("expiresIn") as { key: string; value: number };
+
+	const payload = {
+		user: user?.id,
+		dhis2Instance: object.get("dhis2Instance")?.id,
+	};
+
+	const secretKey = process.env.AUTH_JWT_SECRET_KEY;
+
+	if (!secretKey) {
+		throw Error(
+			"The variable `PARSE_SERVER_JWT_SECRET_KEY` is not set in the environment. ",
+		);
+	}
+	const token = jwt.sign(payload, secretKey, {
+		expiresIn: `${expiresIn.value}${head(expiresIn.key.split(""))}`,
+	});
+	object.set("user", user);
+	object.set("token", token);
+});
+
+Parse.Cloud.afterSave("AuthToken", async (req) => {
+	const { user, object } = req;
+	if (!user) {
+		throw new Parse.Error(Parse.Error.OBJECT_NOT_FOUND, "User not found");
+	}
+	await user.linkWith("dhis2Auth", {
+		authData: {
+			id: object.id,
+			token: object.get("token"),
+		},
+	});
 });
