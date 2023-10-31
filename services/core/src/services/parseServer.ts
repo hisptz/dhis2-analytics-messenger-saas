@@ -6,6 +6,7 @@ import { analyticsJobSchema } from "../dbSchemas/push";
 import ParseDashboard from "parse-dashboard";
 import { DHIS2AuthAdapter } from "./auth";
 import { config } from "dotenv";
+import { userSchema } from "../dbSchemas/user";
 
 config();
 
@@ -29,14 +30,13 @@ export const parseServer = new ParseServer({
 			: "./cloud/main.js",
 	schema: {
 		definitions: [
-			// userSchema,
+			userSchema,
 			dhis2InstanceSchema,
 			whatsappClientSchema,
 			authTokenSchema,
 			...analyticsJobSchema,
 		],
 		recreateModifiedFields: true,
-		lockSchemas: true,
 	},
 });
 

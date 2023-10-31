@@ -26,7 +26,6 @@ Parse.Cloud.beforeSave("AuthToken", async (req) => {
 
 	const payload = {
 		user: user?.id,
-		dhis2Instance: object.get("dhis2Instance")?.id,
 	};
 
 	const secretKey = process.env.AUTH_JWT_SECRET_KEY;

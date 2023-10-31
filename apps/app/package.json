@@ -8,7 +8,7 @@
     "cy:start": "REACT_APP_NODE_ENV=test BROWSER=none yarn start",
     "cy:prepare": "start-server-and-test 'yarn cy:start' http://localhost:3000",
     "build": "d2-app-scripts build",
-    "dev": "dotenv -- cross-var d2-app-scripts start --proxy %REACT_APP_DHIS2_PROXY%",
+    "dev": "dotenv -- cross-var d2-app-scripts start --proxy %REACT_APP_DHIS2_PROXY% --verbose",
     "test:open": "yarn cy:prepare 'yarn cypress open --env networkMode=live'",
     "_cy:live": "dotenv -- cross-var yarn cypress run --env networkMode=live --key %CYPRESS_RECORD_KEY%",
     "test:live": "yarn cy:prepare 'yarn _cy:live'",
@@ -25,7 +25,7 @@
   "devDependencies": {
     "@badeball/cypress-cucumber-preprocessor": "16.0.3",
     "@cypress/webpack-preprocessor": "^5.17.1",
-    "@dhis2/cli-app-scripts": "^10.3.9",
+    "@dhis2/cli-app-scripts": "^10.3.10",
     "@dhis2/cli-style": "^10.5.1",
     "@dhis2/cypress-commands": "^10.0.3",
     "@dhis2/cypress-plugins": "^10.0.3",
@@ -48,7 +48,7 @@
   "dependencies": {
     "@dhis2/app-runtime": "^3.9.4",
     "@dhis2/app-service-datastore": "^1.0.0-beta.3",
-    "@dhis2/ui": "^8.13.14",
+    "@dhis2/ui": "^8.14.9",
     "@hisptz/dhis2-ui": "^1.0.42",
     "@hisptz/dhis2-utils": "^1.0.42",
     "@hookform/resolvers": "^3.1.1",
