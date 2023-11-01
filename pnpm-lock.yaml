@@ -177,6 +177,15 @@ importers:
       '@parse/react-ssr':
         specifier: ^0.0.1-alpha.18
         version: 0.0.1-alpha.18
+      '@tanstack/react-query':
+        specifier: ^5.4.3
+        version: 5.4.3(react-dom@18.2.0)(react@18.2.0)
+      '@tanstack/react-query-next-experimental':
+        specifier: ^5.5.0
+        version: 5.5.0(@tanstack/react-query@5.4.3)(next@13.5.6)(react-dom@18.2.0)(react@18.2.0)
+      bufferutil:
+        specifier: ^4.0.8
+        version: 4.0.8
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -207,6 +216,9 @@ importers:
       usehooks-ts:
         specifier: ^2.9.1
         version: 2.9.1(react-dom@18.2.0)(react@18.2.0)
+      utf-8-validate:
+        specifier: ^6.0.3
+        version: 6.0.3
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -229,9 +241,6 @@ importers:
       autoprefixer:
         specifier: ^10
         version: 10.4.16(postcss@8.4.31)
-      bufferutil:
-        specifier: ^4.0.8
-        version: 4.0.8
       eslint:
         specifier: ^8
         version: 8.48.0
@@ -247,9 +256,6 @@ importers:
       typescript:
         specifier: ^5
         version: 5.2.2
-      utf-8-validate:
-        specifier: ^6.0.3
-        version: 6.0.3
 
   packages/auth-utils:
     dependencies:
@@ -6684,7 +6690,7 @@ packages:
     peerDependencies:
       react-hook-form: ^7.0.0
     dependencies:
-      react-hook-form: 7.47.0(react@16.14.0)
+      react-hook-form: 7.47.0(react@18.2.0)
     dev: false
 
   /@humanwhocodes/config-array@0.11.10:
@@ -9409,6 +9415,24 @@ packages:
     resolution: {integrity: sha512-MThCETMkHDHTnFZHp71L+SqTtD5d6XHftFCVR1xRJdWM3qGrlQ2VCXaj0SKVcyJej2e1Opa2c7iknu1llxCDNQ==}
     dev: false
 
+  /@tanstack/query-core@5.4.3:
+    resolution: { integrity: sha512-fnI9ORjcuLGm1sNrKatKIosRQUpuqcD4SV7RqRSVmj8JSicX2aoMyKryHEBpVQvf6N4PaBVgBxQomjsbsGPssQ== }
+    dev: false
+
+  /@tanstack/react-query-next-experimental@5.5.0(@tanstack/react-query@5.4.3)(next@13.5.6)(react-dom@18.2.0)(react@18.2.0):
+    resolution: { integrity: sha512-EgpAaUbjvMkkZbzyedprfNzmCpLVmiWv/utsgQS37KtBDkdikXfDdpsdsh+XbGl8GJrVNpQdGKemjdSiKVg0Rw== }
+    peerDependencies:
+      '@tanstack/react-query': ^5.4.3
+      next: ^13 || ^14
+      react: ^18.0.0
+      react-dom: ^18.0.0
+    dependencies:
+      '@tanstack/react-query': 5.4.3(react-dom@18.2.0)(react@18.2.0)
+      next: 13.5.6(react-dom@18.2.0)(react@18.2.0)
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
+
   /@tanstack/react-query@4.36.1(react-dom@16.14.0)(react@16.14.0):
     resolution: {integrity: sha512-y7ySVHFyyQblPl3J3eQBWpXZkliroki3ARnBKsdJchlgt7yJLRDUcf4B8soufgiYt3pEQIkBWBx1N9/ZPIeUWw==}
     peerDependencies:
@@ -9443,6 +9467,23 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       react-native: 0.72.6(@babel/core@7.23.2)(@babel/preset-env@7.23.2)(react@18.2.0)
+    dev: false
+
+  /@tanstack/react-query@5.4.3(react-dom@18.2.0)(react@18.2.0):
+    resolution: { integrity: sha512-4aSOrRNa6yEmf7mws5QPTVMn8Lp7L38tFoTZ0c1ZmhIvbr8GIA0WT7X5N3yz/nuK8hUtjw9cAzBr4BPDZZ+tzA== }
+    peerDependencies:
+      react: ^18.0.0
+      react-dom: ^18.0.0
+      react-native: '*'
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+      react-native:
+        optional: true
+    dependencies:
+      '@tanstack/query-core': 5.4.3
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
     dev: false
 
   /@teppeis/multimaps@2.0.0:
@@ -12902,6 +12943,7 @@ packages:
     requiresBuild: true
     dependencies:
       node-gyp-build: 4.6.1
+    dev: false
 
   /builtin-modules@3.3.0:
     resolution: {integrity: sha512-zhaCDicdLuWN5UbN5IMnFqNMhNfo919sH85y2/ea+5Yg9TsTkeZxpL+JLbp6cgYFS4sRLp3YV4S6yDuqVWHYOw==}
@@ -21973,6 +22015,7 @@ packages:
   /node-gyp-build@4.6.1:
     resolution: {integrity: sha512-24vnklJmyRS8ViBNI8KbtK/r/DmXQMRiOMXTNz2nrTnAYUwjmEEbnnpB/+kt+yWRv73bPsSPRFddrcIbAxSiMQ==}
     hasBin: true
+    dev: false
 
   /node-hook@1.0.0:
     resolution: {integrity: sha512-tBTIHwkzXvbesP0fY495VsqSWCOS5Ttt5+mAmeqUC1yglCiSYarNewfi2Q+HOL+M6pZYYqwGU6jIi5+gIHQbpg==}
@@ -28733,6 +28776,7 @@ packages:
     requiresBuild: true
     dependencies:
       node-gyp-build: 4.6.1
+    dev: false
 
   /utf8-byte-length@1.0.4:
     resolution: {integrity: sha512-4+wkEYLBbWxqTahEsWrhxepcoVOJ+1z5PGIjPZxRkytcdSUaNjIjBM7Xn8E+pdSuV7SzvWovBFA54FO0JSoqhA==}

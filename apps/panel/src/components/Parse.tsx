@@ -1,3 +1,5 @@
+"use client";
+
 import ParseClient from "parse";
 
 const serverUrl =
@@ -5,4 +7,11 @@ const serverUrl =
 const appId = process.env.NEXT_PUBLIC_PARSE_APP_ID ?? "DAM-AUTH";
 ParseClient.initialize(appId);
 ParseClient.serverURL = serverUrl;
-export { ParseClient };
+
+export function ParseInitializer() {
+	// if (window) {
+	// 	window.Parse = ParseClient;
+	// }
+
+	return <div />;
+}

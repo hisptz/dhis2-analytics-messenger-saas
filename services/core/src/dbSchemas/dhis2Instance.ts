@@ -3,6 +3,21 @@ import { generateSchema } from "./base";
 
 const fields: ParseField[] = [
 	{
+		name: "name",
+		type: "String",
+		options: {
+			required: true,
+		},
+	},
+	{
+		name: "enabled",
+		type: "Boolean",
+		options: {
+			required: true,
+			defaultValue: true,
+		},
+	},
+	{
 		name: "url",
 		type: "String",
 		options: {
@@ -34,6 +49,7 @@ export const dhis2InstanceSchema = generateSchema(
 	{
 		protectedFields: {
 			"*": ["pat"],
+			"owner": [],
 		},
 	},
 );
