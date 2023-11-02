@@ -8,26 +8,12 @@ import { useDHIS2Instance } from "@/app/(modules)/management/[id]/hooks/data";
 import { FullLoader } from "@/components/FullLoader";
 import { useRouter } from "next/navigation";
 import InstanceModal from "@/app/(modules)/management/components/InstanceModal";
+import { DeactivateButton } from "@/app/(modules)/management/[id]/components/DeactivateButton";
 
 export default function InstanceDetail({ params }: { params: { id: string } }) {
 	const router = useRouter();
 	const [openModal, setOpenModal] = useState(false);
-	const [isActive, setIsActive] = useState(true);
-	const { isLoading, data } = useDHIS2Instance(params.id);
-	const toggleActiveStatus = () => {
-		setIsActive(!isActive);
-	};
-	const buttonStyles = isActive
-		? {
-				textTransform: "none",
-				borderRadius: "50px",
-				color: "GrayText",
-		  }
-		: {
-				textTransform: "none",
-				borderRadius: "50px",
-				color: "",
-		  };
+	const { isLoading, data, refetch } = useDHIS2Instance(params.id);
 
 	if (isLoading) {
 		return <FullLoader />;
@@ -36,8 +22,6 @@ export default function InstanceDetail({ params }: { params: { id: string } }) {
 	if (!data) {
 		return <div>Instance not found</div>;
 	}
-
-	console.log(data.attributes);
 
 	return (
 		<div className="px-4">
@@ -73,7 +57,7 @@ export default function InstanceDetail({ params }: { params: { id: string } }) {
 								<h1 className="">Offline</h1>
 							</div>
 						</div>
-						{isActive && (
+						{data.get("enabled") && (
 							<Button
 								className="font-bold text-xl"
 								endIcon={<ContentCopyIcon />}
@@ -96,21 +80,12 @@ export default function InstanceDetail({ params }: { params: { id: string } }) {
 						>
 							Edit
 						</Button>
-						<Button
-							className={`w-24 ${
-								!isActive && "mt-4 transition-all duration-1000"
-							}`}
-							color={isActive ? "inherit" : "primary"}
-							sx={buttonStyles}
-							variant="outlined"
-							onClick={toggleActiveStatus}
-						>
-							{isActive ? "Deactivate" : "Activate"}
-						</Button>
+						<DeactivateButton refetch={refetch} instance={data} />
 						{openModal && (
 							<InstanceModal
 								defaultValue={data}
 								open={openModal}
+								onFormSubmit={() => setOpenModal(false)}
 								onClose={() => setOpenModal(false)}
 							/>
 						)}

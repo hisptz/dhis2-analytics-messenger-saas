@@ -14,7 +14,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoadingButton } from "@mui/lab";
 import Parse from "parse";
-import { isEmpty } from "lodash";
+import { isEmpty, omit, times } from "lodash";
 import { RHFPasswordInput } from "@/components/RHFPasswordInput";
 
 interface DHIS2AnalyticsModalProps {
@@ -24,70 +24,73 @@ interface DHIS2AnalyticsModalProps {
 	onFormSubmit?: () => void;
 }
 
-const instanceSchema = z
-	.object({
-		name: z.string(),
-		url: z
-			.string({ required_error: "DHIS2 Instance URL is required" })
-			.url(),
-		pat: z.string({
-			required_error: "Personal access token  is required",
-		}),
-	})
-	.superRefine(async (value, context) => {
-		const url = `${value.url}/api/me`;
-		try {
-			const response = await fetch(url, {
-				headers: {
-					Authorization: `ApiToken ${value.pat}`,
-				},
-			});
-
-			if (response.status === 401) {
-				context.addIssue({
-					code: z.ZodIssueCode.invalid_string,
-					path: ["pat"],
-					message: "Invalid DHIS2 instance PAT",
-				} as any);
-			}
-			const queryResponse = await new Parse.Query("DHIS2Instance")
-				.equalTo("url", value.url)
-				.find();
-
-			if (!isEmpty(queryResponse)) {
-				context.addIssue({
-					code: z.ZodIssueCode.invalid_string,
-					path: ["url"],
-					message: "This DHIS2 instance already exists",
-				} as any);
-			}
-		} catch (e) {
-			console.log(e);
-			context.addIssue({
-				code: z.ZodIssueCode.invalid_string,
-				path: ["url"],
-				message: "Invalid DHIS2 instance URL",
-			} as any);
-			return false;
-		}
-	});
-
-export type InstanceData = z.infer<typeof instanceSchema>;
-
 const DHIS2AnalyticsModal: React.FC<DHIS2AnalyticsModalProps> = ({
 	open,
 	onClose,
 	defaultValue,
 	onFormSubmit,
 }) => {
+	const instanceSchema = z
+		.object({
+			name: z.string(),
+			url: z
+				.string({ required_error: "DHIS2 Instance URL is required" })
+				.url(),
+			pat: z.string({
+				required_error: "Personal access token  is required",
+			}),
+		})
+		.superRefine(async (value, context) => {
+			const url = `${value.url}/api/me`;
+			try {
+				if (!/x{42}/.test(value.pat)) {
+					//If there are 42 xs then it is in edit mode and the PAT has not been changed. The pat isn't real ignore the validation
+					const response = await fetch(url, {
+						headers: {
+							Authorization: `ApiToken ${value.pat}`,
+						},
+					});
+
+					if (response.status === 401) {
+						context.addIssue({
+							code: z.ZodIssueCode.invalid_string,
+							path: ["pat"],
+							message: "Invalid DHIS2 instance PAT",
+						} as any);
+					}
+				}
+				if (!defaultValue) {
+					const queryResponse = await new Parse.Query("DHIS2Instance")
+						.equalTo("url", value.url)
+						.find();
+
+					if (!isEmpty(queryResponse)) {
+						context.addIssue({
+							code: z.ZodIssueCode.invalid_string,
+							path: ["url"],
+							message: "This DHIS2 instance already exists",
+						} as any);
+					}
+				}
+			} catch (e) {
+				console.log(e);
+				context.addIssue({
+					code: z.ZodIssueCode.invalid_string,
+					path: ["url"],
+					message: "Invalid DHIS2 instance URL",
+				} as any);
+				return false;
+			}
+		});
+
+	type InstanceData = z.infer<typeof instanceSchema>;
+
 	const onSubmit = async (data: InstanceData) => {
+		console.log(data);
 		if (defaultValue) {
 			await defaultValue.save({
-				...data,
+				...omit(data, "pat"),
 			});
-			if (onFormSubmit) {
-				onFormSubmit();
-			}
 		} else {
 			const currentUser = Parse.User.current();
 			const newObject = new Parse.Object("DHIS2Instance");
@@ -97,11 +100,20 @@ const DHIS2AnalyticsModal: React.FC<DHIS2AnalyticsModalProps> = ({
 				user: currentUser,
 			});
 		}
+		if (onFormSubmit) {
+			onFormSubmit();
+		}
 	};
+
 	const form = useForm<InstanceData>({
 		resolver: zodResolver(instanceSchema),
 		reValidateMode: "onSubmit",
-		defaultValues: defaultValue?.attributes,
+		defaultValues: defaultValue
+			? {
+					...(defaultValue?.attributes ?? {}),
+					pat: `d2pat_${times(42, () => `x`).join("")}`,
+			  }
+			: {},
 	});
 
 	return (
@@ -111,17 +123,17 @@ const DHIS2AnalyticsModal: React.FC<DHIS2AnalyticsModalProps> = ({
 			aria-labelledby="form-dialog-instance"
 			maxWidth="xs"
 		>
-			<DialogTitle id="form-dialog-instance">
-				DHIS2 Analytics Instance
-			</DialogTitle>
 			<FormProvider {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)}>
+					<DialogTitle id="form-dialog-instance">
+						DHIS2 Analytics Instance
+					</DialogTitle>
 					<DialogContent>
 						<RHFTextInput
 							name="name"
 							margin="dense"
 							label="Name"
-							type="url"
+							type="text"
 							placeholder="National HMIS"
 						/>
 						<RHFTextInput
@@ -167,5 +179,4 @@ const DHIS2AnalyticsModal: React.FC<DHIS2AnalyticsModalProps> = ({
 		</Dialog>
 	);
 };
-
 export default DHIS2AnalyticsModal;

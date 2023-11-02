@@ -3,6 +3,7 @@
 import { ParseClient } from "@/utils/parse/client";
 import { useRouter } from "next/navigation";
 import { useEffectOnce } from "usehooks-ts";
+import { FullLoader } from "@/components/FullLoader";
 
 export default function Router() {
 	const { replace } = useRouter();
@@ -16,5 +17,5 @@ export default function Router() {
 		}
 	});
 
-	return null;
+	return <FullLoader />;
 }
