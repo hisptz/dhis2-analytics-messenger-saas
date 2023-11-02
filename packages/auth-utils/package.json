@@ -1,0 +1,29 @@
+{
+  "name": "auth-utils",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "module": "./src/index.ts",
+  "exports": {
+    "import": "./src/index.ts",
+    "require": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.4",
+    "@types/node": "^20.8.9",
+    "@types/parse": "^3.0.5",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "jsonwebtoken": "^9.0.2",
+    "parse": "^4.2.0"
+  }
+}

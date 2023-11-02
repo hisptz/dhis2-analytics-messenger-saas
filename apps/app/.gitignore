@@ -1,0 +1,12 @@
+# DHIS2 Platform
+node_modules
+.d2
+src/locales
+build
+
+# enviroments
+.env
+/cypress/downloads/
+cypress.env.json
+/cypress/videos/
+/cypress/screenshots/

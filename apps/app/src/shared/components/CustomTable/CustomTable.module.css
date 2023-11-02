@@ -1,0 +1,13 @@
+.row:hover{
+  background-color: #fbfcfd !important;
+}
+
+.row{
+    cursor: pointer;
+}
+
+.empty-table-message {
+  padding-top: 32px;
+  padding-bottom: 32px;
+  text-align: center;
+}
