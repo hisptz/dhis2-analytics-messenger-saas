@@ -25,6 +25,8 @@ export class WhatsappClient extends BaseClient<Whatsapp> {
 			session: this.session,
 			waitForLogin: false,
 			folderNameToken: "clients/whatsapp",
+			debug: false,
+			updatesLog: false,
 		});
 		if (whatsapp) {
 			this.client = whatsapp;

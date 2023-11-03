@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { WhatsappClient } from "../whatsapp";
+import { startSession, stopSession } from "../controllers/session";
+import { asyncify, map } from "async";
 
 const router = Router();
 
@@ -9,35 +11,63 @@ router.get("/", (req, res) => {
 	});
 });
 
+router.post("/start", async (req, res) => {
+	const { sessions } = req.body;
+	if (!sessions || !Array.isArray(sessions)) {
+		res.status(400).json({
+			error: "Specify a list of sessions to start",
+		});
+		return;
+	}
+
+	try {
+		const responses = await map<string, { status: string }>(
+			sessions,
+			asyncify(async (session: string) =>
+				startSession(session).then((state) => ({ session: state })),
+			),
+		);
+		res.json(responses);
+	} catch (e) {
+		res.status(500).json({ error: e });
+	}
+});
+router.post("/stop", async (req, res) => {
+	const { sessions } = req.body;
+	if (!sessions || !Array.isArray(sessions)) {
+		res.status(400).json({
+			error: "Specify a list of sessions to stop",
+		});
+		return;
+	}
+
+	try {
+		const responses = await map<string, { status: string }>(
+			sessions,
+			asyncify(async (session: string) =>
+				stopSession(session).then((state) => ({ [session]: state })),
+			),
+		);
+		res.json(responses);
+	} catch (e) {
+		res.status(500).json({ error: e });
+	}
+});
 router.get("/:session", (req, res) => {
 	res.json({
 		actions: [`init`],
 	});
 });
-
 router.post("/:session/start", async (req, res) => {
 	const { session } = req.params;
 	if (!session) {
 		res.status(400).json({ error: "Session is required" });
 	}
-
-	const existingClient = WhatsappClient.get(session);
-
-	if (existingClient) {
-		res.status(304).json({
-			error: `The client with session ${session} is already active.`,
-		});
-
-		return;
-	}
 	try {
-		const whatsappClient = new WhatsappClient(session);
-		await whatsappClient.init();
-		res.json({
-			status: "ok",
-		});
+		const state = await startSession(session);
+		res.json(state);
 	} catch (e) {
-		res.status(500).json(e);
+		res.status(500).json({ error: e });
 	}
 });
 router.post("/:session/stop", async (req, res) => {
@@ -46,25 +76,13 @@ router.post("/:session/stop", async (req, res) => {
 		res.status(400).json({ error: "Session is required" });
 	}
 
-	const existingClient = WhatsappClient.get(session);
-
-	if (!existingClient) {
-		res.status(304).json({
-			error: `The client with session ${session} is not active.`,
-		});
-		return;
-	}
-
 	try {
-		await existingClient.stop();
-		res.json({
-			status: "ok",
-		});
+		const state = await stopSession(session);
+		res.json(state);
 	} catch (e) {
-		res.status(500).json(e);
+		res.status(500).json({ error: e });
 	}
 });
-
 router.get("/:session/status", async (req, res) => {
 	const { session } = req.params;
 	if (!session) {
@@ -85,7 +103,7 @@ router.get("/:session/status", async (req, res) => {
 			status: state,
 		});
 	} catch (e) {
-		res.status(500).json(e);
+		res.status(500).json({ error: e });
 	}
 });
 

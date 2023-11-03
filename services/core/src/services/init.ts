@@ -1,6 +1,5 @@
 import { parseServer } from "./parseServer";
 // import { initializeScheduling } from "./scheduling";
-import { initOpenAPI } from "./openapi";
 import { Express } from "express";
 import logger from "./logging";
 

@@ -7,7 +7,6 @@ import { useDHIS2Instance } from "@/app/(modules)/management/[id]/hooks/data";
 import { FullLoader } from "@/components/FullLoader";
 import { useRouter } from "next/navigation";
 import InstanceModal from "@/app/(modules)/management/components/InstanceModal";
-import { DeactivateButton } from "@/app/(modules)/management/[id]/components/DeactivateButton";
 import { WhatsApp } from "@/app/(modules)/management/[id]/components/WhatsApp";
 
 export default function InstanceDetail({ params }: { params: { id: string } }) {
@@ -74,7 +73,6 @@ export default function InstanceDetail({ params }: { params: { id: string } }) {
 						>
 							Edit
 						</Button>
-						<DeactivateButton refetch={refetch} instance={data} />
 						{openModal && (
 							<InstanceModal
 								defaultValue={data}

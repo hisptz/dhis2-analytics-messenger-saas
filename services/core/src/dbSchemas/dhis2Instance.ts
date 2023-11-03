@@ -10,14 +10,6 @@ const fields: ParseField[] = [
 		},
 	},
 	{
-		name: "enabled",
-		type: "Boolean",
-		options: {
-			required: true,
-			defaultValue: true,
-		},
-	},
-	{
 		name: "url",
 		type: "String",
 		options: {
