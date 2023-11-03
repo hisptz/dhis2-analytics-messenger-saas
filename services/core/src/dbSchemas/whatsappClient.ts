@@ -9,9 +9,9 @@ const fields: ParseField[] = [
 		options: {
 			required: true,
 		},
-	}
+	},
 	{
-		ame: "sessionId",
+		name: "sessionId",
 		type: "String",
 		options: {
 			required: true,
