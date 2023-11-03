@@ -3,12 +3,12 @@ import React, { useState } from "react";
 import Button from "@mui/material/Button";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import { WifiOff } from "@mui/icons-material";
 import { useDHIS2Instance } from "@/app/(modules)/management/[id]/hooks/data";
 import { FullLoader } from "@/components/FullLoader";
 import { useRouter } from "next/navigation";
 import InstanceModal from "@/app/(modules)/management/components/InstanceModal";
 import { DeactivateButton } from "@/app/(modules)/management/[id]/components/DeactivateButton";
+import { WhatsApp } from "@/app/(modules)/management/[id]/components/WhatsApp";
 
 export default function InstanceDetail({ params }: { params: { id: string } }) {
 	const router = useRouter();
@@ -50,13 +50,7 @@ export default function InstanceDetail({ params }: { params: { id: string } }) {
 								{data.get("url")}
 							</a>
 						</div>
-						<div className="flex space-x-2 items-center">
-							<span className="font-bold">Status:</span>
-							<div className="text-red-600 bg-red-100 rounded-lg text-xs flex space-x-1 p-1">
-								<WifiOff color="error" sx={{ fontSize: 15 }} />
-								<h1 className="">Offline</h1>
-							</div>
-						</div>
+						<WhatsApp instance={data} />
 						{data.get("enabled") && (
 							<Button
 								className="font-bold text-xl"

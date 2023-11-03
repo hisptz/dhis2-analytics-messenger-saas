@@ -29,8 +29,11 @@
     "react-hook-form": "^7.47.0",
     "react-responsive-carousel": "^3.2.23",
     "sharp": "^0.32.6",
+    "socket.io": "^4.7.2",
+    "socket.io-client": "^4.7.2",
     "usehooks-ts": "^2.9.1",
     "utf-8-validate": "^6.0.3",
+    "uuid": "^9.0.1",
     "zod": "^3.22.4"
   },
   "devDependencies": {
@@ -39,6 +42,7 @@
     "@types/parse": "^3.0.6",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/uuid": "^9.0.6",
     "autoprefixer": "^10",
     "eslint": "^8",
     "eslint-config-next": "13.5.6",
