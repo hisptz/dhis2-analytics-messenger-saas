@@ -5,6 +5,7 @@ import WhatsappConnectModal from "@/app/(modules)/management/[id]/components/Wha
 import { useSuspenseQuery } from "@tanstack/react-query";
 import React from "react";
 import { WhatsAppConnectionStatus } from "@/app/(modules)/management/[id]/components/WhatsAppConnectionStatus";
+import { WhatsappTestMessage } from "@/app/(modules)/management/[id]/components/WhatsappTestMessage";
 
 export function WhatsApp({ instance }: { instance: Parse.Object }) {
 	const {
@@ -12,7 +13,6 @@ export function WhatsApp({ instance }: { instance: Parse.Object }) {
 		setTrue: onOpen,
 		setFalse: onClose,
 	} = useBoolean(false);
-
 	const fetchClient = async () => {
 		return (
 			(await new Parse.Query("WhatsappClient")
@@ -43,6 +43,7 @@ export function WhatsApp({ instance }: { instance: Parse.Object }) {
 						Whatsapp Connection Status:
 					</span>
 					<WhatsAppConnectionStatus data={data} />
+					<WhatsappTestMessage instance={data} />
 				</div>
 			</div>
 		);

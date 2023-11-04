@@ -15,7 +15,7 @@ router.get("/:session", async (req, res) => {
 		availableServices: ["send"],
 	});
 });
-router.get("/:session/send", async (req, res) => {
+router.post("/:session/send", async (req, res) => {
 	const { session } = req.params;
 	const data = req.body;
 	const validatedData = WhatsappMessageSchema.safeParse(data);
