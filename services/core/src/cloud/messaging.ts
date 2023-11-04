@@ -60,7 +60,7 @@ Parse.Cloud.define("sendTestWhatsappMessage", async (request) => {
 					to: [
 						{
 							identifier: to,
-							type: "individual,
+							type: "individual",
 						},
 					],
 				},
