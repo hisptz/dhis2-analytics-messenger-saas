@@ -23,7 +23,12 @@ export function registerWebhooks() {
 			whatsappClient.setup({
 				name,
 				qrCallback: (...args) => {
+					console.log(args);
+					console.log(session);
 					socket.emit("qrCode", ...args);
+				},
+				statusCallback: (...args) => {
+					socket.emit("status", ...args);
 				},
 				loadingCallback: (...args) => {
 					socket.emit("loading", ...args);

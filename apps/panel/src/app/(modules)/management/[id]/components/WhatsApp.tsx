@@ -21,7 +21,7 @@ export function WhatsApp({ instance }: { instance: Parse.Object }) {
 		);
 	};
 
-	const { data, isLoading, isError, error } = useSuspenseQuery({
+	const { data, isLoading, isError, error, refetch } = useSuspenseQuery({
 		queryKey: ["whatsapp", instance.id],
 		queryFn: fetchClient,
 		retry: false,
@@ -52,6 +52,7 @@ export function WhatsApp({ instance }: { instance: Parse.Object }) {
 		<>
 			{open && (
 				<WhatsappConnectModal
+					onConnectComplete={() => refetch()}
 					open={open}
 					onClose={onClose}
 					instance={instance}

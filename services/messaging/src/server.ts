@@ -9,6 +9,7 @@ import { sanitizeEnv } from "./utils/env";
 import cors from "cors";
 import { createServer } from "http";
 import { initWebsocket, registerWebhooks } from "./services/websocket";
+import morgan from "morgan";
 
 configEnv();
 sanitizeEnv();
@@ -19,6 +20,7 @@ const server = createServer(app);
 initWebsocket(server);
 
 app.use(cors());
+app.use(morgan("tiny"));
 
 const apiKey = process.env.API_KEY;
 

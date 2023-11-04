@@ -4,10 +4,11 @@ import {
 	create,
 	Message,
 	SocketState,
+	StatusFindCallback,
 	Whatsapp,
 } from "@wppconnect-team/wppconnect";
 import { activeWhatsappClients, removeClient } from "../../globals/whatsapp";
-import { find } from "lodash";
+import { find, head } from "lodash";
 import { WhatsappContact, WhatsappMessage } from "schemas";
 import { asyncify, mapSeries } from "async";
 
@@ -55,9 +56,11 @@ export class WhatsappClient extends BaseClient<Whatsapp> {
 		loadingCallback,
 		onSuccess,
 		onError,
+		statusCallback,
 	}: {
 		name: string;
 		qrCallback: CatchQRCallback;
+		statusCallback: StatusFindCallback;
 		loadingCallback: (percent: number, message: string) => void;
 		onSuccess: () => void;
 		onError: (e: any) => void;
@@ -66,8 +69,16 @@ export class WhatsappClient extends BaseClient<Whatsapp> {
 			this.client = await create({
 				session: this.session,
 				deviceName: `${name} WhatsApp Client`,
+				statusFind: statusCallback,
 				catchQR: qrCallback,
-				folderNameToken: "clients/whatsapp",
+				waitForLogin: true,
+				debug: process.env.NODE_ENV === "development",
+				autoClose: 60 * 2 * 1000,
+				devtools: process.env.NODE_ENV === "development",
+				folderNameToken: `clients/whatsapp/${head(
+					this.session.split("-"),
+				)}`,
+				poweredBy: "DHIS2 Analytics Messenger",
 				onLoadingScreen: loadingCallback,
 				logQR: false,
 			});

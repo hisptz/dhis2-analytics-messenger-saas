@@ -25,7 +25,8 @@ export class DHIS2AuthAdapter {
 		}
 		try {
 			const payload = jwt.verify(token, options.secretKey) as JwtPayload;
-			if (payload.user) {
+			if (payload.user && payload.instance) {
+				//TODO: Add more validation
 				return;
 			}
 		} catch (e) {

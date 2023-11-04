@@ -7,15 +7,22 @@ import { isEmpty } from "lodash";
 import StatusCard from "@/app/(modules)/management/components/StatusCard";
 import { useBoolean } from "usehooks-ts";
 import { useDHIS2Instances } from "@/app/(modules)/management/hooks/data";
+import { useRouter } from "next/navigation";
 
 export default function Dashboard() {
+	const router = useRouter();
 	const {
 		value: modalHidden,
 		setTrue: hideModal,
 		setFalse: showModal,
 	} = useBoolean(true);
 
-	const { isLoading, results } = useDHIS2Instances();
+	const { isLoading, results, refetch } = useDHIS2Instances();
+
+	const onInstanceAdd = () => {
+		hideModal();
+		refetch();
+	};
 
 	if (isLoading) {
 		return <FullLoader />;
@@ -46,7 +53,7 @@ export default function Dashboard() {
 							<DHIS2AnalyticsModal
 								open={!modalHidden}
 								onClose={hideModal}
-								onFormSubmit={() => {}}
+								onFormSubmit={onInstanceAdd}
 							/>
 						)}
 					</div>
@@ -80,6 +87,7 @@ export default function Dashboard() {
 					<DHIS2AnalyticsModal
 						open={!modalHidden}
 						onClose={hideModal}
+						onFormSubmit={onInstanceAdd}
 					/>
 				)}
 				<div className=" flex flex-row items-center  w-full py-6 px-auto gap-[64px] text-sm text-black font-m3-label-large">

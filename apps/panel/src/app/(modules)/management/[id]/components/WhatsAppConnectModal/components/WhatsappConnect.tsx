@@ -8,9 +8,14 @@ import { LinearProgress } from "@mui/material";
 export interface WhatsappConnectProps {
 	instance: Parse.Object;
 	onClose: () => void;
+	onConnectComplete: () => void;
 }
 
-export function WhatsappConnect({ instance, onClose }: WhatsappConnectProps) {
+export function WhatsappConnect({
+	instance,
+	onClose,
+	onConnectComplete,
+}: WhatsappConnectProps) {
 	const [error, setError] = useState();
 	const [loadingStatus, setLoadingStatus] = useState<number | null>(null);
 	const [qrCode, setQrCode] = useState();
@@ -48,8 +53,14 @@ export function WhatsappConnect({ instance, onClose }: WhatsappConnectProps) {
 					dhis2Instance: instance,
 					sessionId: token,
 					name: instance.get("name"),
+					enabled: true,
 				});
+				onConnectComplete();
 				onClose();
+			};
+
+			const onStatus = (...args: any[]) => {
+				console.log(args);
 			};
 			const onError = (error: any) => {
 				setError(error);
@@ -60,12 +71,14 @@ export function WhatsappConnect({ instance, onClose }: WhatsappConnectProps) {
 			socket.on("qrCode", onQRCode);
 			socket.on("success", onSuccess);
 			socket.on("error", onError);
+			socket.on("status", onStatus);
 			return () => {
 				socket.off("connect", onConnect);
 				socket.off("loading", onLoading);
 				socket.off("qrCode", onQRCode);
-				socket.on("success", onSuccess);
-				socket.on("error", onError);
+				socket.off("success", onSuccess);
+				socket.off("status", onStatus);
+				socket.off("error", onError);
 				socket.close();
 			};
 		}

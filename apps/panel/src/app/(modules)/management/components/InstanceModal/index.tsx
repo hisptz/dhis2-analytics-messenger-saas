@@ -86,7 +86,6 @@ const DHIS2AnalyticsModal: React.FC<DHIS2AnalyticsModalProps> = ({
 	type InstanceData = z.infer<typeof instanceSchema>;
 
 	const onSubmit = async (data: InstanceData) => {
-		console.log(data);
 		if (defaultValue) {
 			await defaultValue.save({
 				...omit(data, "pat"),
@@ -162,7 +161,7 @@ const DHIS2AnalyticsModal: React.FC<DHIS2AnalyticsModalProps> = ({
 						</Button>
 						<LoadingButton
 							loading={
-								form.formState.isLoading ||
+								form.formState.isSubmitting ||
 								form.formState.isValidating
 							}
 							className="rounded-full bg-primary-500 w-24"
