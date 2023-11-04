@@ -19,7 +19,7 @@ export interface VisualizationConfig {
 }
 
 export interface VisualizationProps {
-	layout: Layout;
+	layout?: Layout;
 	defaultVisualizationType: VisualizationType;
 	dimensions: AnalyticsDimension;
 	config: VisualizationConfig;

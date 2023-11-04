@@ -2,11 +2,14 @@ import { BaseClient } from "../base";
 import {
 	CatchQRCallback,
 	create,
+	Message,
 	SocketState,
 	Whatsapp,
 } from "@wppconnect-team/wppconnect";
 import { activeWhatsappClients, removeClient } from "../../globals/whatsapp";
 import { find } from "lodash";
+import { WhatsappContact, WhatsappMessage } from "schemas";
+import { asyncify, mapSeries } from "async";
 
 export class WhatsappClient extends BaseClient<Whatsapp> {
 	session: string;
@@ -85,8 +88,48 @@ export class WhatsappClient extends BaseClient<Whatsapp> {
 		return await this.client.getConnectionState();
 	}
 
-	sendMessage<Response>(): Promise<Response> {
-		return;
+	getChatId(contact: WhatsappContact): string {
+		const { type, identifier } = contact;
+		if (type === "individual") {
+			return identifier.includes("@c.us")
+				? identifier
+				: `${contact.identifier}@c.us`;
+		} else {
+			return identifier.includes("@g.us")
+				? identifier
+				: `${contact.identifier}@g.us`;
+		}
+	}
+
+	async sendMessage(messagePayload: WhatsappMessage): Promise<Message[]> {
+		const { to, message } = messagePayload;
+
+		const type = message.type;
+		const chatIds = to.map(this.getChatId);
+
+		switch (type) {
+			case "text":
+				return await mapSeries(
+					chatIds,
+					asyncify(async (to: string) =>
+						this.client.sendText(to, message.text),
+					),
+				);
+			case "image":
+				return await mapSeries(
+					chatIds,
+					asyncify(async (to: string) =>
+						this.client.sendImageFromBase64(
+							to,
+							message.image,
+							"",
+							message.text,
+						),
+					),
+				);
+			default:
+				throw Error(`${type} messages are not supported yet.`);
+		}
 	}
 
 	async start(): Promise<BaseClient<Whatsapp>> {

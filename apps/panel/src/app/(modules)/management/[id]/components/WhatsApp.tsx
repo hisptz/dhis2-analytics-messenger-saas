@@ -5,7 +5,6 @@ import WhatsappConnectModal from "@/app/(modules)/management/[id]/components/Wha
 import { useSuspenseQuery } from "@tanstack/react-query";
 import React from "react";
 import { WhatsAppConnectionStatus } from "@/app/(modules)/management/[id]/components/WhatsAppConnectionStatus";
-import { DeactivateButton } from "@/app/(modules)/management/[id]/components/DeactivateButton";
 
 export function WhatsApp({ instance }: { instance: Parse.Object }) {
 	const {
@@ -22,7 +21,7 @@ export function WhatsApp({ instance }: { instance: Parse.Object }) {
 		);
 	};
 
-	const { data, isLoading, isError, error, refetch } = useSuspenseQuery({
+	const { data, isLoading, isError, error } = useSuspenseQuery({
 		queryKey: ["whatsapp", instance.id],
 		queryFn: fetchClient,
 		retry: false,
@@ -45,7 +44,6 @@ export function WhatsApp({ instance }: { instance: Parse.Object }) {
 					</span>
 					<WhatsAppConnectionStatus data={data} />
 				</div>
-				<DeactivateButton refetch={refetch} instance={data} />
 			</div>
 		);
 	}

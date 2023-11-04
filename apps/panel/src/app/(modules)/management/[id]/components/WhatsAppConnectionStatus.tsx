@@ -19,7 +19,8 @@ export function useWhatsAppConnectionStatus(data: Parse.Object) {
 	};
 
 	return useSuspenseQuery({
-		queryKey: ["whatsapp", "status", data.id],
+		refetchOnWindowFocus: true,
+		queryKey: ["whatsapp", data.id, "status"],
 		queryFn: fetchStatus,
 		refetchInterval: 2 * 60 * 1000,
 		retryDelay: 2000,
@@ -44,11 +45,13 @@ export function useManageWhatsappConnectionStatus(data: Parse.Object) {
 	};
 
 	const { mutateAsync, isPending, error, isError } = useMutation({
-		mutationKey: ["whatsapp", "status", data.id],
+		mutationKey: ["whatsapp", data.id, "status"],
 		mutationFn: mutate,
-		onSuccess: () => {
-			queryClient.refetchQueries({
-				queryKey: ["whatsapp", "status", data.id],
+		onSuccess: async () => {
+			data.set("enabled", !data.get("enabled"));
+			await data.save();
+			await queryClient.invalidateQueries({
+				queryKey: ["whatsapp", data.id],
 			});
 		},
 	});

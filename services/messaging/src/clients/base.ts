@@ -7,7 +7,7 @@ export abstract class BaseClient<ClientType> {
 
 	abstract start(): Promise<BaseClient<ClientType>>;
 
-	abstract sendMessage<Response>(): Promise<Response>;
+	abstract sendMessage(messagePayload: unknown): Promise<unknown>;
 
 	abstract onMessage(): Promise<void>;
 }

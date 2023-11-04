@@ -1,34 +1,30 @@
-import React, {createContext, useContext, useState} from "react";
-import {Dimension} from "../DimensionsProvider";
-
+import { createContext, useContext, useState } from "react";
+import { Dimension } from "../DimensionsProvider";
 
 export interface Layout {
-    rows: Dimension[];
-    columns: Dimension[];
-    filters: Dimension[]
+	rows: Dimension[];
+	columns: Dimension[];
+	filters: Dimension[];
 }
 
 export interface LayoutProviderProps {
-    children: React.ReactNode;
-    defaultLayout: Layout
+	children: React.ReactNode;
+	defaultLayout?: Layout;
 }
 
 export const LayoutState = createContext<Layout | undefined>(undefined);
 
-
 export function useLayout() {
-
-    return [
-        useContext(LayoutState) ?? {rows: [], filters: [], columns: []}
-    ]
+	return [useContext(LayoutState) ?? { rows: [], filters: [], columns: [] }];
 }
 
-export function LayoutProvider({defaultLayout, children}: LayoutProviderProps) {
-    const [layout, setLayout] = useState(defaultLayout);
+export function LayoutProvider({
+	defaultLayout,
+	children,
+}: LayoutProviderProps) {
+	const [layout] = useState(defaultLayout);
 
-    return (
-        <LayoutState.Provider value={layout}>
-            {children}
-        </LayoutState.Provider>
-    )
+	return (
+		<LayoutState.Provider value={layout}>{children}</LayoutState.Provider>
+	);
 }
