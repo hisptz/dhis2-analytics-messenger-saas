@@ -55,15 +55,15 @@ Parse.Cloud.define("sendTestWhatsappMessage", async (request) => {
 				messagePayload: {
 					message: {
 						type: "text",
-						text: messag,
+						text: message,
 					},
 					to: [
 						{
 							identifier: to,
 							type: "individual,
-						,
-					,
-				,
+						},
+					],
+				},
 			});
 		default:
 			throw Error("Unsupported client type");
