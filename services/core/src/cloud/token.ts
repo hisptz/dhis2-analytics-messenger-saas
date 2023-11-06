@@ -6,6 +6,7 @@
 
 import jwt from "jsonwebtoken";
 import { config } from "dotenv";
+import { last } from "lodash";
 
 config();
 
@@ -38,7 +39,6 @@ Parse.Cloud.afterSave("DHIS2Instance", async (request) => {
 		},
 	);
 });
-
 Parse.Cloud.beforeSave("AuthToken", async (req) => {
 	const { original, object, user } = req;
 
@@ -67,16 +67,32 @@ Parse.Cloud.beforeSave("AuthToken", async (req) => {
 	const token = jwt.sign(payload, secretKey, {
 		expiresIn: `1y`,
 	});
-	object.set("token", token);
+	object.set("token", `${user.id}/${token}`);
 });
 Parse.Cloud.afterSave("AuthToken", async (req) => {
 	const { user, object } = req;
+
+	if (!user) {
+		throw new Parse.Error(
+			Parse.Error.OPERATION_FORBIDDEN,
+			"You need to be authenticated",
+		);
+	}
+
+	if (user._isLinked("dhis2Auth")) {
+		return;
+	}
+
+	const authData = {
+		id: user.id,
+		token: last(object.get("token").split("/")),
+	};
+
+	await user.linkWith("dhis2Auth", {
+		authData,
+	});
+
 	if (!user) {
 		throw new Parse.Error(Parse.Error.OBJECT_NOT_FOUND, "User not found");
 	}
-	await user.linkWith("dhis2Auth", {
-		authData: {
-			id: user.id,
-		},
-	});
 });

@@ -40,7 +40,7 @@ export const dhis2InstanceSchema = generateSchema(
 	fields,
 	{
 		protectedFields: {
-			"*": ["pat"],
+			"*": [],
 			"owner": [],
 		},
 	},

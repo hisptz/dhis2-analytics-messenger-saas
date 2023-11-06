@@ -1,6 +1,12 @@
 import { messagingClient } from "../client/messaging";
 import { WhatsappMessage } from "schemas";
 import { z } from "zod";
+import {
+	ANALYTICS_JOB_CLASSNAME,
+	ANALYTICS_JOB_STATUS_CLASSNAME,
+} from "../dbSchemas/push";
+import { getVisualization } from "./visualization";
+import { mapSeries } from "async";
 
 async function sendWhatsAppMessage({
 	user,
@@ -67,5 +73,104 @@ Parse.Cloud.define("sendTestWhatsappMessage", async (request) => {
 			});
 		default:
 			throw Error("Unsupported client type");
+	}
+});
+
+Parse.Cloud.define("runAnalyticsPushJob", async (request) => {
+	const { jobId, trigger } = request.params;
+	const user = request.user;
+	if (!user) {
+		throw new Parse.Error(
+			Parse.Error.OPERATION_FORBIDDEN,
+			"You must be logged in",
+		);
+	}
+	const jobConfig = await new Parse.Query(ANALYTICS_JOB_CLASSNAME).get(
+		jobId,
+		{ sessionToken: user.getSessionToken() },
+	);
+
+	if (!jobConfig) {
+		throw new Parse.Error(Parse.Error.OBJECT_NOT_FOUND, "Job not found");
+	}
+	await jobConfig.fetchWithInclude(["dhis2Instance"], {
+		sessionToken: user.getSessionToken(),
+	});
+
+	const jobStatus = new Parse.Object(ANALYTICS_JOB_STATUS_CLASSNAME);
+	jobStatus.set("startTime", new Date());
+	jobStatus.set("trigger", trigger);
+	jobStatus.set("job", jobConfig);
+	jobStatus.set("status", "INITIALIZED");
+	await jobStatus.save(null, { sessionToken: user.getSessionToken() });
+
+	const dhis2URL = jobConfig.get("dhis2Instance").get("url");
+	const dhis2PAT = jobConfig.get("dhis2Instance").get("pat");
+
+	console.log({
+		dhis2URL,
+		dhis2PAT,
+	});
+
+	const images = await mapSeries(
+		jobConfig.get("visualizations"),
+		async (visualization: { id: string }) => {
+			return await getVisualization({
+				dhis2URL,
+				dhis2PAT,
+				id: visualization.id,
+			});
+		},
+	);
+
+	const contacts = jobConfig.get("contacts");
+	const description = jobConfig.get("description");
+	const messages: WhatsappMessage[] = images.map((image) => {
+		return {
+			to: contacts,
+			message: {
+				type: "image",
+				image: image,
+				text: description,
+			},
+		} as WhatsappMessage;
+	});
+
+	const client = await new Parse.Query("WhatsappClient")
+		.equalTo("dhis2Instance", jobConfig.get("dhis2Instance"))
+		.first({
+			sessionToken: user.getSessionToken(),
+		});
+
+	if (!client) {
+		jobStatus.set("status", "FAILED");
+		jobStatus.set("endTime", new Date());
+		jobStatus.set("logs", "Whatsapp client not found for this instance");
+		await jobStatus.save(null, { sessionToken: user.getSessionToken() });
+		throw new Parse.Error(
+			Parse.Error.OBJECT_NOT_FOUND,
+			"Whatsapp client not found for this instance",
+		);
+	}
+	try {
+		const responses = await mapSeries(
+			messages,
+			async (message: WhatsappMessage) =>
+				sendWhatsAppMessage({
+					messagePayload: message,
+					user,
+					clientId: client?.id,
+				}),
+		);
+		jobStatus.set("status", "COMPLETED");
+		jobStatus.set("endTime", new Date());
+		jobStatus.set("logs", JSON.stringify(responses));
+		await jobStatus.save(null, { sessionToken: user.getSessionToken() });
+	} catch (e) {
+		jobStatus.set("status", "FAILED");
+		jobStatus.set("endTime", new Date());
+		jobStatus.set("logs", JSON.stringify(e));
+		await jobStatus.save(null, { sessionToken: user.getSessionToken() });
+		throw e; // rethrow error so that it can be handled by the client.
 	}
 });

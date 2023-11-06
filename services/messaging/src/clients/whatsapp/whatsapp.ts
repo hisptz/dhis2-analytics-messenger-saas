@@ -1,6 +1,8 @@
 import { BaseClient } from "../base";
+import path from "path";
 import {
 	CatchQRCallback,
+	Chat,
 	create,
 	Message,
 	SocketState,
@@ -29,6 +31,14 @@ export class WhatsappClient extends BaseClient<Whatsapp> {
 			session: this.session,
 			waitForLogin: false,
 			folderNameToken: "clients/whatsapp",
+			puppeteerOptions: {
+				userDataDir: path.join(
+					__dirname,
+					`../../../clients/whatsapp/${head(
+						this.session.split("-"),
+					)}`,
+				),
+			},
 			debug: false,
 			updatesLog: false,
 		});
@@ -78,6 +88,14 @@ export class WhatsappClient extends BaseClient<Whatsapp> {
 				folderNameToken: `clients/whatsapp/${head(
 					this.session.split("-"),
 				)}`,
+				puppeteerOptions: {
+					userDataDir: path.join(
+						__dirname,
+						`../../../clients/whatsapp/${head(
+							this.session.split("-"),
+						)}`,
+					),
+				},
 				poweredBy: "DHIS2 Analytics Messenger",
 				onLoadingScreen: loadingCallback,
 				logQR: false,
@@ -110,6 +128,10 @@ export class WhatsappClient extends BaseClient<Whatsapp> {
 				? identifier
 				: `${contact.identifier}@g.us`;
 		}
+	}
+
+	async getGroups(): Promise<Array<Chat>> {
+		return await this.client.listChats({ onlyGroups: true });
 	}
 
 	async sendMessage(messagePayload: WhatsappMessage): Promise<Message[]> {

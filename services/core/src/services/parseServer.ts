@@ -4,9 +4,10 @@ import { whatsappClientSchema } from "../dbSchemas/whatsappClient";
 import { authTokenSchema } from "../dbSchemas/authToken";
 import { analyticsJobSchema } from "../dbSchemas/push";
 import ParseDashboard from "parse-dashboard";
-import { DHIS2AuthAdapter } from "./auth";
 import { config } from "dotenv";
 import { userSchema } from "../dbSchemas/user";
+
+import { DHIS2AuthAdapter } from "./auth";
 
 config();
 
