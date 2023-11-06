@@ -3,12 +3,31 @@ import { generateSchema } from "./base";
 
 const fields: ParseField[] = [
 	{
-		name: "user",
-		targetClass: "_User",
+		name: "dhis2Instance",
 		type: "Pointer",
+		targetClass: "DHIS2Instance",
 		options: {
 			required: true,
 		},
+	},
+	{
+		name: "sessionId",
+		type: "String",
+		options: {
+			required: true,
+		},
+	},
+	{
+		name: "enabled",
+		type: "Boolean",
+		options: {
+			required: true,
+			defaultValue: true,
+		},
+	},
+	{
+		name: "name",
+		type: "String",
 	},
 ];
 

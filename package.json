@@ -1,24 +1,25 @@
 {
-  "private": true,
-  "workspaces": [
-    "packages/*",
-    "apps/*",
-    "services/*"
-  ],
-  "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "dev:core": "turbo run dev --filter=core",
-    "dev:app": "turbo run dev --filter=app",
-    "dev:panel": "turbo run dev --filter=panel",
-    "dev:visualizer": "turbo run dev --filter=visualizer",
-    "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
-  },
+  "name": "dhis2-analytics-messenger-saas",
   "devDependencies": {
     "eslint": "^8.48.0",
     "prettier": "^3.0.3",
     "turbo": "latest"
   },
-  "name": "dhis2-analytics-messenger-saas"
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "dev:core": "turbo run dev --filter=core",
+    "dev:dhis2app": "turbo run dev --filter=dhis2app",
+    "dev:panel": "turbo run dev --filter=panel",
+    "dev:messaging": "turbo run dev --filter=messaging",
+    "dev:visualizer": "turbo run dev --filter=visualizer",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "services/*"
+  ]
 }

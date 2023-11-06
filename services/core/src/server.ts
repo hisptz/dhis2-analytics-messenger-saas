@@ -2,6 +2,7 @@ import express from "express";
 import { config } from "dotenv";
 import { parseDashboard, parseServer } from "./services/parseServer";
 import { initServices } from "./services/init";
+import { startWhatsappServices } from "./services/whatsapp";
 
 config();
 
@@ -14,6 +15,7 @@ const port = process.env.PORT ?? 3001;
 
 initServices(app).then(() => {
 	app.listen(`${port}`, () => {
+		startWhatsappServices();
 		console.info(`Server running at http://localhost:${port}`);
 	});
 });

@@ -5,16 +5,48 @@
  * */
 
 import jwt from "jsonwebtoken";
-import { head } from "lodash";
 import { config } from "dotenv";
+import { last } from "lodash";
 
 config();
 
+Parse.Cloud.afterSave("DHIS2Instance", async (request) => {
+	const { original, object, user } = request;
+
+	if (!user) {
+		throw new Parse.Error(
+			Parse.Error.OPERATION_FORBIDDEN,
+			"You need to be authenticated",
+		);
+	}
+
+	if (original) {
+		return;
+	}
+
+	const authToken = new Parse.Object("AuthToken");
+	authToken.setACL(new Parse.ACL(user));
+	await authToken.save(
+		{
+			dhis2Instance: object,
+			expiresIn: {
+				value: 1,
+				unit: "year",
+			},
+		},
+		{
+			sessionToken: user.getSessionToken(),
+		},
+	);
+});
 Parse.Cloud.beforeSave("AuthToken", async (req) => {
 	const { original, object, user } = req;
 
 	if (!user) {
-		throw new Parse.Error(Parse.Error.OBJECT_NOT_FOUND, "User not found");
+		throw new Parse.Error(
+			Parse.Error.OPERATION_FORBIDDEN,
+			"You need to be authenticated",
+		);
 	}
 	if (original) {
 		throw Error(
@@ -22,35 +54,45 @@ Parse.Cloud.beforeSave("AuthToken", async (req) => {
 		);
 	}
 
-	const expiresIn = object.get("expiresIn") as { key: string; value: number };
-
 	const payload = {
 		user: user?.id,
+		instance: object.get("dhis2Instance"),
 	};
-
 	const secretKey = process.env.AUTH_JWT_SECRET_KEY;
-
 	if (!secretKey) {
 		throw Error(
 			"The variable `PARSE_SERVER_JWT_SECRET_KEY` is not set in the environment. ",
 		);
 	}
 	const token = jwt.sign(payload, secretKey, {
-		expiresIn: `${expiresIn.value}${head(expiresIn.key.split(""))}`,
+		expiresIn: `1y`,
 	});
-	object.set("user", user);
-	object.set("token", token);
+	object.set("token", `${user.id}/${token}`);
 });
-
 Parse.Cloud.afterSave("AuthToken", async (req) => {
 	const { user, object } = req;
+
+	if (!user) {
+		throw new Parse.Error(
+			Parse.Error.OPERATION_FORBIDDEN,
+			"You need to be authenticated",
+		);
+	}
+
+	if (user._isLinked("dhis2Auth")) {
+		return;
+	}
+
+	const authData = {
+		id: user.id,
+		token: last(object.get("token").split("/")),
+	};
+
+	await user.linkWith("dhis2Auth", {
+		authData,
+	});
+
 	if (!user) {
 		throw new Parse.Error(Parse.Error.OBJECT_NOT_FOUND, "User not found");
 	}
-	await user.linkWith("dhis2Auth", {
-		authData: {
-			id: object.id,
-			token: object.get("token"),
-		},
-	});
 });

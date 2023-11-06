@@ -1,64 +1,10 @@
 import { ParseField } from "../cloud/types";
 import { generateSchema } from "./base";
 
-const contactFields: ParseField[] = [
-	{
-		type: "String",
-		name: "type",
-	},
-	{
-		type: "String",
-		name: "clientType",
-	},
-	{
-		type: "String",
-		name: "identifier",
-	},
-	{
-		type: "Pointer",
-		targetClass: "DHIS2Instance",
-		name: "dhis2Instance",
-	},
-];
-
-export const CONTACT_CLASSNAME = "Contact";
-
-const contactSchema = generateSchema(CONTACT_CLASSNAME, contactFields);
-
-const visualizationFields: ParseField[] = [
-	{
-		name: "name",
-		type: "String",
-		options: {
-			required: true,
-		},
-	},
-	{
-		name: "visualizationId",
-		type: "String",
-		options: {
-			required: true,
-		},
-	},
-	{
-		type: "Pointer",
-		targetClass: "DHIS2Instance",
-		name: "dhis2Instance",
-	},
-];
-
-export const VISUALIZATION_CLASSNAME = "Visualization";
-
-const visualizationSchema = generateSchema(
-	VISUALIZATION_CLASSNAME,
-	visualizationFields,
-);
-
 const pushJobFields: ParseField[] = [
 	{
-		name: "contact",
-		type: "Pointer",
-		targetClass: "Contact",
+		name: "contacts",
+		type: "Array",
 		options: {
 			required: true,
 		},
@@ -73,8 +19,19 @@ const pushJobFields: ParseField[] = [
 		type: "String",
 	},
 	{
+		name: "name",
+		type: "String",
+	},
+	{
 		name: "visualizations",
-		targetClass: "Visualization",
+		type: "Array",
+	},
+	{
+		name: "visualizationGroup",
+		type: "String",
+	},
+	{
+		name: "schedules",
 		type: "Array",
 	},
 ];
@@ -90,11 +47,6 @@ const pushJobStatusFields: ParseField[] = [
 		options: {
 			required: true,
 		},
-	},
-	{
-		name: "schedule",
-		type: "Pointer",
-		targetClass: "AnalyticsPushJobSchedule",
 	},
 	{
 		name: "trigger",
@@ -117,7 +69,6 @@ const pushJobStatusFields: ParseField[] = [
 		type: "String",
 	},
 ];
-
 export const ANALYTICS_JOB_STATUS_CLASSNAME = "AnalyticsPushJobStatus";
 
 const pushJobStatusSchema = generateSchema(
@@ -125,39 +76,4 @@ const pushJobStatusSchema = generateSchema(
 	pushJobStatusFields,
 );
 
-const pushJobScheduleFields: ParseField[] = [
-	{
-		name: "job",
-		targetClass: "AnalyticsPushJob",
-		type: "Pointer",
-		options: {
-			required: true,
-		},
-	},
-	{
-		name: "enabled",
-		type: "Boolean",
-	},
-	{
-		name: "cron",
-		type: "String",
-		options: {
-			required: true,
-		},
-	},
-];
-
-export const ANALYTICS_JOB_SCHEDULE_CLASSNAME = "AnalyticsPushJobSchedule";
-
-const pushJobScheduleSchema = generateSchema(
-	ANALYTICS_JOB_SCHEDULE_CLASSNAME,
-	pushJobScheduleFields,
-);
-
-export const analyticsJobSchema = [
-	contactSchema,
-	visualizationSchema,
-	pushJobSchema,
-	pushJobStatusSchema,
-	pushJobScheduleSchema,
-];
+export const analyticsJobSchema = [pushJobSchema, pushJobStatusSchema];

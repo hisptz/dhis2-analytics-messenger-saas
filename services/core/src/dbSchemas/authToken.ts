@@ -3,14 +3,6 @@ import { generateSchema } from "./base";
 
 const fields: ParseField[] = [
 	{
-		name: "user",
-		targetClass: "_User",
-		type: "Pointer",
-		options: {
-			required: true,
-		},
-	},
-	{
 		name: "dhis2Instance",
 		targetClass: "DHIS2Instance",
 		type: "Pointer",
@@ -36,5 +28,5 @@ const fields: ParseField[] = [
 
 export const AUTH_TOKEN_CLASSNAME = "AuthToken";
 export const authTokenSchema = generateSchema(AUTH_TOKEN_CLASSNAME, fields, {
-	protectedFields: { "*": ["token"] },
+	protectedFields: { "*": [], "owner": [] },
 });

@@ -8,7 +8,7 @@ export function useDHIS2Instances() {
 		return (await query.find()) ?? [];
 	};
 
-	const { isLoading, data } = useSuspenseQuery({
+	const { isLoading, data, refetch } = useSuspenseQuery({
 		queryFn: fetchData,
 		queryKey: ["dhis2Instances"],
 	});
@@ -16,5 +16,6 @@ export function useDHIS2Instances() {
 	return {
 		isLoading,
 		results: data,
+		refetch,
 	};
 }
