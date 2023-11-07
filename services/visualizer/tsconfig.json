@@ -6,10 +6,10 @@
       "DOM.Iterable",
       "ESNext"
     ],
-    "module": "commonjs",
+    "module": "esnext",
     "skipLibCheck": true,
     /* Bundler mode */
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "skipDefaultLibCheck": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -21,6 +21,10 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
+  "exclude": [
+    "node_modules",
+    "../../node_modules"
+  ],
   "include": [
     "src",
     "../../types",

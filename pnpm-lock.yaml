@@ -177,6 +177,9 @@ importers:
 
   apps/panel:
     dependencies:
+      '@emotion/cache':
+        specifier: ^11.11.0
+        version: 11.11.0
       '@emotion/react':
         specifier: ^11.11.1
         version: 11.11.1(@types/react@18.2.35)(react@18.2.0)
@@ -207,9 +210,6 @@ importers:
       '@tanstack/react-query-next-experimental':
         specifier: ^5.5.0
         version: 5.7.2(@tanstack/react-query@5.7.2)(next@13.5.6)(react-dom@18.2.0)(react@18.2.0)
-      bufferutil:
-        specifier: ^4.0.8
-        version: 4.0.8
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -218,7 +218,7 @@ importers:
         version: 13.5.6(react-dom@18.2.0)(react@18.2.0)
       parse:
         specifier: ^4.2.0
-        version: 4.2.0(bufferutil@4.0.8)(utf-8-validate@6.0.3)
+        version: 4.2.0
       qrcode.react:
         specifier: ^3.1.0
         version: 3.1.0(react@18.2.0)
@@ -239,16 +239,13 @@ importers:
         version: 0.32.6
       socket.io:
         specifier: ^4.7.2
-        version: 4.7.2(bufferutil@4.0.8)(utf-8-validate@6.0.3)
+        version: 4.7.2
       socket.io-client:
         specifier: ^4.7.2
-        version: 4.7.2(bufferutil@4.0.8)(utf-8-validate@6.0.3)
+        version: 4.7.2
       usehooks-ts:
         specifier: ^2.9.1
         version: 2.9.1(react-dom@18.2.0)(react@18.2.0)
-      utf-8-validate:
-        specifier: ^6.0.3
-        version: 6.0.3
       uuid:
         specifier: ^9.0.1
         version: 9.0.1
@@ -303,7 +300,7 @@ importers:
         version: 9.0.2
       parse:
         specifier: ^4.2.0
-        version: 4.2.0(bufferutil@4.0.8)(utf-8-validate@6.0.3)
+        version: 4.2.0
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -353,9 +350,6 @@ importers:
       luxon:
         specifier: ^3.4.3
         version: 3.4.3
-      messaging:
-        specifier: workspace:^
-        version: link:../messaging
       morgan:
         specifier: ^1.10.0
         version: 1.10.0
@@ -364,7 +358,7 @@ importers:
         version: 4.1.2
       parse:
         specifier: ^4.2.0
-        version: 4.2.0(bufferutil@4.0.8)(utf-8-validate@6.0.3)
+        version: 4.2.0
       parse-dashboard:
         specifier: ^5.2.0
         version: 5.2.0(@codemirror/language@6.0.0)(@types/node@20.8.10)(react-is@17.0.2)
@@ -500,7 +494,7 @@ importers:
         version: link:../../packages/schemas
       socket.io:
         specifier: ^4.7.2
-        version: 4.7.2(bufferutil@4.0.8)(utf-8-validate@6.0.3)
+        version: 4.7.2
       winston:
         specifier: ^3.9.0
         version: 3.11.0
@@ -606,7 +600,7 @@ importers:
         version: 4.17.21
       parse:
         specifier: ^4.2.0
-        version: 4.2.0(bufferutil@4.0.8)(utf-8-validate@6.0.3)
+        version: 4.2.0
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -17377,13 +17371,13 @@ packages:
     dependencies:
       once: 1.4.0
 
-  /engine.io-client@6.5.2(bufferutil@4.0.8)(utf-8-validate@6.0.3):
+  /engine.io-client@6.5.2:
     resolution: {integrity: sha512-CQZqbrpEYnrpGqC07a9dJDz4gePZUgTPMU3NKJPSeQOyw27Tst4Pl3FemKoFGAlHzgZmKjoRmiJvbWfhCXUlIg==}
     dependencies:
       '@socket.io/component-emitter': 3.1.0
       debug: 4.3.4(supports-color@5.5.0)
       engine.io-parser: 5.2.1
-      ws: 8.11.0(bufferutil@4.0.8)(utf-8-validate@6.0.3)
+      ws: 8.11.0
       xmlhttprequest-ssl: 2.0.0
     transitivePeerDependencies:
       - bufferutil
@@ -17396,7 +17390,7 @@ packages:
     engines: {node: '>=10.0.0'}
     dev: false
 
-  /engine.io@6.5.3(bufferutil@4.0.8)(utf-8-validate@6.0.3):
+  /engine.io@6.5.3:
     resolution: {integrity: sha512-IML/R4eG/pUS5w7OfcDE0jKrljWS9nwnEfsxWCIJF5eO6AHo6+Hlv+lQbdlAYsiJPHzUthLm1RUjnBzWOs45cw==}
     engines: {node: '>=10.2.0'}
     dependencies:
@@ -17409,7 +17403,7 @@ packages:
       cors: 2.8.5
       debug: 4.3.4(supports-color@5.5.0)
       engine.io-parser: 5.2.1
-      ws: 8.11.0(bufferutil@4.0.8)(utf-8-validate@6.0.3)
+      ws: 8.11.0
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -26571,7 +26565,7 @@ packages:
       uuid: 9.0.0
       winston: 3.8.2
       winston-daily-rotate-file: 4.7.1(winston@3.8.2)
-      ws: 8.13.0(bufferutil@4.0.8)(utf-8-validate@6.0.3)
+      ws: 8.13.0
     optionalDependencies:
       '@node-rs/bcrypt': 1.1.0
     transitivePeerDependencies:
@@ -26634,6 +26628,23 @@ packages:
       react-native-crypto-js: 1.0.0
       uuid: 9.0.0
       ws: 8.12.0
+      xmlhttprequest: 1.8.0
+    optionalDependencies:
+      crypto-js: 4.1.1
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+    dev: false
+
+  /parse@4.2.0:
+    resolution: {integrity: sha512-K8bWs0wM2qRhkSr6N16j8OvsF6Uallrynqng9e+tzR3RdKuB09vaJh48qrf9MbiJ1Ya4JZI7AfEHYF+ywEKs7Q==}
+    engines: {node: '>=14.21.0 <17 || >=18 <20'}
+    dependencies:
+      '@babel/runtime-corejs3': 7.21.0
+      idb-keyval: 6.2.0
+      react-native-crypto-js: 1.0.0
+      uuid: 9.0.0
+      ws: 8.13.0
       xmlhttprequest: 1.8.0
     optionalDependencies:
       crypto-js: 4.1.1
@@ -31584,22 +31595,22 @@ packages:
       - supports-color
     dev: true
 
-  /socket.io-adapter@2.5.2(bufferutil@4.0.8)(utf-8-validate@6.0.3):
+  /socket.io-adapter@2.5.2:
     resolution: {integrity: sha512-87C3LO/NOMc+eMcpcxUBebGjkpMDkNBS9tf7KJqcDsmL936EChtVva71Dw2q4tQcuVC+hAUy4an2NO/sYXmwRA==}
     dependencies:
-      ws: 8.11.0(bufferutil@4.0.8)(utf-8-validate@6.0.3)
+      ws: 8.11.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
     dev: false
 
-  /socket.io-client@4.7.2(bufferutil@4.0.8)(utf-8-validate@6.0.3):
+  /socket.io-client@4.7.2:
     resolution: {integrity: sha512-vtA0uD4ibrYD793SOIAwlo8cj6haOeMHrGvwPxJsxH7CeIksqJ+3Zc06RvWTIFgiSqx4A3sOnTXpfAEE2Zyz6w==}
     engines: {node: '>=10.0.0'}
     dependencies:
       '@socket.io/component-emitter': 3.1.0
       debug: 4.3.4(supports-color@5.5.0)
-      engine.io-client: 6.5.2(bufferutil@4.0.8)(utf-8-validate@6.0.3)
+      engine.io-client: 6.5.2
       socket.io-parser: 4.2.4
     transitivePeerDependencies:
       - bufferutil
@@ -31617,7 +31628,7 @@ packages:
       - supports-color
     dev: false
 
-  /socket.io@4.7.2(bufferutil@4.0.8)(utf-8-validate@6.0.3):
+  /socket.io@4.7.2:
     resolution: {integrity: sha512-bvKVS29/I5fl2FGLNHuXlQaUH/BlzX1IN6S+NKLNZpBsPZIDH+90eQmCs2Railn4YUiww4SzUedJ6+uzwFnKLw==}
     engines: {node: '>=10.2.0'}
     dependencies:
@@ -31625,8 +31636,8 @@ packages:
       base64id: 2.0.0
       cors: 2.8.5
       debug: 4.3.4(supports-color@5.5.0)
-      engine.io: 6.5.3(bufferutil@4.0.8)(utf-8-validate@6.0.3)
-      socket.io-adapter: 2.5.2(bufferutil@4.0.8)(utf-8-validate@6.0.3)
+      engine.io: 6.5.3
+      socket.io-adapter: 2.5.2
       socket.io-parser: 4.2.4
     transitivePeerDependencies:
       - bufferutil
@@ -35358,7 +35369,7 @@ packages:
       utf-8-validate:
         optional: true
 
-  /ws@8.11.0(bufferutil@4.0.8)(utf-8-validate@6.0.3):
+  /ws@8.11.0:
     resolution: {integrity: sha512-HPG3wQd9sNQoT9xHyNCXoDUa+Xw/VevmY9FoHyQ+g+rrMn4j6FB4np7Z0OhdTgjx6MgQLK7jwSy1YecU1+4Asg==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
@@ -35369,13 +35380,23 @@ packages:
         optional: true
       utf-8-validate:
         optional: true
-    dependencies:
-      bufferutil: 4.0.8
-      utf-8-validate: 6.0.3
     dev: false
 
   /ws@8.12.0:
     resolution: {integrity: sha512-kU62emKIdKVeEIOIKVegvqpXMSTAMLJozpHZaJNDYqBjzlSYXQGviYwN1osDLJ9av68qHd4a2oSjd7yD4pacig==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+    dev: false
+
+  /ws@8.13.0:
+    resolution: {integrity: sha512-x9vcZYTrFPC7aSIbj7sRCYo7L/Xb8Iy+pW0ng0wt2vCJv7M9HOMy0UoN3rr+IFC7hb7vXoqS+P9ktyLLLhO+LA==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1

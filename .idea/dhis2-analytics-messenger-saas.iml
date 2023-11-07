@@ -7,6 +7,9 @@
       <excludeFolder url="file://$MODULE_DIR$/temp" />
       <excludeFolder url="file://$MODULE_DIR$/tmp" />
       <excludeFolder url="file://$MODULE_DIR$/services/messaging/clients" />
+      <excludeFolder url="file://$MODULE_DIR$/services/core/build" />
+      <excludeFolder url="file://$MODULE_DIR$/services/core/logs" />
+      <excludeFolder url="file://$MODULE_DIR$/services/messaging/.turbo" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
