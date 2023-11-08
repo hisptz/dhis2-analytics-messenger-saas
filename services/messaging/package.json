@@ -26,9 +26,12 @@
   "scripts": {
     "dev": "nodemon",
     "start": "node app/index.js",
-    "build": "webpack",
+    "build": "tsc",
     "postbuild": "./postbuild.sh"
   },
+  "bundledDependencies": [
+    "schema"
+  ],
   "devDependencies": {
     "@types/async": "^3.2.20",
     "@types/axios": "^0.14.0",

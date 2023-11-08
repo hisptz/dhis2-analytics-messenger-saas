@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import Parse from "parse";
 
 export function useDHIS2Instances() {
@@ -8,7 +8,7 @@ export function useDHIS2Instances() {
 		return (await query.find()) ?? [];
 	};
 
-	const { isLoading, data, refetch } = useSuspenseQuery({
+	const { isLoading, data, refetch } = useQuery({
 		queryFn: fetchData,
 		queryKey: ["dhis2Instances"],
 	});

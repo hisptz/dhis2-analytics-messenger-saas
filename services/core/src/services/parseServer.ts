@@ -11,6 +11,7 @@ import { DHIS2AuthAdapter } from "./auth";
 
 config();
 
+console.log(process.env.AUTH_DATABASE_URI);
 export const parseServer = new ParseServer({
 	databaseURI: process.env.AUTH_DATABASE_URI,
 	appId: process.env.AUTH_APPLICATION_ID,
@@ -25,10 +26,7 @@ export const parseServer = new ParseServer({
 			secretKey: process.env.AUTH_JWT_SECRET_KEY,
 		},
 	},
-	cloud:
-		process.env.NODE_ENV === "development"
-			? "./build/src/cloud/main.js"
-			: "./cloud/main.js",
+	cloud: process.env.AUTH_CLOUD ?? "./services/core/app/src/cloud/main.js",
 	schema: {
 		definitions: [
 			userSchema,

@@ -10,10 +10,10 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "dev:core": "turbo run dev --filter=core",
-    "dev:dhis2app": "turbo run dev --filter=dhis2app",
     "dev:panel": "turbo run dev --filter=panel",
     "dev:messaging": "turbo run dev --filter=messaging",
     "dev:visualizer": "turbo run dev --filter=visualizer",
+    "start:visualizer": "turbo run start --filter=visualizer",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },

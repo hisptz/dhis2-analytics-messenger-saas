@@ -1,39 +1,50 @@
 version: "3.8"
 
 services:
-  whatsapp:
-    image: hisptanzania/whatsapp:latest
-    env_file:
-      - .env
-    volumes:
-      - ./whatsapp/tokens:/whatsapp/tokens
   db:
+    container_name: database
     image: postgres:latest
-    volumes:
-      - ./data:/var/lib/postgresql/data
     env_file:
       - .env
-  #    profiles:
-  #      - donotstart
-
-  chat-bot:
-    image: hisptanzania/chat-bot:latest
+    networks:
+      - dam-network
+  panel:
+    container_name: panel
+    image: hisptanzania/dam-saas-panel:latest
+    restart: always
     env_file:
       - .env
-
-  mediator:
-    image: hisptanzania/dhis2-mediator:latest
-    env_file:
-      - .env
-
-  visualizer:
-    image: hisptanzania/dhis2-visualizer:latest
-    env_file:
-      - .env
-
-  proxy:
-    image: hisptanzania/proxy:latest
+      - .env.local
     ports:
-      - "${PROXY_PORT}:${PROXY_PORT}"
+      - "3000:3000"
+    networks:
+      - dam-network
+  core:
+    container_name: core
+    image: hisptanzania/dam-saas-core:latest
     env_file:
       - .env
+    restart: always
+    ports:
+      - "3001:3001"
+    networks:
+      - dam-network
+  messaging:
+    container_name: messaging
+    image: hisptanzania/dam-saas-messaging:latest
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "3002:3002"
+    networks:
+      - dam-network
+  visualizer:
+    container_name: visualizer
+    image: hisptanzania/dam-saas-visualizer:latest
+    env_file:
+      - .env
+
+networks:
+  dam-network:
+    external: true

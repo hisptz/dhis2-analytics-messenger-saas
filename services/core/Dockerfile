@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 node:18-alpine AS base
+FROM node:18-alpine AS base
 
 
 FROM base AS builder
@@ -9,10 +9,10 @@ RUN apk update
 WORKDIR /app
 RUN yarn global add turbo
 COPY . .
-RUN turbo prune messaging --docker
+RUN turbo prune core --docker
 
 # Add lockfile and package.json's of isolated subworkspace
-FROM --platform=linux/amd64 base AS installer
+FROM base AS installer
 RUN apk add --no-cache libc6-compat
 RUN apk update
 
@@ -25,27 +25,29 @@ COPY --from=builder /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
 
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
+
 RUN corepack enable
-RUN pnpm install --frozen-lockfile --config.platform=linux --config.architecture=x64 --unsafe-perm
+RUN pnpm install --frozen-lockfile
 
 # Build the project and its dependencies
 COPY --from=builder /app/out/full/ .
 COPY turbo.json turbo.json
 
-RUN pnpm run build --filter=messaging
+RUN pnpm run build --filter=core
 
 FROM node:18 AS runner
 WORKDIR /app
-# get chrome
+
+
 RUN apt-get update && apt-get install gnupg wget -y && \
     wget --quiet --output-document=- https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor > /etc/apt/trusted.gpg.d/google-archive.gpg && \
     sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' && \
     apt-get update && \
     apt-get install google-chrome-stable -y --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
+
 # Don't run production as root
 COPY --from=installer /app .
 
+CMD ["node", "services/core/app/src/server.js"]
 
-
-CMD ["node", "services/messaging/app/server.js"]

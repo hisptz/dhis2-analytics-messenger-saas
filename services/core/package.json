@@ -29,6 +29,9 @@
     "webpack": "^5.89.0",
     "webpack-cli": "^5.1.4"
   },
+  "bundledDependencies": [
+    "schemas"
+  ],
   "dependencies": {
     "@anatine/zod-openapi": "^2.0.1",
     "@types/async": "^3.2.20",
@@ -40,7 +43,6 @@
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "luxon": "^3.4.3",
-    "messaging": "workspace:^",
     "morgan": "^1.10.0",
     "openapi3-ts": "^4.1.2",
     "parse": "^4.2.0",

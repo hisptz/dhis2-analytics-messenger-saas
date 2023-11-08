@@ -8,11 +8,12 @@ export function initWebsocket(server: any) {
 		cors: {
 			origin: "*",
 		},
+		path: `${process.env.MESSAGING_MOUNT_PATH}/socket.io/`,
 	});
 }
 
 export function registerWebhooks() {
-	io.of(/^\/clients\/whatsapp\/[a-zA-Z0-9_.-]*\/init$/).on(
+	io.of(/\/clients\/whatsapp\/[a-zA-Z0-9_.-]*\/init$/).on(
 		"connection",
 		(socket) => {
 			const params = socket.handshake.query;
@@ -23,8 +24,6 @@ export function registerWebhooks() {
 			whatsappClient.setup({
 				name,
 				qrCallback: (...args) => {
-					console.log(args);
-					console.log(session);
 					socket.emit("qrCode", ...args);
 				},
 				statusCallback: (...args) => {

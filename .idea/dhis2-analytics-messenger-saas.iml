@@ -7,6 +7,18 @@
       <excludeFolder url="file://$MODULE_DIR$/temp" />
       <excludeFolder url="file://$MODULE_DIR$/tmp" />
       <excludeFolder url="file://$MODULE_DIR$/services/messaging/clients" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/panel/.turbo" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/schemas/.turbo" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/schemas/build" />
+      <excludeFolder url="file://$MODULE_DIR$/services/core/.turbo" />
+      <excludeFolder url="file://$MODULE_DIR$/services/core/app" />
+      <excludeFolder url="file://$MODULE_DIR$/services/core/build" />
+      <excludeFolder url="file://$MODULE_DIR$/services/core/logs" />
+      <excludeFolder url="file://$MODULE_DIR$/services/messaging/.turbo" />
+      <excludeFolder url="file://$MODULE_DIR$/services/messaging/app" />
+      <excludeFolder url="file://$MODULE_DIR$/services/messaging/logs" />
+      <excludeFolder url="file://$MODULE_DIR$/services/visualizer/.turbo" />
+      <excludeFolder url="file://$MODULE_DIR$/services/visualizer/dist" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
