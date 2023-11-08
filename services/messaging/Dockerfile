@@ -48,6 +48,6 @@ RUN apt-get update && apt-get install gnupg wget -y && \
 # Don't run production as root
 COPY --from=installer /app .
 
-RUN pnpm add sharp --config.platform=linux --config.architecture=x64 --unsafe-perm
+RUN pnpm add sharp --config.platform=linux --config.architecture=x64 --unsafe-perm --filter messaging
 
 CMD ["node", "services/messaging/app/server.js"]
