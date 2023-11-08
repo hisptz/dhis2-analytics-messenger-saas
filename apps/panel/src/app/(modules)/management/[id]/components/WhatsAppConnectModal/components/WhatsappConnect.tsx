@@ -28,11 +28,13 @@ export function WhatsappConnect({
 		height: 432,
 	};
 
+	console.log(process.env.NEXT_PUBLIC_MESSAGING_MOUNT_PATH);
+
 	useEffect(() => {
 		function setup() {
 			const url = `${process.env.NEXT_PUBLIC_MESSAGING_URL}/clients/whatsapp/${token}/init`;
 			const socket = io(url, {
-				path: `${process.env.MESSAGING_MOUNT_PATH}/socket.io/`,
+				path: `${process.env.NEXT_PUBLIC_MESSAGING_MOUNT_PATH}`,
 				query: {
 					session: token,
 					client: "whatsapp",

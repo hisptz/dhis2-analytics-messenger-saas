@@ -13,7 +13,7 @@ export function initWebsocket(server: any) {
 }
 
 export function registerWebhooks() {
-	io.of(/^\/clients\/whatsapp\/[a-zA-Z0-9_.-]*\/init$/).on(
+	io.of(/\/clients\/whatsapp\/[a-zA-Z0-9_.-]*\/init$/).on(
 		"connection",
 		(socket) => {
 			const params = socket.handshake.query;
