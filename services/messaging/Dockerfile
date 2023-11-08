@@ -1,10 +1,8 @@
-FROM --platform=linux/amd64 node:18-alpine AS base
+FROM --platform=linux/amd64 node:18-bookworm AS base
 
 
 FROM base AS builder
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-RUN apk add --no-cache libc6-compat
-RUN apk update
 # Set working directory
 WORKDIR /app
 RUN yarn global add turbo
@@ -12,9 +10,7 @@ COPY . .
 RUN turbo prune messaging --docker
 
 # Add lockfile and package.json's of isolated subworkspace
-FROM --platform=linux/amd64 base AS installer
-RUN apk add --no-cache libc6-compat
-RUN apk update
+FROM base AS installer
 
 WORKDIR /app
 
@@ -34,7 +30,7 @@ COPY turbo.json turbo.json
 
 RUN pnpm run build --filter=messaging
 
-FROM node:18-bookworm AS runner
+FROM base AS runner
 WORKDIR /app
 
 RUN corepack enable
