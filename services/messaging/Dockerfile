@@ -36,6 +36,8 @@ RUN pnpm run build --filter=messaging
 
 FROM node:18 AS runner
 WORKDIR /app
+
+RUN corepack enable
 # get chrome
 RUN apt-get update && apt-get install gnupg wget -y && \
     wget --quiet --output-document=- https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor > /etc/apt/trusted.gpg.d/google-archive.gpg && \
@@ -46,6 +48,6 @@ RUN apt-get update && apt-get install gnupg wget -y && \
 # Don't run production as root
 COPY --from=installer /app .
 
-
+RUN pnpm add sharp --config.platform=linux --config.architecture=x64 --unsafe-perm
 
 CMD ["node", "services/messaging/app/server.js"]
