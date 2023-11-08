@@ -47,7 +47,7 @@ app.use(limiter);
 app.use(bodyParser.json({ limit: "50mb" }));
 const port = process.env.PORT ?? 3002;
 
-app.use(``, routes);
+app.use(`${process.env.MESSAGING_MOUNT_PATH ?? ""}`, routes);
 
 registerWebhooks();
 server.listen(port, () => {

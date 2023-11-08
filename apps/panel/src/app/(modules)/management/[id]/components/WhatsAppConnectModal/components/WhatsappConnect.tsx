@@ -2,7 +2,7 @@ import Parse from "parse";
 import { useEffect, useMemo, useState } from "react";
 import { io } from "socket.io-client";
 import { v4 as uuid } from "uuid";
-import Image from "next/Image";
+import Image from "next/image";
 import { LinearProgress } from "@mui/material";
 
 export interface WhatsappConnectProps {
@@ -32,6 +32,7 @@ export function WhatsappConnect({
 		function setup() {
 			const url = `${process.env.NEXT_PUBLIC_MESSAGING_URL}/clients/whatsapp/${token}/init`;
 			const socket = io(url, {
+				path: `${process.env.MESSAGING_MOUNT_PATH}/socket.io/`,
 				query: {
 					session: token,
 					client: "whatsapp",

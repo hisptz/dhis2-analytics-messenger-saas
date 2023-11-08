@@ -1,26 +1,41 @@
 import path from "path";
 
 module.exports = {
-		mode: 'production',
-		target: "node",
-		entry: './src/main.ts',
-		output: {
-				filename: 'main.js',
-				path: path.resolve(__dirname, 'cloud'),
+	mode: "production",
+	target: "node",
+	entry: {
+		parseServer: ["parse-server"],
+		parseDashboard: ["parse-dashboard"],
+		cloud: {
+			import: "./src/cloud/main.ts",
+			filename: "cloud/main.js",
 		},
-		optimization: {
-				minimize: true
+		app: {
+			import: "./src/server.ts",
+			filename: "server.js",
+			dependOn: ["parseDashboard"],
 		},
-		resolve: {
-				extensions: ['.tsx', '.ts', '.js'],
+	},
+	output: {
+		environment: {
+			globalThis: true,
+			module: true,
 		},
-		module: {
-				rules: [
-						{
-								test: /\.tsx?$/,
-								use: 'ts-loader',
-								exclude: /node_modules/,
-						},
-				],
-		},
+		path: path.resolve(__dirname, "app"),
+	},
+	optimization: {
+		minimize: false,
+	},
+	resolve: {
+		extensions: [".tsx", ".ts", ".js"],
+	},
+	module: {
+		rules: [
+			{
+				test: /\.tsx?$/,
+				use: "ts-loader",
+				exclude: /node_modules/,
+			},
+		],
+	},
 };

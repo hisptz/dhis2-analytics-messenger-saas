@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2016",
-    "outDir": "app",
+    "outDir": "./app",
     "declaration": false,
     /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
     "lib": [
@@ -16,6 +16,6 @@
     /* Skip type checking all .d.ts files. */
   },
   "include": [
-    "src"
+    "src",
   ]
 }

@@ -29,6 +29,9 @@
     "build": "tsc",
     "postbuild": "./postbuild.sh"
   },
+  "bundledDependencies": [
+    "schema"
+  ],
   "devDependencies": {
     "@types/async": "^3.2.20",
     "@types/axios": "^0.14.0",

@@ -9,7 +9,7 @@ RUN apk update
 WORKDIR /app
 RUN yarn global add turbo
 COPY . .
-RUN turbo prune messaging --docker
+RUN turbo prune visualizer --docker
 
 # Add lockfile and package.json's of isolated subworkspace
 FROM base AS installer
@@ -29,12 +29,21 @@ RUN pnpm install --frozen-lockfile
 COPY --from=builder /app/out/full/ .
 COPY turbo.json turbo.json
 
-RUN pnpm run build --filter=messaging
+RUN pnpm run build --filter=visualizer
+
 
 FROM base AS runner
 WORKDIR /app
 
-# Don't run production as root
-COPY --from=installer /app .
+RUN yarn global add pm2
+RUN yarn global add serve
 
-CMD ["node", "services/messaging/app/server.js"]
+
+# Don't run production as root
+RUN addgroup --system --gid 1001 visualizer
+RUN adduser --system --uid 1001 visualizer
+USER visualizer
+COPY --from=installer /app .
+EXPOSE 3000
+CMD pm2-runtime start "serve dist -s -p 3000"
+

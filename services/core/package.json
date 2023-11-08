@@ -29,6 +29,9 @@
     "webpack": "^5.89.0",
     "webpack-cli": "^5.1.4"
   },
+  "bundledDependencies": [
+    "schemas"
+  ],
   "dependencies": {
     "@anatine/zod-openapi": "^2.0.1",
     "@types/async": "^3.2.20",
