@@ -34,7 +34,7 @@ COPY turbo.json turbo.json
 
 RUN pnpm run build --filter=messaging
 
-FROM node:18 AS runner
+FROM node:18-bookworm AS runner
 WORKDIR /app
 
 RUN corepack enable
