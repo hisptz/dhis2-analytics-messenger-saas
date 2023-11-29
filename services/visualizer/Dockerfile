@@ -45,5 +45,5 @@ RUN adduser --system --uid 1001 visualizer
 USER visualizer
 COPY --from=installer /app .
 EXPOSE 3000
-CMD pm2-runtime start "serve dist -s -p 3000"
+CMD serve ./services/visualizer/dist -s -p 3000
 

@@ -15,6 +15,7 @@ configEnv();
 sanitizeEnv();
 
 const app = express();
+app.set("trust proxy", true);
 const server = createServer(app);
 
 initWebsocket(server);

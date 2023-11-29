@@ -1,5 +1,6 @@
 import puppeteer from "puppeteer";
 import { config } from "dotenv";
+import logger from "../services/logging";
 
 config();
 
@@ -14,6 +15,7 @@ export async function getVisualization({
 	dhis2URL: string;
 	dhis2PAT: string;
 }) {
+	logger.info(`Launching browser...`);
 	const browser = await puppeteer.launch({
 		headless: "new",
 		args: [
@@ -26,6 +28,7 @@ export async function getVisualization({
 			height: 1080,
 		},
 	});
+	logger.info(`Opening visualization service at: ${visualizerURL}`);
 	const page = await browser.newPage();
 	const params = new URLSearchParams({
 		dhis2PAT,

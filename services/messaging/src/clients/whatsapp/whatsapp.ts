@@ -27,16 +27,17 @@ export class WhatsappClient extends BaseClient<Whatsapp> {
 	}
 
 	async init(): Promise<WhatsappClient> {
+		const [instance, clientId] = this.session.split("-");
 		const whatsapp = await create({
 			session: this.session,
 			waitForLogin: false,
 			folderNameToken: "clients/whatsapp",
 			puppeteerOptions: {
+				headless: "new",
+				args: ["--no-sandbox"],
 				userDataDir: path.join(
 					__dirname,
-					`../../../clients/whatsapp/${head(
-						this.session.split("-"),
-					)}`,
+					`../../../clients/whatsapp/${instance}/${clientId}`,
 				),
 			},
 			debug: false,
@@ -89,6 +90,8 @@ export class WhatsappClient extends BaseClient<Whatsapp> {
 					this.session.split("-"),
 				)}`,
 				puppeteerOptions: {
+					headless: "new",
+					args: ["--no-sandbox"],
 					userDataDir: path.join(
 						__dirname,
 						`../../../clients/whatsapp/${head(

@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 node:18-bookworm AS base
+FROM --platform=linux/amd64 node:18 AS base
 
 
 FROM base AS builder
@@ -22,7 +22,7 @@ COPY --from=builder /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
 RUN corepack enable
-RUN pnpm install --frozen-lockfile --config.platform=linux --config.architecture=x64 --unsafe-perm
+RUN pnpm install --frozen-lockfile
 
 # Build the project and its dependencies
 COPY --from=builder /app/out/full/ .
@@ -32,6 +32,8 @@ RUN pnpm run build --filter=messaging
 
 FROM base AS runner
 WORKDIR /app
+
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
 RUN corepack enable
 # get chrome
@@ -43,7 +45,5 @@ RUN apt-get update && apt-get install gnupg wget -y && \
     rm -rf /var/lib/apt/lists/*
 # Don't run production as root
 COPY --from=installer /app .
-
-RUN pnpm add sharp --config.platform=linux --config.architecture=x64 --unsafe-perm --filter messaging
 
 CMD ["node", "services/messaging/app/server.js"]
