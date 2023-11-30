@@ -7,12 +7,12 @@ const nextConfig = {
 	experimental: {
 		outputFileTracingRoot: path.join(__dirname, "../../"),
 	},
-	webpack: (config, { isServer }) => {
-		if (isServer) {
-			config.externals = nodeExternals();
-		}
-		return config;
-	},
+	// webpack: (config, { isServer }) => {
+	// 	if (isServer) {
+	// 		config.externals = nodeExternals();
+	// 	}
+	// 	return config;
+	// },
 };
 
 module.exports = nextConfig;
