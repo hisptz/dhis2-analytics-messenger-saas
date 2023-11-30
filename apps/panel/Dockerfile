@@ -20,11 +20,14 @@ RUN apk update
 WORKDIR /app
 
 # First install the dependencies (as they change less often)
+RUN node -p "console.log(process.env)"
+
 COPY .gitignore .gitignore
 COPY --from=builder /app/out/json/ .
 COPY --from=builder /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
 RUN corepack enable
 RUN pnpm install --frozen-lockfile
+
 
 # Build the project
 COPY --from=builder /app/out/full/ .
@@ -36,6 +39,12 @@ COPY turbo.json turbo.json
 
 # ARG TURBO_TOKEN
 # ENV TURBO_TOKEN=$TURBO_TOKEN
+
+RUN touch ./apps/panel/.env.local
+RUN echo NEXT_PUBLIC_PARSE_BASE_URL=$NEXT_PUBLIC_PARSE_BASE_URL >> ./apps/panel/.env.local
+RUN echo NEXT_PUBLIC_PARSE_APP_ID=$NEXT_PUBLIC_PARSE_APP_ID >> ./apps/panel/.env.local
+RUN echo NEXT_PUBLIC_CONTEXT_PATH=$NEXT_PUBLIC_CONTEXT_PATH >> ./apps/panel/.env.local
+RUN echo NEXT_PUBLIC_MESSAGING_MOUNT_PATH=$NEXT_PUBLIC_MESSAGING_MOUNT_PATH >> ./apps/panel/.env.local
 
 RUN pnpm run build --filter=panel...
 
