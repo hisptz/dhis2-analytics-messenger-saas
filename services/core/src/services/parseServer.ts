@@ -42,9 +42,9 @@ export const parseServer = new ParseServer({
 export const parseDashboard = new ParseDashboard({
 	apps: [
 		{
-			serverURL: process.env.AUTH_SERVER_URL,
-			appId: process.env.AUTH_APPLICATION_ID,
-			masterKey: process.env.AUTH_MASTER_KEY,
+			serverURL: process.env.PARSE_DASHBOARD_SERVER_URL,
+			appId: process.env.PARSE_DASHBOARD_APP_ID,
+			masterKey: process.env.PARSE_DASHBOARD_MASTER_KEY,
 			appName: "DHIS2 Analytics Messenger SaaS Auth",
 		},
 	],
