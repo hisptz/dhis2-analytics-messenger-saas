@@ -1,10 +1,6 @@
-import { parseServer } from "./parseServer";
-// import { initializeScheduling } from "./scheduling";
 import { Express } from "express";
-import logger from "./logging";
+import { parseServer } from "./parseServer";
 
 export async function initServices(app: Express) {
 	await parseServer.start();
-	// await initializeScheduling();
-	logger.info(`All services started successfully`);
 }
