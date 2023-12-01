@@ -12,8 +12,8 @@ The DHIS2 Analytics Messenger offers two distinct methods for accessing analytic
 functionality. To fulfill the need for more accessible and user-friendly analytics data, this application consists of
 two central systems:
 
-- A DHIS2 Analytics Messenger web application for configuration and push analytics distribution.
-- A social messaging chat-bot for interactive user-driven data access
+-   A DHIS2 Analytics Messenger web application for configuration and push analytics distribution.
+-   A social messaging chat-bot for interactive user-driven data access
 
 Working together, these applications create a comprehensive and user-centric DHIS2 Analytics Messenger.
 
@@ -27,9 +27,10 @@ Working together, these applications create a comprehensive and user-centric DHI
 
 ## Contributing
 
-## Contact 
+## Contact
+
 For contact and support use the following contact details:
 
-- Email: [Ismail Koleleni](mailto:ismailkoleleni@hisptanzania.org) , [Dev HISPTz](mailto:dev@hisptanzania.org)
-- Phone numbers:
-- [Community of Practice](https://community.dhis2.org/t/dhis2-analytics-messenger/53477)
+-   Email: [Ismail Koleleni](mailto:ismailkoleleni@hisptanzania.org) , [Dev HISPTz](mailto:dev@hisptanzania.org)
+-   Phone numbers:
+-   [Community of Practice](https://community.dhis2.org/t/dhis2-analytics-messenger/53477)

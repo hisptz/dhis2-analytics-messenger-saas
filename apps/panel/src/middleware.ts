@@ -21,6 +21,4 @@
 // 		return NextResponse.next()
 // }
 
-export function middleware() {
-
-}
+export function middleware() {}

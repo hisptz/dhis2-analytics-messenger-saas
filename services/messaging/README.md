@@ -8,7 +8,7 @@ This is an node application that with the help of [WPPConnect](https://wppconnec
 
 To get started with the Whatsapp Server you will need to have the following installed:
 
-- Node JS
+-   Node JS
 
 ## Configurations
 
@@ -22,13 +22,13 @@ PORT=<port_to_expose_whatsapp_api>
 
 The project can be set up by running the below command to install the project dependencies
 
-- Using npm
+-   Using npm
 
 ```
 npm install
 ```
 
-- Using yarn
+-   Using yarn
 
 ```
 yarn install
@@ -38,13 +38,13 @@ yarn install
 
 To start the development server, use the following commands:
 
-- Using npm
+-   Using npm
 
 ```
 npm dev
 ```
 
-- Using yarn
+-   Using yarn
 
 ```
 yarn dev
@@ -54,13 +54,13 @@ yarn dev
 
 A production build can be generated using the below command:
 
-- Using npm
+-   Using npm
 
 ```
 npm run build
 ```
 
-- Using yarn
+-   Using yarn
 
 ```
 yarn build
@@ -73,7 +73,9 @@ The whatsapp server can be started by running the below command
 ```
 npm start
 ```
-or 
+
+or
+
 ```shell
 yarn start
 ```
