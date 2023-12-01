@@ -46,6 +46,9 @@ RUN echo NEXT_PUBLIC_PARSE_APP_ID=$NEXT_PUBLIC_PARSE_APP_ID >> ./apps/panel/.env
 RUN echo NEXT_PUBLIC_CONTEXT_PATH=$NEXT_PUBLIC_CONTEXT_PATH >> ./apps/panel/.env.local
 RUN echo NEXT_PUBLIC_MESSAGING_MOUNT_PATH=$NEXT_PUBLIC_MESSAGING_MOUNT_PATH >> ./apps/panel/.env.local
 
+
+RUN cat ./apps/panel/.env.local
+
 RUN pnpm run build --filter=panel...
 
 FROM base AS runner
