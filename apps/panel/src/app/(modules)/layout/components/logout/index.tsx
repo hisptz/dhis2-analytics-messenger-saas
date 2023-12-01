@@ -2,8 +2,10 @@ import { Dialog, DialogTitle, DialogActions, Button } from '@mui/material';
 interface LogoutModalProps {
     open: boolean;
     onClose: () => void;
+    onLogOut: () => void;
   }
-export function LogoutModal({ open, onClose }: LogoutModalProps)  {
+export function LogoutModal({ open, onClose, onLogOut }: LogoutModalProps)  {
+
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle sx={{padding:6,paddingX:12}}>Are you sure you want to logout?</DialogTitle>
@@ -17,7 +19,7 @@ export function LogoutModal({ open, onClose }: LogoutModalProps)  {
         </Button>
         <Button 
         className='bg-red-600'
-          onClick={onClose} 
+          onClick={onLogOut}
           variant="contained" 
           color="error" 
           sx={{ borderRadius: '50px', textTransform: 'none'}}>
