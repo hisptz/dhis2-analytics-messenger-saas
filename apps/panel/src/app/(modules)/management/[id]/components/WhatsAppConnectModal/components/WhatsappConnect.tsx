@@ -27,9 +27,6 @@ export function WhatsappConnect({
 		width: 432,
 		height: 432,
 	};
-
-	console.log(process.env.NEXT_PUBLIC_MESSAGING_MOUNT_PATH);
-
 	useEffect(() => {
 		function setup() {
 			const url = `${process.env.NEXT_PUBLIC_MESSAGING_URL}/clients/whatsapp/${token}/init`;
