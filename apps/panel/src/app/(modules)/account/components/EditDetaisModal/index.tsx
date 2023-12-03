@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import TextField from "@mui/material/TextField";
+import { LoadingButton } from "@mui/lab";
+import Parse from "parse";
 import Button from "@mui/material/Button";
+
 import { RHFTextInput } from "@/components/RHFTextInput";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -17,6 +19,7 @@ const editSchema = z.object({
 export type EditData = z.infer<typeof editSchema>;
 
 export default function EditDetailsModal(props: any) {
+	const [editing, setEditing] = useState(false);
 	const { open, onClose } = props;
 	const form = useForm<EditData>({
 		resolver: zodResolver(editSchema),
@@ -25,7 +28,28 @@ export default function EditDetailsModal(props: any) {
 		// }
 	});
 	const onEdit = async (data: EditData) => {
-		console.log("here is", data);
+		setEditing(true);
+		const currentUser = Parse.User.current();
+		if (currentUser) {
+			currentUser.set("email", data.email);
+			currentUser.set("username", data.username);
+
+			await currentUser.save().then(
+				(updatedUser) => {
+					alert(
+						`${updatedUser.get(
+							"fullName",
+						)}'s details updated successfully`,
+					);
+
+					onClose();
+				},
+				(error: any) => {
+					alert(error.message);
+				},
+			);
+			setEditing(false);
+		}
 	};
 
 	return (
@@ -64,7 +88,8 @@ export default function EditDetailsModal(props: any) {
 						>
 							Cancel
 						</Button>
-						<Button
+						<LoadingButton
+							loading={editing}
 							className="bg-primary-500 w-24"
 							color="primary"
 							sx={{ textTransform: "none", borderRadius: "50px" }}
@@ -72,7 +97,7 @@ export default function EditDetailsModal(props: any) {
 							type="submit"
 						>
 							Save
-						</Button>
+						</LoadingButton>
 					</DialogActions>
 				</form>
 			</FormProvider>
