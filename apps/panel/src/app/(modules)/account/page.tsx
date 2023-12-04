@@ -17,8 +17,11 @@ export default function Account() {
 	}, [currentUserAttributes]);
 
 	const getAbbreviate = (str: string) => {
-		const words = str.split(" ");
+		const words = str?.split(" ");
 		let abbreviate = "";
+		if (!words || !words.length) {
+			return "U";
+		}
 		for (const word of words) {
 			abbreviate += (word[0] ?? "").toUpperCase();
 		}
@@ -35,8 +38,7 @@ export default function Account() {
 					<div className="flex items-center gap-6">
 						<div className="w-12 h-12 rounded-full bg-primary-500 flex items-center justify-center">
 							<span className="text-lg font-medium text-white">
-								{getAbbreviate(currentUserDetails?.fullName) ??
-									"U"}
+								{getAbbreviate(currentUserDetails?.fullName)}
 							</span>
 						</div>
 						<div className="grid grid-cols-2 gap-2 text-black">

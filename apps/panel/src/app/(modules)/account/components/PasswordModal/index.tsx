@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import Button from "@mui/material/Button";
+import { LoadingButton } from "@mui/lab";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 import Parse from "parse";
@@ -24,6 +25,7 @@ const passwordSchema = z.object({
 });
 export type PasswordData = z.infer<typeof passwordSchema>;
 export default function ChangePasswordModal(props: any) {
+	const [updating, setUpdating] = useState(false);
 	const { open, onClose } = props;
 	const form = useForm<PasswordData>({
 		resolver: zodResolver(passwordSchema),
@@ -31,6 +33,7 @@ export default function ChangePasswordModal(props: any) {
 	const currentUser = Parse.User.current();
 
 	const onEdit = async (data: PasswordData) => {
+		setUpdating(true);
 		const { username } = currentUser?.attributes ?? {};
 
 		if (!username) {
@@ -46,6 +49,7 @@ export default function ChangePasswordModal(props: any) {
 				user.setPassword(newPassword);
 				await user.save().then(
 					(updatedUser) => {
+						setUpdating(false);
 						alert(
 							`${updatedUser.get(
 								"fullName",
@@ -54,11 +58,13 @@ export default function ChangePasswordModal(props: any) {
 						onClose();
 					},
 					(error: any) => {
+						setUpdating(false);
 						alert(error.message);
 					},
 				);
 			}
 		} catch (error: any) {
+			setUpdating(false);
 			alert(error.message);
 		}
 	};
@@ -97,7 +103,8 @@ export default function ChangePasswordModal(props: any) {
 						>
 							Cancel
 						</Button>
-						<Button
+						<LoadingButton
+							loading={updating}
 							className="rounded-full bg-primary-500 w-24"
 							type="submit"
 							color="primary"
@@ -105,7 +112,7 @@ export default function ChangePasswordModal(props: any) {
 							variant="contained"
 						>
 							Save
-						</Button>
+						</LoadingButton>
 					</DialogActions>
 				</form>
 			</FormProvider>
