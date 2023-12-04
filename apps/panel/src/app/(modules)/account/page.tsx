@@ -9,12 +9,12 @@ export default function Account() {
 	const [editModalOpen, setEditModalOpen] = useState(false);
 	const [passwordModalOpen, setPasswordModalOpen] = useState(false);
 
-	var currentUser = Parse.User.current();
+	var currentUserAttributes = Parse.User.current()?.attributes;
 
 	const currentUserDetails = useMemo(() => {
-		const { email, username } = currentUser?.attributes ?? {};
+		const { email, username } = currentUserAttributes ?? {};
 		return { email, username };
-	}, [currentUser]);
+	}, [currentUserAttributes]);
 
 	return (
 		<div className="flex h-screen bg-white">
