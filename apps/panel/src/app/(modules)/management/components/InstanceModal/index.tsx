@@ -14,7 +14,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoadingButton } from "@mui/lab";
 import Parse from "parse";
-import { isEmpty, omit, times } from "lodash";
+import { isEmpty } from "lodash";
 import { RHFPasswordInput } from "@/components/RHFPasswordInput";
 
 interface DHIS2AnalyticsModalProps {
@@ -88,7 +88,7 @@ const DHIS2AnalyticsModal: React.FC<DHIS2AnalyticsModalProps> = ({
 	const onSubmit = async (data: InstanceData) => {
 		if (defaultValue) {
 			await defaultValue.save({
-				...omit(data, "pat"),
+				data,
 			});
 		} else {
 			const currentUser = Parse.User.current();
@@ -110,7 +110,6 @@ const DHIS2AnalyticsModal: React.FC<DHIS2AnalyticsModalProps> = ({
 		defaultValues: defaultValue
 			? {
 					...(defaultValue?.attributes ?? {}),
-					pat: `d2pat_${times(42, () => `x`).join("")}`,
 			  }
 			: {},
 	});
