@@ -9,12 +9,21 @@ export default function Account() {
 	const [editModalOpen, setEditModalOpen] = useState(false);
 	const [passwordModalOpen, setPasswordModalOpen] = useState(false);
 
-	var currentUserAttributes = Parse.User.current()?.attributes;
+	let currentUserAttributes = Parse.User.current()?.attributes;
 
 	const currentUserDetails = useMemo(() => {
-		const { email, username } = currentUserAttributes ?? {};
-		return { email, username };
+		const { email, username, fullName } = currentUserAttributes ?? {};
+		return { email, username, fullName };
 	}, [currentUserAttributes]);
+
+	const getAbbreviate = (str: string) => {
+		const words = str.split(" ");
+		let abbreviate = "";
+		for (const word of words) {
+			abbreviate += (word[0] ?? "").toUpperCase();
+		}
+		return abbreviate;
+	};
 
 	return (
 		<div className="flex h-screen bg-white">
@@ -26,7 +35,8 @@ export default function Account() {
 					<div className="flex items-center gap-6">
 						<div className="w-12 h-12 rounded-full bg-primary-500 flex items-center justify-center">
 							<span className="text-lg font-medium text-white">
-								A
+								{getAbbreviate(currentUserDetails?.fullName) ??
+									"U"}
 							</span>
 						</div>
 						<div className="grid grid-cols-2 gap-2 text-black">
