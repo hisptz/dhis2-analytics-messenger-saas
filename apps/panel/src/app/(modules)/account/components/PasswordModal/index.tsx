@@ -6,6 +6,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Button from "@mui/material/Button";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
+import Parse from "parse";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RHFPasswordInput } from "@/components/RHFPasswordInput";
 
@@ -27,10 +28,41 @@ export default function ChangePasswordModal(props: any) {
 	const form = useForm<PasswordData>({
 		resolver: zodResolver(passwordSchema),
 	});
+	const currentUser = Parse.User.current();
 
 	const onEdit = async (data: PasswordData) => {
-		console.log("here is", data);
+		const { username } = currentUser?.attributes ?? {};
+
+		if (!username) {
+			alert(
+				"Failed to fetch current user, hence can not change passwords!",
+			);
+			return;
+		}
+		const { newPassword, oldPassword } = data;
+		try {
+			const user = await Parse.User.logIn(username, oldPassword);
+			if (user) {
+				user.setPassword(newPassword);
+				await user.save().then(
+					(updatedUser) => {
+						alert(
+							`${updatedUser.get(
+								"fullName",
+							)}'s password updated successfully`,
+						);
+						onClose();
+					},
+					(error: any) => {
+						alert(error.message);
+					},
+				);
+			}
+		} catch (error: any) {
+			alert(error.message);
+		}
 	};
+
 	return (
 		<Dialog open={open} onClose={onClose} maxWidth="xs">
 			<DialogTitle sx={{ mb: -2 }}>Change User Password</DialogTitle>
