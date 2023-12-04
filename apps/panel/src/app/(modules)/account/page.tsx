@@ -30,8 +30,8 @@ export default function Account() {
 
 	return (
 		<div className="flex h-screen bg-white">
-			<div className="flex-1 flex-col items-start justify-start p-3 text-left ">
-				<h1 className="text-2xl  text-primary-500 font-lalezar font-bold">
+			<div className="flex-1 flex-col items-start justify-start text-left ">
+				<h1 className="text-2xl text-primary-500 font-lalezar font-bold">
 					Account
 				</h1>
 				<div className="w-full bg-m3-sys-light-on-primary p-6 border border-primary-300 rounded-lg">

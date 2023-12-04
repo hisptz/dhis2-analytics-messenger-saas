@@ -18,7 +18,7 @@ export default function StatusCard({ instance }: StatusCardProps) {
 
 	return (
 		<div
-			className=" m-4 flex space-x-4 p-4 px-8 rounded-lg border-solid border-grey-300 border-2 cursor-pointer"
+			className="m-4 flex space-x-4 p-4 px-8 rounded-lg border-solid border-grey-300 border-2 cursor-pointer"
 			onClick={handleCardClick}
 		>
 			<Image src={instanceLogo} alt="Icon" width={80} height={80} />
