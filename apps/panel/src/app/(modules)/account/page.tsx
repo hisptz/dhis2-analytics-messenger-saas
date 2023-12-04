@@ -1,12 +1,20 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Button } from "@mui/material";
+import Parse from "parse";
 import EditDetailsModal from "./components/EditDetaisModal";
 import ChangePasswordModal from "./components/PasswordModal";
 
 export default function Account() {
 	const [editModalOpen, setEditModalOpen] = useState(false);
 	const [passwordModalOpen, setPasswordModalOpen] = useState(false);
+
+	var currentUser = Parse.User.current();
+
+	const currentUserDetails = useMemo(() => {
+		const { email, username } = currentUser?.attributes ?? {};
+		return { email, username };
+	}, [currentUser]);
 
 	return (
 		<div className="flex h-screen bg-white">
@@ -23,10 +31,12 @@ export default function Account() {
 						</div>
 						<div className="grid grid-cols-2 gap-2 text-black">
 							<label>Username:</label>
-							<b className="text-primary-500">d2Analytics</b>
+							<b className="text-primary-500">
+								{currentUserDetails?.username ?? "N/A"}
+							</b>
 							<label>Email:</label>
 							<span className="text-primary-500">
-								test@mail.com
+								{currentUserDetails?.email ?? "N/A"}
 							</span>
 						</div>
 					</div>
