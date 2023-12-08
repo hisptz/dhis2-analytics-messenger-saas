@@ -27,7 +27,20 @@ export default function ForgetPasswordModal(props: any) {
 	});
 
 	const onRequestPasswordChange = async (data: ForgetPasswordData) => {
-		console.log({ data });
+		setSendingRequest(true);
+		const { email } = data;
+		await Parse.User.requestPasswordReset(email)
+			.then(() => {
+				onClose();
+				alert(
+					"Email is sent successfully, check your email to reset password",
+				);
+			})
+			.catch((error) => {
+				alert("Error: " + error.code + " " + error.message);
+			});
+
+		setSendingRequest(false);
 	};
 
 	return (
