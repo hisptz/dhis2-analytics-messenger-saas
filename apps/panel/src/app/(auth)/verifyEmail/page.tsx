@@ -34,8 +34,8 @@ export default function VerifyEmail() {
 				Verify your email
 			</h1>
 			<p>
-				We've sent you a verification email to your email. Please verify
-				you email to continue
+				We&apos;ve sent you a verification email to your email. Please
+				verify you email to continue
 			</p>
 			<div>
 				<LoadingButton
