@@ -87,7 +87,7 @@ export function WhatsappConnect({
 		}
 
 		return setup();
-	}, []);
+	}, [instance, onClose, onConnectComplete, token]);
 
 	if (error) {
 		return <div style={style}>{JSON.stringify(error)}</div>;
