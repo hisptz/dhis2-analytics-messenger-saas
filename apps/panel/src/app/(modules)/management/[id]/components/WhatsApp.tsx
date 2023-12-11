@@ -42,7 +42,7 @@ export function WhatsApp({ instance }: { instance: Parse.Object }) {
 					<span className="font-bold">
 						Whatsapp Connection Status:
 					</span>
-					<WhatsAppConnectionStatus data={data} />
+					<WhatsAppConnectionStatus instance={instance} data={data} />
 					<WhatsappTestMessage instance={data} />
 				</div>
 			</div>
