@@ -10,7 +10,7 @@ import {
 	Whatsapp,
 } from "@wppconnect-team/wppconnect";
 import { activeWhatsappClients, removeClient } from "../../globals/whatsapp";
-import { find, head } from "lodash";
+import { find } from "lodash";
 import { WhatsappContact, WhatsappMessage } from "schemas";
 import { asyncify, mapSeries } from "async";
 
@@ -22,12 +22,22 @@ export class WhatsappClient extends BaseClient<Whatsapp> {
 		this.session = session;
 	}
 
+	get folderLocation(): string {
+		const [instanceId, ...sessionKey] = this.session.split("-");
+		return `clients/whatsapp/${instanceId}/${sessionKey.join("-")}`;
+	}
+
+	get isActive(): boolean {
+		return !!activeWhatsappClients.find(
+			(client) => client.session === this.session,
+		);
+	}
+
 	static get(session: string) {
 		return find(activeWhatsappClients, ["session", session]);
 	}
 
 	async init(): Promise<WhatsappClient> {
-		const [instance, clientId] = this.session.split("-");
 		const whatsapp = await create({
 			session: this.session,
 			waitForLogin: false,
@@ -37,7 +47,7 @@ export class WhatsappClient extends BaseClient<Whatsapp> {
 				args: ["--no-sandbox"],
 				userDataDir: path.join(
 					__dirname,
-					`../../../clients/whatsapp/${instance}/${clientId}`,
+					`../../../${this.folderLocation}`,
 				),
 			},
 			debug: false,
@@ -77,6 +87,10 @@ export class WhatsappClient extends BaseClient<Whatsapp> {
 		onError: (e: any) => void;
 	}): Promise<BaseClient<Whatsapp>> {
 		try {
+			if (this.isActive) {
+				await this.client.logout();
+			}
+
 			this.client = await create({
 				session: this.session,
 				deviceName: `${name} WhatsApp Client`,
@@ -86,17 +100,13 @@ export class WhatsappClient extends BaseClient<Whatsapp> {
 				debug: process.env.NODE_ENV === "development",
 				autoClose: 60 * 2 * 1000,
 				devtools: process.env.NODE_ENV === "development",
-				folderNameToken: `clients/whatsapp/${head(
-					this.session.split("-"),
-				)}`,
+				folderNameToken: this.folderLocation,
 				puppeteerOptions: {
 					headless: "new",
 					args: ["--no-sandbox"],
 					userDataDir: path.join(
 						__dirname,
-						`../../../clients/whatsapp/${head(
-							this.session.split("-"),
-						)}`,
+						`../../../${this.folderLocation}`,
 					),
 				},
 				poweredBy: "DHIS2 Analytics Messenger",
