@@ -11,6 +11,8 @@ import { DHIS2AuthAdapter } from "./auth";
 import { emailAPICallback } from "./email";
 
 config();
+
+const templatesFolder = process.env.AUTH_PARSE_TEMPLATES ?? "./templates";
 export const parseServer = new ParseServer({
 	databaseURI: process.env.AUTH_DATABASE_URI,
 	appId: process.env.AUTH_APPLICATION_ID,
@@ -47,10 +49,9 @@ export const parseServer = new ParseServer({
 			sender: process.env.SENDGRID_FROM_ADDRESS,
 			templates: {
 				verificationEmail: {
-					htmlPath:
-						"./templates/verification/verification_email.html",
-					textPath: "./templates/verification/text.txt",
-					subjectPath: "./templates/verification/subject.txt",
+					htmlPath: `${templatesFolder}/verification/verification_email.html`,
+					textPath: `${templatesFolder}/verification/text.txt`,
+					subjectPath: `${templatesFolder}/verification/subject.txt`,
 				},
 			},
 			apiCallback: emailAPICallback,
@@ -59,7 +60,6 @@ export const parseServer = new ParseServer({
 	customPages: {
 		passwordResetSuccess: `${process.env.PANEL_BASE_URL}/passwordResetSuccess`,
 		verifyEmailSuccess: `${process.env.PANEL_BASE_URL}/verifyEmailSuccess`,
-		// parseFrameURL: `${process.env.PANEL_BASE_URL}/parseFrameURL`,
 		linkSendSuccess: `${process.env.PANEL_BASE_URL}/linkSendSuccess`,
 		linkSendFail: `${process.env.PANEL_BASE_URL}/linkSendFail`,
 		invalidLink: `${process.env.PANEL_BASE_URL}/invalidLink`,
