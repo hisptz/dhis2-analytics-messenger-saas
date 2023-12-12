@@ -56,7 +56,7 @@ export default function SignUpSide() {
 			});
 
 			if (user) {
-				router.replace("/");
+				router.replace(`/verifyEmail?username=${username}`);
 			}
 		} catch (e: any) {
 			alert(e.message);

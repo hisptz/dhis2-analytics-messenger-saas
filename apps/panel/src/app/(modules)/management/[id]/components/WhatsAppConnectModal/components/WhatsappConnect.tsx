@@ -7,6 +7,7 @@ import { LinearProgress } from "@mui/material";
 
 export interface WhatsappConnectProps {
 	instance: Parse.Object;
+	client?: Parse.Object;
 	onClose: () => void;
 	onConnectComplete: () => void;
 }
@@ -15,13 +16,15 @@ export function WhatsappConnect({
 	instance,
 	onClose,
 	onConnectComplete,
+	client,
 }: WhatsappConnectProps) {
 	const [error, setError] = useState();
 	const [loadingStatus, setLoadingStatus] = useState<number | null>(null);
 	const [qrCode, setQrCode] = useState();
-	const [timeout, setTimeout] = useState();
-
-	const token = useMemo(() => `${instance.id}-${uuid()}`, [instance.id]);
+	const token = useMemo(
+		() => client?.get("sessionId") ?? `${instance.id}-${uuid()}`,
+		[client, instance.id],
+	);
 
 	const style = {
 		width: 432,
@@ -84,7 +87,7 @@ export function WhatsappConnect({
 		}
 
 		return setup();
-	}, []);
+	}, [instance, onClose, onConnectComplete, token]);
 
 	if (error) {
 		return <div style={style}>{JSON.stringify(error)}</div>;

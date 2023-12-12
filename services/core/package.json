@@ -33,6 +33,7 @@
   ],
   "dependencies": {
     "@anatine/zod-openapi": "^2.0.1",
+    "@sendgrid/mail": "^8.1.0",
     "@types/async": "^3.2.20",
     "async": "^3.2.4",
     "axios": "^1.6.0",
@@ -47,6 +48,7 @@
     "parse": "^4.2.0",
     "parse-dashboard": "^5.2.0",
     "parse-server": "^6.3.1",
+    "parse-server-api-mail-adapter": "^3.1.1",
     "puppeteer": "^21.5.2",
     "schemas": "workspace:^",
     "swagger-ui-express": "^4.6.3",

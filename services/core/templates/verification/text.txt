@@ -1,0 +1,3 @@
+Welcome to DHIS2 Analytics Messenger.
+To continue, please verify your email address by clicking the link below
+{{{link}}}

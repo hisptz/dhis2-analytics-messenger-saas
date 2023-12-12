@@ -7,6 +7,7 @@ export interface WhatsAppConnectModalProps {
 	onClose: () => void;
 	onConnectComplete: () => void;
 	instance: Parse.Object;
+	client?: Parse.Object;
 }
 
 export default function WhatsappConnectModal({
@@ -14,12 +15,14 @@ export default function WhatsappConnectModal({
 	open,
 	onClose,
 	onConnectComplete,
+	client,
 }: WhatsAppConnectModalProps) {
 	return (
 		<Dialog open={open} onClose={onClose}>
 			<DialogTitle>Connect to your whatsapp</DialogTitle>
 			<DialogContent>
 				<WhatsappConnect
+					client={client}
 					onConnectComplete={onConnectComplete}
 					onClose={onClose}
 					instance={instance}

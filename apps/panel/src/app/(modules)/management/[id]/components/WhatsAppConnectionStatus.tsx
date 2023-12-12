@@ -8,6 +8,8 @@ import {
 } from "@tanstack/react-query";
 import { LoadingButton } from "@mui/lab";
 import { capitalize } from "lodash";
+import WhatsappConnectModal from "@/app/(modules)/management/[id]/components/WhatsAppConnectModal/WhatsappConnectModal";
+import { useBoolean } from "usehooks-ts";
 
 export function useWhatsAppConnectionStatus(data: Parse.Object) {
 	const fetchStatus = async () => {
@@ -68,12 +70,24 @@ export function useManageWhatsappConnectionStatus(data: Parse.Object) {
 	};
 }
 
-export function WhatsAppConnectionStatus({ data }: { data: Parse.Object }) {
+export function WhatsAppConnectionStatus({
+	data,
+	instance,
+}: {
+	data: Parse.Object;
+	instance: Parse.Object;
+}) {
+	const {
+		value: open,
+		setTrue: onOpen,
+		setFalse: onClose,
+	} = useBoolean(false);
 	const {
 		isLoading,
 		data: status,
 		error,
 		isError,
+		refetch,
 	} = useWhatsAppConnectionStatus(data);
 
 	const {
@@ -92,12 +106,41 @@ export function WhatsAppConnectionStatus({ data }: { data: Parse.Object }) {
 		return <div>{error?.message ?? ""}</div>;
 	}
 
+	if (status.status.includes("UNPAIRED")) {
+		return (
+			<div className="flex flex-row gap-4">
+				{open && (
+					<WhatsappConnectModal
+						client={data}
+						onConnectComplete={() => refetch()}
+						open={open}
+						onClose={onClose}
+						instance={instance}
+					/>
+				)}
+				<div className="text-red-600 bg-red-100 rounded-lg text-xs flex space-x-1 p-1 m-auto">
+					<WifiOff color="error" sx={{ fontSize: 15 }} />
+					<h1 className="">{capitalize(status.status)}</h1>
+				</div>
+				<LoadingButton
+					color="success"
+					onClick={onOpen}
+					loadingIndicator={"Connecting"}
+					loading={isPending}
+					variant="text"
+				>
+					Connect
+				</LoadingButton>
+			</div>
+		);
+	}
+
 	if (status.status === "NOT_ACTIVE") {
 		return (
 			<div className="flex flex-row gap-4">
 				<div className="text-red-600 bg-red-100 rounded-lg text-xs flex space-x-1 p-1 m-auto">
 					<WifiOff color="error" sx={{ fontSize: 15 }} />
-					<h1 className="">Disconnected</h1>
+					<h1 className="">{capitalize(status.status)}</h1>
 				</div>
 				<LoadingButton
 					color="success"

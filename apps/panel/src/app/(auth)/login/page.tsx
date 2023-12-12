@@ -39,6 +39,10 @@ export default function Login() {
 			}
 		} catch (e: any) {
 			console.log(e);
+			if (e.code === 205) {
+				router.replace(`/verifyEmail?username=${data.username}`);
+				return;
+			}
 			alert(e.message);
 		}
 	};
