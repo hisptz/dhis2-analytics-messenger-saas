@@ -5,6 +5,7 @@ import { DHIS2_INSTANCE_CLASSNAME } from "./dhis2Instance";
 import { WHATSAPP_CLIENT_CLASSNAME } from "./whatsappClient";
 
 export const ACTION_CLASSNAME = "Action";
+export const FLOW_CLASSNAME = "Flow";
 export const FLOW_STATE_CLASSNAME = "FlowState";
 const actionFields: ParseField[] = [
 	{
@@ -23,6 +24,10 @@ const actionFields: ParseField[] = [
 		type: "String",
 	},
 	{
+		name: "options",
+		type: "Object",
+	},
+	{
 		name: "dataKey",
 		type: "String",
 	},
@@ -35,9 +40,13 @@ const actionFields: ParseField[] = [
 		type: "String",
 	},
 	{
+		name: "visualizationId",
+		type: "String",
+	},
+	{
 		name: "urlOptions",
 		type: "Object",
-	}, //this will contain a response type,a method,headers,  etc
+	}, //this will contain a response type,a method, headers, etc
 	{
 		name: "body",
 		type: "Object",
@@ -54,18 +63,26 @@ const actionFields: ParseField[] = [
 		name: "routes",
 		type: "Array",
 	},
+	{
+		name: "flow",
+		type: "Pointer",
+		targetClass: FLOW_CLASSNAME,
+	},
 ];
 const actionSchema = generateSchema(ACTION_CLASSNAME, actionFields);
-export const FLOW_CLASSNAME = "Flow";
 const flowFields: ParseField[] = [
 	{
 		name: "trigger",
 		type: "String",
 	},
 	{
-		name: "instance",
+		name: "dhis2Instance",
 		type: "Pointer",
 		targetClass: DHIS2_INSTANCE_CLASSNAME,
+	},
+	{
+		name: "clients",
+		type: "Array",
 	},
 ];
 const flowSchema = generateSchema(FLOW_CLASSNAME, flowFields);
@@ -87,7 +104,6 @@ const flowStateFields: ParseField[] = [
 	},
 ];
 const flowStateSchema = generateSchema(FLOW_STATE_CLASSNAME, flowStateFields);
-
 export const SESSION_CLASSNAME = "Session";
 export const ENTRY_CLASSNAME = "Entry";
 const entryFields: ParseField[] = [
