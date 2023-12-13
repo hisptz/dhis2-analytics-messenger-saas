@@ -16,10 +16,6 @@ const actionFields: ParseField[] = [
 		},
 	},
 	{
-		name: "params",
-		type: "Object",
-	},
-	{
 		name: "text",
 		type: "String",
 	},
@@ -48,10 +44,6 @@ const actionFields: ParseField[] = [
 		type: "Object",
 	}, //this will contain a response type,a method, headers, etc
 	{
-		name: "body",
-		type: "Object",
-	},
-	{
 		name: "messageFormat",
 		type: "Object",
 	},
@@ -64,9 +56,8 @@ const actionFields: ParseField[] = [
 		type: "Array",
 	},
 	{
-		name: "flow",
-		type: "Pointer",
-		targetClass: FLOW_CLASSNAME,
+		name: "nextState",
+		type: "String",
 	},
 ];
 const actionSchema = generateSchema(ACTION_CLASSNAME, actionFields);
@@ -92,6 +83,13 @@ const flowStateFields: ParseField[] = [
 		name: "action",
 		type: "Pointer",
 		targetClass: ACTION_CLASSNAME,
+	},
+	{
+		name: "uid",
+		type: "String",
+		options: {
+			required: true,
+		},
 	},
 	{
 		name: "flow",
@@ -122,7 +120,7 @@ const entrySchema = generateSchema(ENTRY_CLASSNAME, entryFields);
 const sessionFields: ParseField[] = [
 	{
 		name: "startTime",
-		type: "String",
+		type: "Date",
 	},
 	{
 		name: "client",
@@ -130,8 +128,8 @@ const sessionFields: ParseField[] = [
 		targetClass: WHATSAPP_CLIENT_CLASSNAME,
 	},
 	{
-		name: "contact",
-		type: "Object",
+		name: "contactIdentifier",
+		type: "String",
 	},
 	{
 		name: "state",
@@ -150,6 +148,9 @@ const sessionFields: ParseField[] = [
 	{
 		name: "data",
 		type: "Object",
+		options: {
+			defaultValue: {},
+		},
 	},
 	{
 		name: "status",

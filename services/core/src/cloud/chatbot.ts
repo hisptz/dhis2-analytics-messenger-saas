@@ -1,8 +1,18 @@
-import { ACTION_CLASSNAME, FLOW_CLASSNAME } from "../dbSchemas/chatbot";
+import {
+	ACTION_CLASSNAME,
+	FLOW_CLASSNAME,
+	FLOW_STATE_CLASSNAME,
+} from "../dbSchemas/chatbot";
 import { forEach } from "lodash";
 import { WHATSAPP_CLIENT_CLASSNAME } from "../dbSchemas/whatsappClient";
 import logger from "../services/logging";
 import { DHIS2_INSTANCE_CLASSNAME } from "../dbSchemas/dhis2Instance";
+import {
+	IncomingMessage,
+	MessageType,
+	OutGoingMessage,
+} from "../apiSchemas/message";
+import { ChatbotEngine } from "../services/chatbotEngine";
 
 const defaultFlow = {
 	id: "dd4d9a61",
@@ -10,63 +20,90 @@ const defaultFlow = {
 	initialState: "b12ffbf3",
 	states: [
 		{
-			type: "API",
-			url: "{{dhis2URL}}/api/dataStore/hisptz-analytics-groups?fields=id,name",
-			urlOptions: {
-				responseDataPath: "entries",
-				method: "GET",
-			},
-			dataKey: "groups",
-		},
-		{
-			type: "MENU",
-			dataKey: "groupId",
-			text: "Hello, welcome to DHIS2 analytics service. Kindly select the group of visualization you want to view",
-			options: {
+			uid: "b12ffbf3",
+			action: {
+				type: "API",
+				url: "{dhis2URL}/api/dataStore/hisptz-analytics-groups?fields=id,name",
+				urlOptions: {
+					responseDataPath: "entries",
+					method: "GET",
+				},
 				dataKey: "groups",
-				textKey: "name",
-				idKey: "key",
+				nextState: "dc381521",
 			},
 		},
 		{
-			type: "API",
-			dataKey: "visualizations",
-			url: "{{dhis2URL}}/api/dataStore/hisptz-analytics-groups/{groupId}",
-			urlOptions: {
-				responseDataPath: "visualizations",
-				method: "GET",
+			uid: "dc381521",
+			action: {
+				type: "MENU",
+				dataKey: "groupId",
+				text: "Hello, welcome to DHIS2 analytics service. Kindly select the group of visualization you want to view",
+				options: {
+					dataKey: "groups",
+					textKey: "name",
+					idKey: "key",
+				},
+				nextState: "7f6902aa",
 			},
 		},
 		{
-			type: "MENU",
-			dataKey: "visualizationId",
-			text: "Select the visualization you would like to see",
-			options: {
+			uid: "7f6902aa",
+			action: {
+				type: "API",
 				dataKey: "visualizations",
-				textKey: "name",
-				idKey: "id",
+				url: "{dhis2URL}/api/dataStore/hisptz-analytics-groups/{groupId}",
+				urlOptions: {
+					responseDataPath: "visualizations",
+					method: "GET",
+				},
+				nextState: "53f023bb",
 			},
 		},
 		{
-			type: "API",
-			url: "{{dhis2URL}}/api/visualizations/{visualizationId}?fields=id,description",
-			dataKey: "description",
-			urlOptions: {
-				responseDataPath: "description",
-				method: "GET",
+			uid: "53f023bb",
+			action: {
+				type: "MENU",
+				dataKey: "visualizationId",
+				text: "Select the visualization you would like to see",
+				options: {
+					dataKey: "visualizations",
+					textKey: "name",
+					idKey: "id",
+				},
+				nextState: "4788a9d6",
 			},
 		},
 		{
-			type: "VISUALIZE",
-			visualizationId: "{visualizationId}",
-			dataKey: "visualizationImage",
+			uid: "4788a9d6",
+			action: {
+				type: "API",
+				url: "{dhis2URL}/api/visualizations/{visualizationId}?fields=id,description",
+				dataKey: "description",
+				urlOptions: {
+					responseDataPath: "description",
+					method: "GET",
+				},
+				nextState: "d5d5914b",
+			},
 		},
 		{
-			type: "QUIT",
-			text: "Here is the visualization requested. Thank you for using DHIS2 Analytics Service!",
-			messageFormat: {
-				type: "image",
-				image: "{visualizationImage}",
+			uid: "d5d5914b",
+			action: {
+				type: "VISUALIZE",
+				visualizationId: "{visualizationId}",
+				dataKey: "visualizationImage",
+				nextState: "a2a4b00a",
+			},
+		},
+		{
+			uid: "a2a4b00a",
+			action: {
+				type: "QUIT",
+				text: "Here is the visualization requested. Thank you for using DHIS2 Analytics Service!",
+				messageFormat: {
+					type: "image",
+					image: "{visualizationImage}",
+				},
 			},
 		},
 	],
@@ -106,17 +143,52 @@ Parse.Cloud.define("seedDefaultChatbotFlow", async (request) => {
 	await flow.fetch({
 		sessionToken: request.user.getSessionToken(),
 	});
-	const actions = defaultFlow.states.map((state, index) => {
+	const flowStates = defaultFlow.states.map((state, index) => {
+		const flowState = new Parse.Object(FLOW_STATE_CLASSNAME);
+		flowState.set("flow", flow);
+		flowState.set("uid", state.uid);
 		const action = new Parse.Object(ACTION_CLASSNAME);
-		action.set("flow", flow);
-		action.set("sortOrder", index + 1);
-		forEach(Object.keys(state), (key) => {
+		forEach(Object.keys(state.action), (key) => {
 			action.set(key, state[key]);
 		});
-		return action;
+
+		flowState.set("action", action);
+		return flowState;
 	});
 
-	await Parse.Object.saveAll(actions, {
+	await Parse.Object.saveAll(flowStates, {
 		sessionToken: request.user.getSessionToken(),
 	});
+});
+Parse.Cloud.define("onMessageReceive", async (request) => {
+	const { message, sessionId } = request.params as {
+		message: IncomingMessage;
+		sessionId: string;
+	};
+	if (!sessionId) {
+		throw new Error("Session ID is required");
+	}
+	if (!message) {
+		throw new Error("Message is required");
+	}
+	const clientQuery = new Parse.Query(WHATSAPP_CLIENT_CLASSNAME);
+	clientQuery.equalTo("sessionId", sessionId);
+	const client = await clientQuery.first({ useMasterKey: true });
+
+	if (!client) {
+		throw new Error("Client not found");
+	}
+
+	try {
+		const chatBotEngine = ChatbotEngine.init({ message, client });
+	} catch (e) {
+		//Errors will be formatted messages
+		return {
+			to: message.from,
+			message: {
+				type: MessageType.CHAT,
+				text: e.message,
+			},
+		} as OutGoingMessage;
+	}
 });

@@ -5,7 +5,7 @@ import {
 	ANALYTICS_JOB_CLASSNAME,
 	ANALYTICS_JOB_STATUS_CLASSNAME,
 } from "../dbSchemas/push";
-import { getVisualization } from "./visualization";
+import { getVisualization } from "../utils/visualization";
 import { mapSeries } from "async";
 
 async function sendWhatsAppMessage({
