@@ -180,7 +180,8 @@ Parse.Cloud.define("onMessageReceive", async (request) => {
 	}
 
 	try {
-		const chatBotEngine = ChatbotEngine.init({ message, client });
+		const chatBotEngine = await ChatbotEngine.init({ message, client });
+		return await chatBotEngine.runAction();
 	} catch (e) {
 		//Errors will be formatted messages
 		return {
