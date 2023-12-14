@@ -21,8 +21,12 @@ import {
 import { asyncify, mapSeries } from "async";
 
 import Parse from "parse/node";
+import logger from "../../services/logging";
+import { config } from "dotenv";
 
-Parse.serverURL = process.env.CORE_SERVER_URL;
+config();
+
+Parse.serverURL = process.env.CORE_BASE_URL;
 Parse.initialize(process.env.CORE_APP_ID);
 
 export class WhatsappClient extends BaseClient<Whatsapp> {
@@ -176,7 +180,6 @@ export class WhatsappClient extends BaseClient<Whatsapp> {
 	setupMessageCallback(): void {
 		this.client.onMessage(async (message) => {
 			const session = this.session;
-
 			if (message.type !== "chat") {
 				//Ignore the message
 				return;
@@ -191,18 +194,26 @@ export class WhatsappClient extends BaseClient<Whatsapp> {
 					text: message.body,
 				},
 			};
-			const reply: OutgoingMessage = await Parse.Cloud.run(
-				"onMessageReceive",
-				{
-					sessionId: session,
-					message: incomingMessage,
-				},
-			);
-			if (reply) {
-				await this.sendMessage({
-					message: reply.message,
-					to: reply.to,
-				});
+			logger.info(`Sending message to chatbot for session - ${session}`);
+			try {
+				const reply: OutgoingMessage = await Parse.Cloud.run(
+					"onMessageReceive",
+					{
+						sessionId: session,
+						message: incomingMessage,
+					},
+				);
+				console.log({ reply });
+				if (reply) {
+					await this.sendMessage({
+						message: reply.message,
+						to: reply.to,
+					});
+				}
+			} catch (e) {
+				logger.error(
+					`Error sending message to core system: ${e.message}`,
+				);
 			}
 		});
 	}

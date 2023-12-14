@@ -48,9 +48,15 @@ Parse.Cloud.afterSave(DHIS2_INSTANCE_CLASSNAME, async (request) => {
 		},
 	);
 
-	await Parse.Cloud.run("seedDefaultChatbotFlow", {
-		instanceId: object.id,
-	});
+	await Parse.Cloud.run(
+		"seedDefaultChatbotFlow",
+		{
+			instanceId: object.id,
+		},
+		{
+			sessionToken: user.getSessionToken(),
+		},
+	);
 });
 Parse.Cloud.beforeSave(AUTH_TOKEN_CLASSNAME, async (req) => {
 	const { original, object, user } = req;

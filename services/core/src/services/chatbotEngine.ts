@@ -1,11 +1,15 @@
 import {
 	IncomingMessage,
-	MessageConfig,
+	MessageContent,
 	MessageType,
-	OutGoingMessage,
-} from "../apiSchemas/message";
-import { FLOW_CLASSNAME, SESSION_CLASSNAME } from "../dbSchemas/chatbot";
-import { cloneDeep, get, head, isEmpty, last, reduce } from "lodash";
+	OutgoingMessage,
+} from "schemas";
+import {
+	FLOW_CLASSNAME,
+	FLOW_STATE_CLASSNAME,
+	SESSION_CLASSNAME,
+} from "../dbSchemas/chatbot";
+import { get, head, isEmpty, last, mapValues, reduce } from "lodash";
 import {
 	ActionData,
 	ActionType,
@@ -20,6 +24,14 @@ import {
 } from "../apiSchemas/flow";
 import axios, { AxiosResponse, ResponseType } from "axios";
 import { getVisualization } from "../utils/visualization";
+
+const sessionInclude = [
+	"flow",
+	"client",
+	"client.dhis2Instance",
+	"state",
+	"state.action",
+];
 
 export class ChatbotEngine {
 	protected session?: Parse.Object;
@@ -44,6 +56,10 @@ export class ChatbotEngine {
 		return this.session?.get("data");
 	}
 
+	protected get flow(): Parse.Object {
+		return this.session.get("flow");
+	}
+
 	protected get dhis2Instance(): Parse.Object {
 		return this.client.get("dhis2Instance");
 	}
@@ -52,7 +68,7 @@ export class ChatbotEngine {
 		return this.session?.get("step");
 	}
 
-	protected get sessionState() {
+	protected get sessionState(): Parse.Object {
 		return this.session?.get("state");
 	}
 
@@ -64,20 +80,27 @@ export class ChatbotEngine {
 		client: Parse.Object;
 	}) {
 		const { from } = message;
-		const identifier = from.number;
+		const identifier = from.identifier;
 		const sessionQuery = new Parse.Query(SESSION_CLASSNAME);
 		sessionQuery.equalTo("contactIdentifier", identifier);
 		sessionQuery.equalTo("client", client);
-		const session = await sessionQuery.first({ useMasterKey: true });
+		sessionQuery.notEqualTo("cancelled", true);
+		const session = await sessionQuery
+			.include(sessionInclude)
+			.first({ useMasterKey: true });
 		if (!session) {
 			//New session
 			//Get flow
-			await client.fetchWithInclude(["dhis2Instance"]);
+			await client.fetchWithInclude(["dhis2Instance"], {
+				useMasterKey: true,
+			});
 			const flowQuery = new Parse.Query(FLOW_CLASSNAME);
 			flowQuery.equalTo("dhis2Instance", client.get("dhis2Instance"));
 			// flowQuery.containedIn("clients", [client]); //TODO: Enable this in prod
 			flowQuery.contains("trigger", message.message.text);
-			const flows = await flowQuery.find({ useMasterKey: true });
+			const flows = await flowQuery
+				.include(["initialState", "initialState.action"])
+				.find({ useMasterKey: true });
 
 			if (isEmpty(flows)) {
 				throw Error(
@@ -85,7 +108,7 @@ export class ChatbotEngine {
 				);
 			}
 
-			if (flows.length > 1) {
+			if (flows?.length > 1) {
 				throw Error(
 					`More than one service matches the given phrase ${
 						message.message.text
@@ -96,27 +119,45 @@ export class ChatbotEngine {
 			}
 
 			const newSession = new Parse.Object(SESSION_CLASSNAME);
+			const flow = head(flows);
+			const initialState = flow.get("initialState");
+
 			await newSession.save(
 				{
 					contactIdentifier: identifier,
 					client,
 					startTime: new Date(),
 					data: {},
-					flow: head(flows),
+					flow,
+					state: initialState,
 				},
 				{
 					useMasterKey: true,
 				},
 			);
-			await newSession.fetchWithInclude(["flow"]);
-			return new ChatbotEngine({ message, session });
+			const savedSession = await newSession.fetchWithInclude(
+				sessionInclude,
+				{
+					useMasterKey: true,
+				},
+			);
+			return new ChatbotEngine({
+				message,
+				session: savedSession,
+				client,
+			});
 		}
-		return new ChatbotEngine({ message, session });
+		return new ChatbotEngine({ message, session, client });
 	}
 
 	async updateSession(field: string, value: any) {
 		this.session?.set(field, value);
-		await this.session?.save();
+		await this.session?.save(null, {
+			useMasterKey: true,
+		});
+		this.session = await this.session.fetchWithInclude(sessionInclude, {
+			useMasterKey: true,
+		});
 		return this.session;
 	}
 
@@ -129,7 +170,16 @@ export class ChatbotEngine {
 	}
 
 	async updateSessionState(state: string) {
-		await this.updateSession("state", state);
+		const stateObject = await new Parse.Query(FLOW_STATE_CLASSNAME)
+			.equalTo("flow", this.flow)
+			.equalTo("uid", state)
+			.first({
+				useMasterKey: true,
+			});
+		if (!stateObject) {
+			throw Error(`Could not find the state with uid ${state}`);
+		}
+		await this.updateSession("state", stateObject);
 	}
 
 	async cancelSession() {
@@ -137,16 +187,16 @@ export class ChatbotEngine {
 		await this.updateSession("cancelled", true);
 	}
 
-	getReplyMessage(message: MessageConfig): OutGoingMessage {
+	getReplyMessage(message: MessageContent): OutgoingMessage {
 		return {
-			...message,
+			message,
 			to: [this.message.from],
 		};
 	}
 
-	async runAction(): Promise<OutGoingMessage> | undefined {
-		const currentState = cloneDeep(this.sessionState);
-		const action = currentState.action as ActionData;
+	async runAction(): Promise<OutgoingMessage> | null {
+		const currentState = this.sessionState;
+		const action = currentState.get("action")?.attributes as ActionData;
 		if (this.message?.message.text?.toLowerCase().match("cancel")) {
 			await this.cancelSession();
 			return this.getReplyMessage({
@@ -155,7 +205,7 @@ export class ChatbotEngine {
 			});
 		}
 
-		let message: OutGoingMessage;
+		let message: OutgoingMessage;
 		switch (action.type) {
 			case ActionType.MENU:
 				message = await this.runMenuAction(action);
@@ -219,7 +269,7 @@ export class ChatbotEngine {
 	}): MenuOption[] {
 		const data = this.sessionData;
 		const rawOptions = get(data, [dataKey]) ?? [];
-		return rawOptions.map((rawOption: Record<string, any>) => ({
+		return rawOptions?.map((rawOption: Record<string, any>) => ({
 			text: get(rawOption, [textKey]),
 			id: get(rawOption, [idKey]),
 		}));
@@ -228,11 +278,15 @@ export class ChatbotEngine {
 	async runAssignAction(action: MenuAction | InputAction) {
 		const { text, dataKey, type } = action;
 		const options = "options" in action ? action.options : null;
-		const sanitizedOptions: MenuOption[] = Array.isArray(
-			JSON.parse(options as string),
-		)
-			? JSON.parse(options as string)
-			: this.mapOptions(JSON.parse(options as string));
+		const sanitizedOptions: MenuOption[] = Array.isArray(options)
+			? options
+			: this.mapOptions(
+					options as {
+						dataKey: string;
+						idKey: string;
+						textKey: string;
+					},
+			  );
 		const value =
 			type === "MENU"
 				? this.getSelectedMenuOption(sanitizedOptions)
@@ -242,7 +296,7 @@ export class ChatbotEngine {
 		await this.updateSessionState(action.nextState as string);
 	}
 
-	async runMenuAction(action: MenuAction): Promise<OutGoingMessage> {
+	async runMenuAction(action: MenuAction): Promise<OutgoingMessage> {
 		const { options, text } = action;
 		const sanitizedOptions: MenuOption[] = Array.isArray(options)
 			? options
@@ -284,7 +338,7 @@ export class ChatbotEngine {
 		});
 	}
 
-	async runInputAction(action: InputAction): Promise<OutGoingMessage> {
+	async runInputAction(action: InputAction): Promise<OutgoingMessage> {
 		if (this.sessionStep === "WAITING") {
 			await this.runAssignAction(action);
 		}
@@ -321,7 +375,12 @@ export class ChatbotEngine {
 				...(headers ?? {}),
 			},
 			method: method ?? "GET",
-			params: params,
+			params: mapValues(params, (value) => {
+				if (Array.isArray(value)) {
+					return value.join(",");
+				}
+				return value.toString();
+			}),
 		});
 		try {
 			const response =
@@ -330,7 +389,10 @@ export class ChatbotEngine {
 					: await axiosInstance.get(url);
 			if ([200, 304].includes(response.status)) {
 				//set data to data key
-				return response.data;
+				console.log({
+					response: response,
+				});
+				return response;
 			}
 		} catch (e: any) {
 			await this.closeSession();
@@ -354,6 +416,7 @@ export class ChatbotEngine {
 		const dataValue = responseDataPath
 			? get(response.data, responseDataPath)
 			: response.data;
+
 		if (responseType === "arraybuffer") {
 			//A file, change it to base64 string so that it plays nice
 			//assuming the end of url signifies the image extension;
@@ -404,6 +467,7 @@ export class ChatbotEngine {
 			});
 			if (nextState) {
 				await this.updateSessionState(nextState);
+				await this.updateSession("step", "COMPLETED");
 			} else {
 				throw Error("Missing next step to move to");
 			}
@@ -413,15 +477,11 @@ export class ChatbotEngine {
 	}
 
 	async runDHIS2APIAction(action: DHIS2APIAction): Promise<void> {
-		const {
+		const { nextState, dataKey, method, urlOptions } = action ?? {};
+		const { resource, responseDataPath, params } = urlOptions;
+		const url = `${this.dhis2Instance.get("url")}/api/${this.sanitizeText(
 			resource,
-			params,
-			nextState,
-			dataKey,
-			method,
-			responseDataPath,
-		} = action ?? {};
-		const url = `${this.dhis2Instance.get("url")}/api/${resource}`;
+		)}`;
 		const headers = {
 			Authorization: `ApiToken ${this.dhis2Instance.get("pat")}`,
 		};
@@ -442,6 +502,7 @@ export class ChatbotEngine {
 			});
 			if (nextState) {
 				await this.updateSessionState(nextState);
+				await this.updateSession("step", "COMPLETED");
 			} else {
 				throw Error("Missing next step to move to");
 			}
@@ -459,22 +520,24 @@ export class ChatbotEngine {
 		return this.replaceStringValues(text);
 	}
 
-	sanitizeMessageFormat(messageFormat: string, text: string): string {
+	sanitizeMessageFormat(
+		messageFormat: Record<string, any>,
+		text: string,
+	): Record<string, any> {
 		const data = {
 			text,
 		};
-		return this.replaceStringValues(messageFormat, data);
+		return mapValues(messageFormat, (value) => {
+			return this.replaceStringValues(value, data);
+		});
 	}
 
-	async runQuitAction(action: QuitAction): Promise<OutGoingMessage> {
+	async runQuitAction(action: QuitAction): Promise<OutgoingMessage> {
 		const { text, messageFormat } = action;
 		await this.closeSession();
 		const sanitizedText = this.sanitizeText(text as string);
-		const sanitizedFormatString = messageFormat
+		const format = messageFormat
 			? this.sanitizeMessageFormat(messageFormat, sanitizedText)
-			: undefined;
-		const format = sanitizedFormatString
-			? JSON.parse(sanitizedFormatString)
 			: undefined;
 
 		return this.getReplyMessage({
@@ -486,15 +549,19 @@ export class ChatbotEngine {
 	}
 
 	async runVisualizerAction(action: VisualizerAction): Promise<void> {
-		const { visualizationId, dataKey } = action ?? {};
+		const { visualizationId, dataKey, nextState } = action ?? {};
 		const dhis2URL = this.dhis2Instance.get("url");
 		const dhis2PAT = this.dhis2Instance.get("pat");
 		const visualization = await getVisualization({
 			dhis2URL,
 			dhis2PAT,
-			id: visualizationId,
+			id: this.sanitizeText(visualizationId),
 		});
 		await this.updateSessionData(dataKey, visualization);
+		if (nextState) {
+			await this.updateSessionState(nextState);
+			await this.updateSession("step", "COMPLETED");
+		}
 	}
 
 	replaceStringValues(text: string, extraData?: Record<string, any>): string {

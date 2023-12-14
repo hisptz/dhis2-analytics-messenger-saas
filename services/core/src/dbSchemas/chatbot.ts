@@ -75,6 +75,11 @@ const flowFields: ParseField[] = [
 		name: "clients",
 		type: "Array",
 	},
+	{
+		name: "initialState",
+		type: "Pointer",
+		targetClass: FLOW_STATE_CLASSNAME,
+	},
 ];
 const flowSchema = generateSchema(FLOW_CLASSNAME, flowFields);
 

@@ -7,14 +7,11 @@ import { forEach } from "lodash";
 import { WHATSAPP_CLIENT_CLASSNAME } from "../dbSchemas/whatsappClient";
 import logger from "../services/logging";
 import { DHIS2_INSTANCE_CLASSNAME } from "../dbSchemas/dhis2Instance";
-import {
-	IncomingMessage,
-	MessageType,
-	OutGoingMessage,
-} from "../apiSchemas/message";
+import { IncomingMessage, MessageType, OutgoingMessage } from "schemas";
 import { ChatbotEngine } from "../services/chatbotEngine";
+import { ActionType, FlowData } from "../apiSchemas/flow";
 
-const defaultFlow = {
+const defaultFlow: FlowData = {
 	id: "dd4d9a61",
 	trigger: "Hello DHIS2",
 	initialState: "b12ffbf3",
@@ -22,11 +19,13 @@ const defaultFlow = {
 		{
 			uid: "b12ffbf3",
 			action: {
-				type: "API",
-				url: "{dhis2URL}/api/dataStore/hisptz-analytics-groups?fields=id,name",
+				type: ActionType.DHIS2API,
 				urlOptions: {
+					resource: "dataStore/hisptz-analytics-groups",
+					params: {
+						fields: ["id", "name"],
+					},
 					responseDataPath: "entries",
-					method: "GET",
 				},
 				dataKey: "groups",
 				nextState: "dc381521",
@@ -35,7 +34,7 @@ const defaultFlow = {
 		{
 			uid: "dc381521",
 			action: {
-				type: "MENU",
+				type: ActionType.MENU,
 				dataKey: "groupId",
 				text: "Hello, welcome to DHIS2 analytics service. Kindly select the group of visualization you want to view",
 				options: {
@@ -49,12 +48,11 @@ const defaultFlow = {
 		{
 			uid: "7f6902aa",
 			action: {
-				type: "API",
+				type: ActionType.DHIS2API,
 				dataKey: "visualizations",
-				url: "{dhis2URL}/api/dataStore/hisptz-analytics-groups/{groupId}",
 				urlOptions: {
+					resource: "dataStore/hisptz-analytics-groups/{groupId}",
 					responseDataPath: "visualizations",
-					method: "GET",
 				},
 				nextState: "53f023bb",
 			},
@@ -62,7 +60,7 @@ const defaultFlow = {
 		{
 			uid: "53f023bb",
 			action: {
-				type: "MENU",
+				type: ActionType.MENU,
 				dataKey: "visualizationId",
 				text: "Select the visualization you would like to see",
 				options: {
@@ -76,20 +74,21 @@ const defaultFlow = {
 		{
 			uid: "4788a9d6",
 			action: {
-				type: "API",
-				url: "{dhis2URL}/api/visualizations/{visualizationId}?fields=id,description",
-				dataKey: "description",
+				type: ActionType.DHIS2API,
 				urlOptions: {
-					responseDataPath: "description",
-					method: "GET",
+					resource: "visualizations/{visualizationId}",
+					params: {
+						fields: ["id", "description"],
+					},
 				},
+				dataKey: "description",
 				nextState: "d5d5914b",
 			},
 		},
 		{
 			uid: "d5d5914b",
 			action: {
-				type: "VISUALIZE",
+				type: ActionType.VISUALIZER,
 				visualizationId: "{visualizationId}",
 				dataKey: "visualizationImage",
 				nextState: "a2a4b00a",
@@ -98,7 +97,7 @@ const defaultFlow = {
 		{
 			uid: "a2a4b00a",
 			action: {
-				type: "QUIT",
+				type: ActionType.QUIT,
 				text: "Here is the visualization requested. Thank you for using DHIS2 Analytics Service!",
 				messageFormat: {
 					type: "image",
@@ -149,14 +148,24 @@ Parse.Cloud.define("seedDefaultChatbotFlow", async (request) => {
 		flowState.set("uid", state.uid);
 		const action = new Parse.Object(ACTION_CLASSNAME);
 		forEach(Object.keys(state.action), (key) => {
-			action.set(key, state[key]);
+			action.set(key, state.action[key]);
 		});
 
 		flowState.set("action", action);
 		return flowState;
 	});
-
 	await Parse.Object.saveAll(flowStates, {
+		sessionToken: request.user.getSessionToken(),
+	});
+
+	const initialState = await new Parse.Query(FLOW_STATE_CLASSNAME)
+		.equalTo("uid", defaultFlow.initialState)
+		.first({
+			sessionToken: request.user.getSessionToken(),
+		});
+
+	flow.set("initialState", initialState);
+	await flow.save(null, {
 		sessionToken: request.user.getSessionToken(),
 	});
 });
@@ -173,6 +182,7 @@ Parse.Cloud.define("onMessageReceive", async (request) => {
 	}
 	const clientQuery = new Parse.Query(WHATSAPP_CLIENT_CLASSNAME);
 	clientQuery.equalTo("sessionId", sessionId);
+	clientQuery.include(["dhis2Instance"]);
 	const client = await clientQuery.first({ useMasterKey: true });
 
 	if (!client) {
@@ -185,11 +195,11 @@ Parse.Cloud.define("onMessageReceive", async (request) => {
 	} catch (e) {
 		//Errors will be formatted messages
 		return {
-			to: message.from,
+			to: [message.from],
 			message: {
 				type: MessageType.CHAT,
 				text: e.message,
 			},
-		} as OutGoingMessage;
+		} as OutgoingMessage;
 	}
 });

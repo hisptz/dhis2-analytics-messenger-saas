@@ -42,8 +42,9 @@ export const MessageContentSchema = z.discriminatedUnion("type", [
 	TextMessageSchema,
 	DocumentMessageSchema,
 ]);
+export type MessageContent = z.infer<typeof MessageContentSchema>;
 export const WhatsappContactSchema = z.object({
-	type: z.enum(["individual", "group"]),
+	type: z.nativeEnum(ContactType),
 	identifier: z.string(),
 });
 export type WhatsappContact = z.infer<typeof WhatsappContactSchema>;

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { WhatsappMessage, WhatsappMessageSchema } from "schemas";
+import { OutgoingMessage, OutGoingMessageSchema } from "schemas";
 import { SafeParseError } from "zod";
 import { WhatsappClient } from "../../clients/whatsapp/whatsapp";
 
@@ -18,9 +18,9 @@ router.get("/:session", async (req, res) => {
 router.post("/:session/send", async (req, res) => {
 	const { session } = req.params;
 	const data = req.body;
-	const validatedData = WhatsappMessageSchema.safeParse(data);
+	const validatedData = OutGoingMessageSchema.safeParse(data);
 	if (!validatedData.success) {
-		const error = (validatedData as SafeParseError<WhatsappMessage>).error;
+		const error = (validatedData as SafeParseError<OutgoingMessage>).error;
 		res.status(400).json({ error });
 		return;
 	}

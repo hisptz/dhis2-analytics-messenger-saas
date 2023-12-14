@@ -1,5 +1,5 @@
 import { messagingClient } from "../client/messaging";
-import { WhatsappMessage } from "schemas";
+import { ContactType, MessageType, OutgoingMessage } from "schemas";
 import { z } from "zod";
 import {
 	ANALYTICS_JOB_CLASSNAME,
@@ -15,7 +15,7 @@ async function sendWhatsAppMessage({
 }: {
 	clientId: string;
 	user: Parse.User;
-	messagePayload: WhatsappMessage;
+	messagePayload: OutgoingMessage;
 }) {
 	try {
 		const client = await new Parse.Query("WhatsappClient").get(clientId, {
@@ -38,7 +38,7 @@ async function sendWhatsAppMessageFromSchedule({
 	messagePayload,
 }: {
 	clientId: string;
-	messagePayload: WhatsappMessage;
+	messagePayload: OutgoingMessage;
 }) {
 	try {
 		const client = await new Parse.Query("WhatsappClient").get(clientId, {
@@ -65,7 +65,7 @@ const message = z.object({
 
 type Message = z.infer<typeof message>;
 
-Parse.Cloud.define("sendTestWhatsappMessage", async (request) => {
+Parse.Cloud.define("sendTestOutgoingMessage", async (request) => {
 	const { message, clientType, clientId, to } = request.params as Message;
 
 	if (!request.user) {
@@ -83,13 +83,13 @@ Parse.Cloud.define("sendTestWhatsappMessage", async (request) => {
 				clientId,
 				messagePayload: {
 					message: {
-						type: "text",
+						type: MessageType.CHAT,
 						text: message,
 					},
 					to: [
 						{
 							identifier: to,
-							type: "individual",
+							type: ContactType.INDIVIDUAL,
 						},
 					],
 				},
@@ -142,7 +142,7 @@ Parse.Cloud.define("runAnalyticsPushJob", async (request) => {
 
 	const contacts = jobConfig.get("contacts");
 	const description = jobConfig.get("description");
-	const messages: WhatsappMessage[] = images.map((image) => {
+	const messages: OutgoingMessage[] = images.map((image) => {
 		return {
 			to: contacts,
 			message: {
@@ -150,7 +150,7 @@ Parse.Cloud.define("runAnalyticsPushJob", async (request) => {
 				image: image,
 				text: description,
 			},
-		} as WhatsappMessage;
+		} as OutgoingMessage;
 	});
 
 	const client = await new Parse.Query("WhatsappClient")
@@ -172,7 +172,7 @@ Parse.Cloud.define("runAnalyticsPushJob", async (request) => {
 	try {
 		const responses = await mapSeries(
 			messages,
-			async (message: WhatsappMessage) =>
+			async (message: OutgoingMessage) =>
 				sendWhatsAppMessage({
 					messagePayload: message,
 					user,
@@ -228,7 +228,7 @@ Parse.Cloud.define("runScheduledAnalyticsPushJob", async (request) => {
 
 	const contacts = jobConfig.get("contacts");
 	const description = jobConfig.get("description");
-	const messages: WhatsappMessage[] = images.map((image) => {
+	const messages: OutgoingMessage[] = images.map((image) => {
 		return {
 			to: contacts,
 			message: {
@@ -236,7 +236,7 @@ Parse.Cloud.define("runScheduledAnalyticsPushJob", async (request) => {
 				image: image,
 				text: description,
 			},
-		} as WhatsappMessage;
+		} as OutgoingMessage;
 	});
 
 	const client = await new Parse.Query("WhatsappClient")
@@ -258,7 +258,7 @@ Parse.Cloud.define("runScheduledAnalyticsPushJob", async (request) => {
 	try {
 		const responses = await mapSeries(
 			messages,
-			async (message: WhatsappMessage) =>
+			async (message: OutgoingMessage) =>
 				sendWhatsAppMessageFromSchedule({
 					messagePayload: message,
 					clientId: client?.id,

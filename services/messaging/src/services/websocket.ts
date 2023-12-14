@@ -8,7 +8,7 @@ export function initWebsocket(server: any) {
 		cors: {
 			origin: "*",
 		},
-		path: `${process.env.MESSAGING_MOUNT_PATH}/socket.io/`,
+		path: `${process.env.MESSAGING_MOUNT_PATH ?? ""}/socket.io/`,
 	});
 }
 

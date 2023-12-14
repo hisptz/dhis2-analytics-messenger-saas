@@ -26,15 +26,17 @@ export type VisualizerAction = z.infer<typeof visualizerActionSchema>;
 export const dhis2APIActionSchema = z.object({
 	...genericActionSchema,
 	type: z.literal(ActionType.DHIS2API),
-	resource: z.string(),
-	params: z.object({}),
+	urlOptions: z.object({
+		resource: z.string(),
+		params: z.object({}),
+		responseDataPath: z
+			.string({
+				description: "Data accessor for the response of the api call",
+			})
+			.optional(),
+	}),
 	dataKey: z.string(),
 	method: z.enum(["GET", "POST"], { description: "API  method" }),
-	responseDataPath: z
-		.string({
-			description: "Data accessor for the response of the api call",
-		})
-		.optional(),
 });
 export type DHIS2APIAction = z.infer<typeof dhis2APIActionSchema>;
 
@@ -50,7 +52,7 @@ export const quitActionSchema = z.object({
 	type: z.literal(ActionType.QUIT),
 	text: z.string({ description: "Text to display when quitting the flow" }),
 	nextState: z.undefined(),
-	messageFormat: z.string().optional(),
+	messageFormat: z.object({}),
 });
 export type QuitAction = z.infer<typeof quitActionSchema>;
 export const routerActionSchema = z.object({
@@ -143,7 +145,7 @@ export const actionSchema = z.discriminatedUnion("type", [
 	visualizerActionSchema,
 ]);
 export const flowStateSchema = z.object({
-	id: z.string({ description: "State id" }),
+	uid: z.string({ description: "State id" }),
 	action: actionSchema,
 });
 export const flowSchema = z.object({
