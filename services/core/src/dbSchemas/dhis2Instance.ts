@@ -32,7 +32,6 @@ const fields: ParseField[] = [
 		},
 	},
 ];
-
 export const DHIS2_INSTANCE_CLASSNAME = "DHIS2Instance";
 
 export const dhis2InstanceSchema = generateSchema(

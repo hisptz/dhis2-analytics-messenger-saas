@@ -91,6 +91,10 @@ export function getConfig(visualization: any, { height }: { height: number }) {
 						return {
 							...options,
 							series,
+							chart: {
+								...options.chart,
+								animation: false,
+							},
 							xAxis: {
 								...options.xAxis,
 								reversed: sortOrder === -1,

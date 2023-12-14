@@ -9,6 +9,7 @@ import { userSchema } from "../dbSchemas/user";
 
 import { DHIS2AuthAdapter } from "./auth";
 import { emailAPICallback } from "./email";
+import { chatbotSchema } from "../dbSchemas/chatbot";
 
 config();
 
@@ -38,6 +39,7 @@ export const parseServer = new ParseServer({
 			whatsappClientSchema,
 			authTokenSchema,
 			...analyticsJobSchema,
+			...chatbotSchema,
 		],
 		recreateModifiedFields: true,
 	},
@@ -67,7 +69,6 @@ export const parseServer = new ParseServer({
 		choosePassword: `${process.env.PANEL_BASE_URL}/choosePassword`,
 	},
 });
-
 export const parseDashboard = new ParseDashboard({
 	apps: [
 		{
