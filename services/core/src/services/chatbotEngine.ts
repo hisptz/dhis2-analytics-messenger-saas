@@ -560,6 +560,9 @@ export class ChatbotEngine {
 			dhis2PAT,
 			id: this.sanitizeText(visualizationId),
 		});
+		console.log({
+			visualization,
+		});
 		await this.updateSessionData(dataKey, visualization);
 		if (nextState) {
 			await this.updateSessionState(nextState);

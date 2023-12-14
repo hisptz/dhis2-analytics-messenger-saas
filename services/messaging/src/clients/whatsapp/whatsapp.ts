@@ -196,6 +196,7 @@ export class WhatsappClient extends BaseClient<Whatsapp> {
 			};
 			logger.info(`Sending message to chatbot for session - ${session}`);
 			try {
+				await this.client.startTyping(message.from);
 				const reply: OutgoingMessage = await Parse.Cloud.run(
 					"onMessageReceive",
 					{
@@ -203,6 +204,7 @@ export class WhatsappClient extends BaseClient<Whatsapp> {
 						message: incomingMessage,
 					},
 				);
+				await this.client.stopTyping(message.from);
 				if (reply) {
 					await this.sendMessage({
 						message: reply.message,
@@ -210,6 +212,11 @@ export class WhatsappClient extends BaseClient<Whatsapp> {
 					});
 				}
 			} catch (e) {
+				await this.client.stopTyping(message.from);
+				await this.client.sendText(
+					message.from,
+					"Error processing message. Please try again.",
+				);
 				logger.error(
 					`Error sending message to core system: ${e.message}`,
 				);

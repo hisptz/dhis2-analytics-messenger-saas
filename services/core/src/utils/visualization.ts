@@ -6,6 +6,9 @@ config();
 
 const visualizerURL = process.env.VISUALIZER_URL ?? "http://localhost:5173";
 
+const width = 1920;
+const height = 1080;
+
 export async function getVisualization({
 	id,
 	dhis2PAT,
@@ -24,8 +27,8 @@ export async function getVisualization({
 			"--disable-setuid-sandbox",
 		],
 		defaultViewport: {
-			width: 1920,
-			height: 1080,
+			width,
+			height,
 		},
 	});
 	logger.info(`Opening visualization service at: ${visualizerURL}`);
@@ -33,6 +36,8 @@ export async function getVisualization({
 	const params = new URLSearchParams({
 		dhis2PAT,
 		dhis2URL,
+		width: width.toString(),
+		height: width.toString(),
 	});
 	try {
 		await page.goto(`${visualizerURL}/${id}?${params.toString()}`);
@@ -51,7 +56,11 @@ export async function getVisualization({
 			}),
 		]);
 		await new Promise((r) => setTimeout(r, 2000)); //Due to highchart animation
-		const imageBuffer = (await page?.screenshot()) as Buffer;
+		const imageBuffer = (await page?.screenshot({
+			type: "jpeg",
+			quality: 100,
+			fullPage: true,
+		})) as Buffer;
 		await browser.close();
 		if (imageBuffer) {
 			return `data:image/png;base64,${imageBuffer.toString("base64")}`;
