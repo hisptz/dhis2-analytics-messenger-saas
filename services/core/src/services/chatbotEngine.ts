@@ -97,7 +97,7 @@ export class ChatbotEngine {
 			const flowQuery = new Parse.Query(FLOW_CLASSNAME);
 			flowQuery.equalTo("dhis2Instance", client.get("dhis2Instance"));
 			// flowQuery.containedIn("clients", [client]); //TODO: Enable this in prod
-			flowQuery.contains("trigger", message.message.text);
+			flowQuery.matches("trigger", new RegExp(message.message.text, "i"));
 			const flows = await flowQuery
 				.include(["initialState", "initialState.action"])
 				.find({ useMasterKey: true });
@@ -246,7 +246,10 @@ export class ChatbotEngine {
 		if (isNaN(index)) {
 			//Try matching using string
 			option = options.find(
-				(option) => this.message?.message?.text?.match(option.text),
+				(option) =>
+					this.message?.message?.text
+						.toLowerCase()
+						?.match(option.text.toLowerCase()),
 			);
 		} else {
 			//Yeey, we got a number
