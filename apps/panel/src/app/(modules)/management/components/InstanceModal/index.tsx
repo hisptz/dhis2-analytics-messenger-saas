@@ -88,7 +88,7 @@ const DHIS2AnalyticsModal: React.FC<DHIS2AnalyticsModalProps> = ({
 	const onSubmit = async (data: InstanceData) => {
 		if (defaultValue) {
 			await defaultValue.save({
-				data,
+				...data,
 			});
 		} else {
 			const currentUser = Parse.User.current();

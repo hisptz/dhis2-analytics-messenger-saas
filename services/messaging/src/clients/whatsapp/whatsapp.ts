@@ -11,8 +11,23 @@ import {
 } from "@wppconnect-team/wppconnect";
 import { activeWhatsappClients, removeClient } from "../../globals/whatsapp";
 import { find } from "lodash";
-import { WhatsappContact, WhatsappMessage } from "schemas";
+import {
+	ContactType,
+	IncomingMessage,
+	MessageType,
+	OutgoingMessage,
+	WhatsappContact,
+} from "schemas";
 import { asyncify, mapSeries } from "async";
+
+import Parse from "parse/node";
+import logger from "../../services/logging";
+import { config } from "dotenv";
+
+config();
+
+Parse.serverURL = process.env.CORE_BASE_URL;
+Parse.initialize(process.env.CORE_APP_ID);
 
 export class WhatsappClient extends BaseClient<Whatsapp> {
 	session: string;
@@ -57,6 +72,7 @@ export class WhatsappClient extends BaseClient<Whatsapp> {
 			this.client = whatsapp;
 			await this.client.start();
 			activeWhatsappClients.push(this);
+			this.setupMessageCallback();
 			return this;
 		}
 		throw Error(`Could not initialize WhatsApp session ${this.session}`);
@@ -118,6 +134,7 @@ export class WhatsappClient extends BaseClient<Whatsapp> {
 		}
 		await this.client.start();
 		activeWhatsappClients.push(this);
+		this.setupMessageCallback();
 		onSuccess();
 		return Promise.resolve(this);
 	}
@@ -147,14 +164,67 @@ export class WhatsappClient extends BaseClient<Whatsapp> {
 		return await this.client.listChats({ onlyGroups: true });
 	}
 
-	async sendMessage(messagePayload: WhatsappMessage): Promise<Message[]> {
+	getContact(identifier: string): WhatsappContact {
+		if (identifier.includes("@c.us")) {
+			return {
+				type: ContactType.INDIVIDUAL,
+				identifier: identifier.replace("@c.us", ""),
+			};
+		}
+		return {
+			type: ContactType.GROUP,
+			identifier: identifier.replace("@g.us", ""),
+		};
+	}
+
+	setupMessageCallback(): void {
+		this.client.onMessage(async (message) => {
+			const session = this.session;
+			if (message.type !== "chat") {
+				//Ignore the message
+				return;
+			}
+
+			//TODO: Implement phone number whitelist
+
+			const incomingMessage: IncomingMessage = {
+				from: this.getContact(message.from),
+				message: {
+					type: message.type as MessageType.CHAT,
+					text: message.body,
+				},
+			};
+			logger.info(`Sending message to chatbot for session - ${session}`);
+			try {
+				const reply: OutgoingMessage = await Parse.Cloud.run(
+					"onMessageReceive",
+					{
+						sessionId: session,
+						message: incomingMessage,
+					},
+				);
+				if (reply) {
+					await this.sendMessage({
+						message: reply.message,
+						to: reply.to,
+					});
+				}
+			} catch (e) {
+				logger.error(
+					`Error sending message to core system: ${e.message}`,
+				);
+			}
+		});
+	}
+
+	async sendMessage(messagePayload: OutgoingMessage): Promise<Message[]> {
 		const { to, message } = messagePayload;
 
 		const type = message.type;
 		const chatIds = to.map(this.getChatId);
 
 		switch (type) {
-			case "text":
+			case "chat":
 				return await mapSeries(
 					chatIds,
 					asyncify(async (to: string) =>

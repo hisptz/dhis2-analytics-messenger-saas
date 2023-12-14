@@ -7,10 +7,11 @@
 import jwt from "jsonwebtoken";
 import { config } from "dotenv";
 import { last } from "lodash";
+import { DHIS2_INSTANCE_CLASSNAME } from "../dbSchemas/dhis2Instance";
+import { AUTH_TOKEN_CLASSNAME } from "../dbSchemas/authToken";
 
 config();
-
-Parse.Cloud.afterSave("DHIS2Instance", async (request) => {
+Parse.Cloud.afterSave(DHIS2_INSTANCE_CLASSNAME, async (request) => {
 	const { original, object, user } = request;
 
 	if (!user) {
@@ -19,12 +20,11 @@ Parse.Cloud.afterSave("DHIS2Instance", async (request) => {
 			"You need to be authenticated",
 		);
 	}
-
 	if (original) {
 		return;
 	}
 
-	const authToken = new Parse.Object("AuthToken");
+	const authToken = new Parse.Object(AUTH_TOKEN_CLASSNAME);
 	authToken.setACL(new Parse.ACL(user));
 	await authToken.save(
 		{
@@ -38,8 +38,18 @@ Parse.Cloud.afterSave("DHIS2Instance", async (request) => {
 			sessionToken: user.getSessionToken(),
 		},
 	);
+
+	await Parse.Cloud.run(
+		"seedDefaultChatbotFlow",
+		{
+			instanceId: object.id,
+		},
+		{
+			sessionToken: user.getSessionToken(),
+		},
+	);
 });
-Parse.Cloud.beforeSave("AuthToken", async (req) => {
+Parse.Cloud.beforeSave(AUTH_TOKEN_CLASSNAME, async (req) => {
 	const { original, object, user } = req;
 
 	if (!user) {
@@ -69,7 +79,7 @@ Parse.Cloud.beforeSave("AuthToken", async (req) => {
 	});
 	object.set("token", `${user.id}/${token}`);
 });
-Parse.Cloud.afterSave("AuthToken", async (req) => {
+Parse.Cloud.afterSave(AUTH_TOKEN_CLASSNAME, async (req) => {
 	const { user, object } = req;
 
 	if (!user) {
