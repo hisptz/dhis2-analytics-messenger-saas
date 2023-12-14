@@ -20,15 +20,6 @@ Parse.Cloud.afterSave(DHIS2_INSTANCE_CLASSNAME, async (request) => {
 			"You need to be authenticated",
 		);
 	}
-
-	await Parse.Cloud.run(
-		"seedDefaultChatbotFlow",
-		{
-			instanceId: object.id,
-		},
-		{ sessionToken: user.getSessionToken() },
-	);
-
 	if (original) {
 		return;
 	}

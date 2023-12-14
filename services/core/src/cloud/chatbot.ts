@@ -127,11 +127,26 @@ Parse.Cloud.define("seedDefaultChatbotFlow", async (request) => {
 		);
 	}
 
+	const flowExists = await new Parse.Query(FLOW_CLASSNAME)
+		.equalTo("dhis2Instance", instance)
+		.equalTo("trigger", defaultFlow.trigger)
+		.first({
+			sessionToken: request.user.getSessionToken(),
+		});
+
+	if (flowExists) {
+		logger.info(
+			`Skipping seeding default chatbot flow. Flow already exists`,
+		);
+		return;
+	}
+
 	const clientQuery = new Parse.Query(WHATSAPP_CLIENT_CLASSNAME);
 	clientQuery.equalTo("dhis2Instance", instance);
 	const clients = await clientQuery.find({
 		sessionToken: request.user.getSessionToken(),
 	});
+
 	const flow = new Parse.Object(FLOW_CLASSNAME);
 	flow.set("dhis2Instance", instance);
 	flow.set("trigger", defaultFlow.trigger);
