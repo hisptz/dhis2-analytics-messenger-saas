@@ -203,7 +203,6 @@ export class WhatsappClient extends BaseClient<Whatsapp> {
 						message: incomingMessage,
 					},
 				);
-				console.log({ reply });
 				if (reply) {
 					await this.sendMessage({
 						message: reply.message,

@@ -33,8 +33,6 @@ export async function getVisualization({
 	const params = new URLSearchParams({
 		dhis2PAT,
 		dhis2URL,
-		height: "1080",
-		width: "1920",
 	});
 	try {
 		await page.goto(`${visualizerURL}/${id}?${params.toString()}`);
@@ -52,6 +50,7 @@ export async function getVisualization({
 				timeout: 20000,
 			}),
 		]);
+		await new Promise((r) => setTimeout(r, 2000)); //Due to highchart animation
 		const imageBuffer = (await page?.screenshot()) as Buffer;
 		await browser.close();
 		if (imageBuffer) {
