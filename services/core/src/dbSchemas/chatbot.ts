@@ -161,6 +161,10 @@ const sessionFields: ParseField[] = [
 		name: "status",
 		type: "String",
 	},
+	{
+		name: "cancelled",
+		type: "Boolean",
+	},
 ];
 const sessionSchema = generateSchema(SESSION_CLASSNAME, sessionFields);
 
