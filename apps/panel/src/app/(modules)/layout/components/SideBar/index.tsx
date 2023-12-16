@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
+import { ParseClient } from "@/utils/parse/client";
 import Image from "next/image";
 import { LogoutModal } from "../logout";
 import { Box, Tab, Tabs } from "@mui/material";
@@ -54,13 +56,26 @@ const SidebarTab: React.FC<SidebarTabProps> = ({
 );
 
 export default function SideBar() {
+	const router = useRouter();
 	const [isLogOutModalOpen, setLogOutModalOpen] = useState(false);
+	const [loggingOut, setLoggingOut] = useState(false);
 	const openLogOutModal = useCallback(() => {
 		setLogOutModalOpen(true);
 	}, []);
 	const closeLogOutModal = useCallback(() => {
 		setLogOutModalOpen(false);
 	}, []);
+	const onLogOut = useCallback(async () => {
+		setLoggingOut(true);
+		try {
+			await ParseClient.User.logOut();
+			setLogOutModalOpen(false);
+			router.replace("/login");
+		} catch (error: any) {
+			alert(error.message);
+		}
+		setLoggingOut(false);
+	}, [router]);
 	const pathname = usePathname();
 	const [tabValue, setTabValue] = useState<number>(() => {
 		switch (pathname) {
@@ -134,8 +149,10 @@ export default function SideBar() {
 			</nav>
 			{isLogOutModalOpen && (
 				<LogoutModal
+					loading={loggingOut}
 					open={isLogOutModalOpen}
 					onClose={closeLogOutModal}
+					onLogOut={onLogOut}
 				/>
 			)}
 		</>

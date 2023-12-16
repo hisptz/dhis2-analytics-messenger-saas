@@ -23,7 +23,7 @@ export default function InstanceDetail({ params }: { params: { id: string } }) {
 	}
 
 	return (
-		<div className="px-4">
+		<div>
 			<Button
 				startIcon={<ArrowBackIcon />}
 				sx={{ textTransform: "none", paddingBottom: 2 }}
