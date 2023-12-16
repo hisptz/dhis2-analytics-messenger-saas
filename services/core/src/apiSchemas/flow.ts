@@ -1,13 +1,14 @@
 import z from "zod";
-import { Message } from "./message";
 
 export enum ActionType {
 	ROUTER = "ROUTER",
 	FUNCTION = "FUNCTION",
-	WEBHOOK = "WEBHOOK",
+	API = "API",
+	DHIS2API = "DHIS2API",
 	MENU = "MENU",
 	INPUT = "INPUT",
 	QUIT = "QUIT",
+	VISUALIZER = "VISUALIZER",
 }
 
 export const genericActionSchema = {
@@ -15,20 +16,45 @@ export const genericActionSchema = {
 	nextState: z.string(),
 };
 
+export const visualizerActionSchema = z.object({
+	...genericActionSchema,
+	type: z.literal(ActionType.VISUALIZER),
+	visualizationId: z.string(),
+	dataKey: z.string(),
+});
+export type VisualizerAction = z.infer<typeof visualizerActionSchema>;
+export const dhis2APIActionSchema = z.object({
+	...genericActionSchema,
+	type: z.literal(ActionType.DHIS2API),
+	urlOptions: z.object({
+		resource: z.string(),
+		params: z.object({}),
+		responseDataPath: z
+			.string({
+				description: "Data accessor for the response of the api call",
+			})
+			.optional(),
+	}),
+	dataKey: z.string(),
+	method: z.enum(["GET", "POST"], { description: "API  method" }),
+});
+export type DHIS2APIAction = z.infer<typeof dhis2APIActionSchema>;
+
 export const inputActionSchema = z.object({
 	...genericActionSchema,
 	type: z.literal(ActionType.INPUT),
 	text: z.string({ description: "Text to request the input" }),
 	dataKey: z.string({ description: "Data key to save the answer to " }),
 });
+export type InputAction = z.infer<typeof inputActionSchema>;
 export const quitActionSchema = z.object({
 	...genericActionSchema,
 	type: z.literal(ActionType.QUIT),
 	text: z.string({ description: "Text to display when quitting the flow" }),
 	nextState: z.undefined(),
-	messageFormat: Message.optional(),
+	messageFormat: z.object({}),
 });
-
+export type QuitAction = z.infer<typeof quitActionSchema>;
 export const routerActionSchema = z.object({
 	...genericActionSchema,
 	type: z.literal(ActionType.ROUTER),
@@ -45,7 +71,7 @@ export const routerActionSchema = z.object({
 		}),
 	),
 });
-
+export type RouterAction = z.infer<typeof routerActionSchema>;
 export const menuOptionSchema = z.object({
 	id: z.string({ description: "Option id" }),
 	text: z.string({ description: "Text to display" }),
@@ -73,22 +99,26 @@ export const menuActionSchema = z.object({
 		),
 	dataKey: z.string({ description: "Data key to save the answer to " }),
 });
-export const webhookActionSchema = z.object({
+export type MenuAction = z.infer<typeof menuActionSchema>;
+export const apiActionSchema = z.object({
 	...genericActionSchema,
-	type: z.literal(ActionType.WEBHOOK),
-	url: z.string({ description: "Webhook url" }),
-	method: z.enum(["GET", "POST"], { description: "Webhook method" }),
-	params: z.string().optional(),
-	headers: z.object({}).optional(),
-	body: z.object({}).optional(),
+	type: z.literal(ActionType.API),
+	url: z.string({ description: "URL" }),
+	urlOptions: z.object({
+		method: z.enum(["GET", "POST"], { description: "API  method" }),
+		params: z.object({}).optional(),
+		headers: z.object({}).optional(),
+		responseDataPath: z
+			.string({
+				description: "Data accessor for the response of the api call",
+			})
+			.optional(),
+		responseType: z.enum(["json", "arraybuffer"]).optional(),
+		body: z.object({}).optional(),
+	}),
 	dataKey: z.string({ description: "Data key to save the answer to " }),
-	responseDataPath: z
-		.string({
-			description: "Data accessor for the response of the api call",
-		})
-		.optional(),
-	responseType: z.enum(["json", "arraybuffer"]).optional(),
 });
+export type APIAction = z.infer<typeof apiActionSchema>;
 export const functionActionSchema = z.object({
 	...genericActionSchema,
 	type: z.literal(ActionType.FUNCTION),
@@ -108,15 +138,16 @@ export const actionSchema = z.discriminatedUnion("type", [
 	menuActionSchema,
 	routerActionSchema,
 	inputActionSchema,
-	webhookActionSchema,
+	apiActionSchema,
 	functionActionSchema,
 	quitActionSchema,
+	dhis2APIActionSchema,
+	visualizerActionSchema,
 ]);
 export const flowStateSchema = z.object({
-	id: z.string({ description: "State id" }),
+	uid: z.string({ description: "State id" }),
 	action: actionSchema,
 });
-
 export const flowSchema = z.object({
 	id: z.string({ description: "Flow id" }),
 	trigger: z.string({

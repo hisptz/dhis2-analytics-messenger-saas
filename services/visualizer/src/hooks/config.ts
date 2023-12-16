@@ -13,7 +13,6 @@ import {
 	getOrgUnits,
 	getPeriods,
 } from "../utils/visualization";
-import { useElementSize } from "usehooks-ts";
 import { ChartConfig } from "@hisptz/dhis2-analytics";
 import { Layout } from "../components/Visualization/components/LayoutProvider";
 

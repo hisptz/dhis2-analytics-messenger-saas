@@ -7,6 +7,7 @@ export enum ContactType {
 
 export enum MessageType {
 	IMAGE = "image",
+	TEXT = "text",
 	CHAT = "chat",
 	DOCUMENT = "document",
 	AUDIO = "audio",
