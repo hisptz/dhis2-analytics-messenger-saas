@@ -42,6 +42,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/uuid": "^9.0.6",
+    "@wppconnect-team/wppconnect": "^1.28.0",
     "autoprefixer": "^10",
     "bufferutil": "^4.0.8",
     "eslint": "^8",

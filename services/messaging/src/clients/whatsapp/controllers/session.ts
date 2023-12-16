@@ -13,6 +13,19 @@ export async function startSession(session: string) {
 	};
 }
 
+export async function restartSession(session: string) {
+	const existingClient = WhatsappClient.get(session);
+
+	if (existingClient) {
+		throw Error("Client is already active");
+	}
+	const whatsappClient = new WhatsappClient(session);
+	await whatsappClient.restart();
+	return {
+		status: "ok",
+	};
+}
+
 export async function stopSession(session: string) {
 	const existingClient = WhatsappClient.get(session);
 
