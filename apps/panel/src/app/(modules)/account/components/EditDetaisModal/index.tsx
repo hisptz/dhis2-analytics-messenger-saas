@@ -14,7 +14,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 const editSchema = z.object({
 	username: z.string().min(4, "Username should have at least 4 characters"),
-	email: z.string().email(),
 	fullName: z.string(),
 });
 export type EditData = z.infer<typeof editSchema>;
@@ -31,7 +30,6 @@ export default function EditDetailsModal(props: any) {
 	const onEdit = async (data: EditData) => {
 		setEditing(true);
 		if (currentUser) {
-			currentUser.set("email", data.email);
 			currentUser.set("fullName", data.fullName);
 			currentUser.set("username", data.username);
 
@@ -65,13 +63,6 @@ export default function EditDetailsModal(props: any) {
 							id="username"
 							type="text"
 							label="Username"
-						/>
-						<RHFTextInput
-							name="email"
-							margin="dense"
-							type="email"
-							id="email"
-							label="Email"
 						/>
 						<RHFTextInput
 							name="fullName"
