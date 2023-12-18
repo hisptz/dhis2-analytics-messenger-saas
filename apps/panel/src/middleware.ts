@@ -23,11 +23,19 @@ export async function middleware(request: NextRequest) {
 
 	const response = await fetch(url, { headers });
 	if (response.status === 401) {
+		request.cookies.delete("sessionToken");
 		return NextResponse.redirect(new URL("login", request.url));
 	}
 	const data = await response.json();
 	if (data.code === 209) {
+		request.cookies.delete("sessionToken");
 		return NextResponse.redirect(new URL("login", request.url));
 	}
+
+	//Check if the user is admin
+	console.log({
+		data,
+	});
+
 	return NextResponse.next();
 }
