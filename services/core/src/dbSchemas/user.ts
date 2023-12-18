@@ -13,6 +13,15 @@ const fields: ParseField[] = [
 		name: "phoneNumber",
 		type: "String",
 	},
+	{
+		name: "approved",
+		type: "Boolean",
+	},
+	{
+		name: "approvedBy",
+		type: "Pointer",
+		targetClass: "_User",
+	},
 ];
 
 export const userSchema = {

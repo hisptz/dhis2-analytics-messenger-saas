@@ -1,18 +1,18 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { ParseClient } from "@/utils/parse/client";
 import Image from "next/image";
 import { LogoutModal } from "../logout";
 import { Box, Tab, Tabs } from "@mui/material";
 import NextLink from "next/link";
-import { usePathname } from "next/navigation";
 import logo from "@/assets/analyticsmessenger-11@2x.png";
 
 import dashboard from "@/assets/precision-manufacturing.svg";
 import account from "@/assets/person.svg";
 import logout from "@/assets/logout.svg";
+import { useCookies } from "react-cookie";
 
 interface SidebarTabProps {
 	href?: string;
@@ -56,6 +56,7 @@ const SidebarTab: React.FC<SidebarTabProps> = ({
 );
 
 export default function SideBar() {
+	const [, , removeCookie] = useCookies(["sessionToken"]);
 	const router = useRouter();
 	const [isLogOutModalOpen, setLogOutModalOpen] = useState(false);
 	const [loggingOut, setLoggingOut] = useState(false);
@@ -69,6 +70,7 @@ export default function SideBar() {
 		setLoggingOut(true);
 		try {
 			await ParseClient.User.logOut();
+			removeCookie("sessionToken");
 			setLogOutModalOpen(false);
 			router.replace("/login");
 		} catch (error: any) {
