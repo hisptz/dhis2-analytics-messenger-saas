@@ -13,7 +13,6 @@ import dashboard from "@/assets/precision-manufacturing.svg";
 import account from "@/assets/person.svg";
 import logout from "@/assets/logout.svg";
 import { useCookies } from "react-cookie";
-import { useUserIsAdmin } from "@/app/hooks/user";
 import { People } from "@mui/icons-material";
 
 interface SidebarTabProps {
@@ -65,8 +64,7 @@ const SidebarTab: React.FC<SidebarTabProps> = ({
 
 export default function SideBar() {
 	const [, , removeCookie] = useCookies(["sessionToken"]);
-	const { data: userIsAdmin, isLoading: userIsAdminLoading } =
-		useUserIsAdmin();
+	const userIsAdmin = ParseClient.User.current()?.get("username") === "admin"; //Dirtiest hard coding ever
 	const router = useRouter();
 	const [isLogOutModalOpen, setLogOutModalOpen] = useState(false);
 	const [loggingOut, setLoggingOut] = useState(false);
@@ -103,10 +101,6 @@ export default function SideBar() {
 		setTabValue(newValue);
 		if (newValue === 2) openLogOutModal();
 	};
-
-	if (userIsAdminLoading) {
-		return <span>Please wait...</span>;
-	}
 
 	return (
 		<>
