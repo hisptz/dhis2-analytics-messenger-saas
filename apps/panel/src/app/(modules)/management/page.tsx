@@ -29,7 +29,7 @@ export default function Dashboard() {
 	}
 	if (isEmpty(results)) {
 		return (
-			<div className=" bg-white h-screen flex">
+			<div className=" bg-white h-screen flex w-full">
 				<div className="flex flex-col items-start justify-start text-2xl text-primary-500 w-full">
 					<div className="text-left font-bold">
 						Instances Management

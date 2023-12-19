@@ -5,7 +5,7 @@ import { authTokenSchema } from "../dbSchemas/authToken";
 import { analyticsJobSchema } from "../dbSchemas/push";
 import ParseDashboard from "parse-dashboard";
 import { config } from "dotenv";
-import { userSchema } from "../dbSchemas/user";
+import { roleSchema, userSchema } from "../dbSchemas/user";
 
 import { DHIS2AuthAdapter } from "./auth";
 import { emailAPICallback } from "./email";
@@ -35,6 +35,7 @@ export const parseServer = new ParseServer({
 	schema: {
 		definitions: [
 			userSchema,
+			roleSchema,
 			dhis2InstanceSchema,
 			whatsappClientSchema,
 			authTokenSchema,

@@ -10,6 +10,7 @@ import { ParseClient } from "@/utils/parse/client";
 import { RHFPasswordInput } from "@/components/RHFPasswordInput";
 import { useState } from "react";
 import ForgetPasswordModal from "./components/ForgetPasswordModal";
+import { useCookies } from "react-cookie";
 
 const loginSchema = z.object({
 	username: z.string({ required_error: "Username is required" }),
@@ -24,6 +25,7 @@ export type LoginData = z.infer<typeof loginSchema>;
 
 export default function Login() {
 	const [forgetPasswordOpen, setForgetPasswordOpen] = useState(false);
+	const [, setCookie] = useCookies(["sessionToken"]);
 	const router = useRouter();
 	const form = useForm<LoginData>({
 		resolver: zodResolver(loginSchema),
@@ -35,14 +37,15 @@ export default function Login() {
 				data.password,
 			);
 			if (user) {
+				setCookie("sessionToken", user.getSessionToken());
 				router.replace("/");
 			}
 		} catch (e: any) {
-			console.log(e);
 			if (e.code === 205) {
 				router.replace(`/verifyEmail?username=${data.username}`);
 				return;
 			}
+			console.error(e);
 			alert(e.message);
 		}
 	};
