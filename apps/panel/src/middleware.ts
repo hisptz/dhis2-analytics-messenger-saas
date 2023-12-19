@@ -7,7 +7,7 @@ export const config = {
 };
 
 export async function middleware(request: NextRequest) {
-	const baseURL = `${process.env.NEXT_PUBLIC_PARSE_BASE_URL}`;
+	const baseURL = `${process.env.NEXT_PARSE_BASE_URL}`;
 	const sessionToken = request.cookies.get("sessionToken");
 	if (!sessionToken) {
 		//Not logged in

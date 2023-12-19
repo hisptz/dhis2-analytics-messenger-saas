@@ -6,8 +6,8 @@ services:
     image: postgres:latest
     env_file:
       - .env
-    networks:
-      - dam-network
+    volumes:
+      - /data:/var/lib/postgresql/data
   panel:
     container_name: panel
     image: hisptanzania/dam-saas-panel:latest
@@ -17,8 +17,6 @@ services:
       - .env.local
     ports:
       - "3000:3000"
-    networks:
-      - dam-network
   core:
     container_name: core
     image: hisptanzania/dam-saas-core:latest
@@ -27,8 +25,6 @@ services:
     restart: always
     ports:
       - "3001:3001"
-    networks:
-      - dam-network
   messaging:
     container_name: messaging
     image: hisptanzania/dam-saas-messaging:latest
@@ -37,14 +33,17 @@ services:
       - .env
     ports:
       - "3002:3002"
-    networks:
-      - dam-network
   visualizer:
     container_name: visualizer
     image: hisptanzania/dam-saas-visualizer:latest
+    restart: always
     env_file:
       - .env
+    ports:
+      - "3003:4173"
 
-networks:
-  dam-network:
-    external: true
+
+
+
+
+
