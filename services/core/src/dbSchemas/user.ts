@@ -47,9 +47,9 @@ export const userSchema = {
 export const roleSchema = {
 	className: "_Role",
 	classLevelPermissions: {
-		find: {},
+		find: { requiresAuthentication: true },
 		count: {},
-		get: {},
+		get: { requiresAuthentication: true },
 		update: {
 			"requiresAuthentication": true,
 			"role:admin": true,

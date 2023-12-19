@@ -13,10 +13,13 @@ import dashboard from "@/assets/precision-manufacturing.svg";
 import account from "@/assets/person.svg";
 import logout from "@/assets/logout.svg";
 import { useCookies } from "react-cookie";
+import { useUserIsAdmin } from "@/hooks/user";
+import { People } from "@mui/icons-material";
 
 interface SidebarTabProps {
 	href?: string;
-	src: string;
+	src?: string;
+	icon?: React.ReactNode;
 	label: string;
 	onClick?: () => void;
 }
@@ -26,6 +29,7 @@ const SidebarTab: React.FC<SidebarTabProps> = ({
 	src,
 	label,
 	onClick,
+	icon,
 	...props
 }) => (
 	<Tab
@@ -34,13 +38,17 @@ const SidebarTab: React.FC<SidebarTabProps> = ({
 		onClick={onClick}
 		icon={
 			<div className="flex items-center gap-2.5 justify-start">
-				<Image
-					className="w-6 h-6"
-					alt=""
-					src={src}
-					width={24}
-					height={24}
-				/>
+				{src ? (
+					<Image
+						className="w-6 h-6"
+						alt=""
+						src={src}
+						width={24}
+						height={24}
+					/>
+				) : (
+					icon
+				)}
 				<span>{label}</span>
 			</div>
 		}
@@ -57,6 +65,8 @@ const SidebarTab: React.FC<SidebarTabProps> = ({
 
 export default function SideBar() {
 	const [, , removeCookie] = useCookies(["sessionToken"]);
+	const { data: userIsAdmin, isLoading: userIsAdminLoading } =
+		useUserIsAdmin();
 	const router = useRouter();
 	const [isLogOutModalOpen, setLogOutModalOpen] = useState(false);
 	const [loggingOut, setLoggingOut] = useState(false);
@@ -94,6 +104,10 @@ export default function SideBar() {
 		if (newValue === 2) openLogOutModal();
 	};
 
+	if (userIsAdminLoading) {
+		return <span>Please wait...</span>;
+	}
+
 	return (
 		<>
 			<nav className="bg-m3-sys-light-on-primary w-24 h-screen text-left text-sm text-primary-500 font-lalezar mr-32 flex-shrink-0">
@@ -130,11 +144,20 @@ export default function SideBar() {
 								},
 							}}
 						>
-							<SidebarTab
-								href="/management"
-								src={dashboard}
-								label="Management"
-							/>
+							{userIsAdmin && (
+								<SidebarTab
+									href="/users"
+									icon={<People />}
+									label="Users"
+								/>
+							)}
+							{!userIsAdmin && (
+								<SidebarTab
+									href="/management"
+									src={dashboard}
+									label="Management"
+								/>
+							)}
 							<SidebarTab
 								href="/account"
 								src={account}

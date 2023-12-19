@@ -27,8 +27,10 @@ export async function initializeAdmin() {
 		//Check if admin user exists
 	} else {
 		logger.info(`Initializing admin role...`);
-		const role = new Parse.Role("admin", new Parse.ACL());
-		await role.save({
+		const acl = new Parse.ACL();
+		acl.setPublicReadAccess(true);
+		const role = new Parse.Role("admin", acl);
+		await role.save(null, {
 			useMasterKey: true,
 		});
 		logger.info(`Done. `);
@@ -57,9 +59,6 @@ export async function initializeAdmin() {
 	});
 	logger.info(`Done. `);
 	logger.info(`Adding admin role to admin user...`);
-	await role.fetch({
-		useMasterKey: true,
-	});
 	role.getUsers().add(user);
 	await role.save(null, {
 		useMasterKey: true,
