@@ -4,7 +4,7 @@ import { ParseClient } from "@/utils/parse/client";
 import { useRouter } from "next/navigation";
 import { useEffectOnce } from "usehooks-ts";
 import { FullLoader } from "@/components/FullLoader";
-import { useUserIsAdmin } from "@/hooks/user";
+import { useUserIsAdmin } from "@/app/hooks/user";
 
 export default function Router() {
 	const { replace } = useRouter();

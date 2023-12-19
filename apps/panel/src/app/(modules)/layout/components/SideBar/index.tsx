@@ -13,7 +13,7 @@ import dashboard from "@/assets/precision-manufacturing.svg";
 import account from "@/assets/person.svg";
 import logout from "@/assets/logout.svg";
 import { useCookies } from "react-cookie";
-import { useUserIsAdmin } from "@/hooks/user";
+import { useUserIsAdmin } from "@/app/hooks/user";
 import { People } from "@mui/icons-material";
 
 interface SidebarTabProps {
