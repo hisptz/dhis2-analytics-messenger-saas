@@ -49,12 +49,6 @@ export default function Users() {
 		};
 	}
 
-	function makeUserAdmin(user: ParseClient.User) {
-		return async () => {
-			handleClose();
-		};
-	}
-
 	const rows = useMemo(() => {
 		return data?.map(
 			(user) =>
@@ -73,7 +67,6 @@ export default function Users() {
 							<TableRow>
 								<TableCell>Name</TableCell>
 								<TableCell>Username</TableCell>
-								<TableCell>Email</TableCell>
 								<TableCell>Email verified</TableCell>
 								<TableCell>Approved</TableCell>
 								<TableCell>Approved by</TableCell>
@@ -83,16 +76,14 @@ export default function Users() {
 						<TableBody>
 							{rows?.map((row) => {
 								return (
-									<TableRow key={`${row.objectId}`}>
+									<TableRow key={`${row.object.id}`}>
 										<TableCell>
 											{row.fullName}{" "}
-											{currentUser!.objectId ===
-											row.objectId
+											{currentUser!.id === row.object.id
 												? "(me)"
 												: ""}
 										</TableCell>
 										<TableCell>{row.username}</TableCell>
-										<TableCell>{row.email}</TableCell>
 										<TableCell>
 											{row.emailVerified ? "Yes" : "No"}
 										</TableCell>
@@ -105,6 +96,7 @@ export default function Users() {
 										</TableCell>
 										<TableCell>
 											<IconButton
+												key={`${row.objectId}-action-button`}
 												onClick={handleClick}
 												aria-controls={
 													open
@@ -137,13 +129,6 @@ export default function Users() {
 														? "Revoke approval"
 														: "Approve"}
 												</MenuItem>
-												{/*<MenuItem*/}
-												{/*	onClick={makeUserAdmin(*/}
-												{/*		row.object,*/}
-												{/*	)}*/}
-												{/*>*/}
-												{/*	Make Admin*/}
-												{/*</MenuItem>*/}
 											</Menu>
 										</TableCell>
 									</TableRow>

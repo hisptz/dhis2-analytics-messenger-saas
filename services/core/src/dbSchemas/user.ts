@@ -31,9 +31,9 @@ export const userSchema = {
 	className: "_User",
 	fields: fromPairs(fields.map(({ name, ...rest }) => [name, rest])),
 	classLevelPermissions: {
-		find: { requiresAuthentication: true },
-		count: { requiresAuthentication: true },
-		get: { requiresAuthentication: true },
+		find: { "requiresAuthentication": true, "role:admin": true },
+		count: { "requiresAuthentication": true, "role:admin": true },
+		get: { "requiresAuthentication": true, "role:admin": true },
 		update: {
 			"requiresAuthentication": true,
 			"role:admin": true,

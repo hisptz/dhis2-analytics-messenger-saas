@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const config = {
 	matcher: [
-		"/((?!api|_next/static|_next/image|favicon.ico|login|signup|verifyEmail).*)",
+		"/((?!api|_next/static|_next/image|favicon.ico|login|signup|verifyEmail|waitingApproval).*)",
 	],
 };
 
@@ -31,6 +31,11 @@ export async function middleware(request: NextRequest) {
 	if (data.code === 209) {
 		request.cookies.delete("sessionToken");
 		return NextResponse.redirect(new URL("login", request.url));
+	}
+
+	if (data.username !== "admin" && !data.approved) {
+		return NextResponse.redirect(new URL("waitingApproval", request.url));
+		//Not approved
 	}
 
 	return NextResponse.next();
