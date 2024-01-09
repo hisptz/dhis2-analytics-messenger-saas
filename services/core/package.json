@@ -47,7 +47,7 @@
     "openapi3-ts": "^4.1.2",
     "parse": "^4.2.0",
     "parse-dashboard": "^5.2.0",
-    "parse-server": "^6.3.1",
+    "parse-server": "^6.4.0",
     "parse-server-api-mail-adapter": "^3.1.1",
     "puppeteer": "^21.5.2",
     "schemas": "workspace:^",

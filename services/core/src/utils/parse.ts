@@ -52,6 +52,7 @@ export async function initializeAdmin() {
 	logger.info(`Initializing admin user...`);
 	const user = new Parse.User();
 	user.setUsername("admin");
+	user.set("fullName", "Admin");
 	user.setEmail(process.env.AUTH_ADMIN_EMAIL);
 	user.setPassword(process.env.AUTH_INITIAL_PASSWORD);
 	await user.save(null, {
