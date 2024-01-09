@@ -1,17 +1,18 @@
+"use client";
+
 import { RHFTextInput } from "@/components/RHFTextInput";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Parse from "parse";
-import { useState } from "react";
 import { LoadingButton } from "@mui/lab";
 import {
-	Dialog,
-	DialogTitle,
-	DialogContent,
-	DialogActions,
 	Button,
+	Dialog,
+	DialogActions,
+	DialogContent,
+	DialogTitle,
 } from "@mui/material";
+import { ParseClient } from "@/utils/parse/client";
 
 const forgetPasswordSchema = z.object({
 	email: z.string().email(),
@@ -20,27 +21,21 @@ const forgetPasswordSchema = z.object({
 export type ForgetPasswordData = z.infer<typeof forgetPasswordSchema>;
 
 export default function ForgetPasswordModal(props: any) {
-	const [sendingRequest, setSendingRequest] = useState(false);
 	const { open, onClose } = props;
 	const form = useForm<ForgetPasswordData>({
 		resolver: zodResolver(forgetPasswordSchema),
 	});
 
 	const onRequestPasswordChange = async (data: ForgetPasswordData) => {
-		setSendingRequest(true);
 		const { email } = data;
-		await Parse.User.requestPasswordReset(email)
-			.then(() => {
-				onClose();
-				alert(
-					"Email is sent successfully, check your email to reset password",
-				);
-			})
-			.catch((error) => {
-				alert("Error: " + error.code + " " + error.message);
-			});
-
-		setSendingRequest(false);
+		try {
+			await ParseClient.User.requestPasswordReset(email);
+			alert(
+				"Email is sent successfully, check your email to reset password",
+			);
+		} catch (error: any) {
+			alert("Error: " + error.code + " " + error.message);
+		}
 	};
 
 	return (
@@ -73,7 +68,7 @@ export default function ForgetPasswordModal(props: any) {
 							Cancel
 						</Button>
 						<LoadingButton
-							loading={sendingRequest}
+							loading={form.formState.isSubmitting}
 							className="bg-primary-500 w-24"
 							color="primary"
 							sx={{ textTransform: "none", borderRadius: "50px" }}

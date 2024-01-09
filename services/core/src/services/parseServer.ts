@@ -56,6 +56,10 @@ export const parseServer = new ParseServer({
 					textPath: `${templatesFolder}/verification/text.txt`,
 					subjectPath: `${templatesFolder}/verification/subject.txt`,
 				},
+				passwordResetEmail: {
+					textPath: `${templatesFolder}/passwordReset/text.txt`,
+					subjectPath: `${templatesFolder}/passwordReset/subject.txt`,
+				},
 				userRegistrationNotification: {
 					subjectPath: `${templatesFolder}/userRegistrationNotification/subject.txt`,
 					textPath: `${templatesFolder}/userRegistrationNotification/text.txt`,
