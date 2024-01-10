@@ -1,20 +1,24 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { ParseClient } from "@/utils/parse/client";
 import Image from "next/image";
 import { LogoutModal } from "../logout";
 import { Box, Tab, Tabs } from "@mui/material";
 import NextLink from "next/link";
-import { usePathname } from "next/navigation";
 import logo from "@/assets/analyticsmessenger-11@2x.png";
 
 import dashboard from "@/assets/precision-manufacturing.svg";
 import account from "@/assets/person.svg";
 import logout from "@/assets/logout.svg";
+import { useCookies } from "react-cookie";
+import { People } from "@mui/icons-material";
 
 interface SidebarTabProps {
 	href?: string;
-	src: string;
+	src?: string;
+	icon?: React.ReactNode;
 	label: string;
 	onClick?: () => void;
 }
@@ -24,6 +28,7 @@ const SidebarTab: React.FC<SidebarTabProps> = ({
 	src,
 	label,
 	onClick,
+	icon,
 	...props
 }) => (
 	<Tab
@@ -32,13 +37,17 @@ const SidebarTab: React.FC<SidebarTabProps> = ({
 		onClick={onClick}
 		icon={
 			<div className="flex items-center gap-2.5 justify-start">
-				<Image
-					className="w-6 h-6"
-					alt=""
-					src={src}
-					width={24}
-					height={24}
-				/>
+				{src ? (
+					<Image
+						className="w-6 h-6"
+						alt=""
+						src={src}
+						width={24}
+						height={24}
+					/>
+				) : (
+					icon
+				)}
 				<span>{label}</span>
 			</div>
 		}
@@ -54,13 +63,29 @@ const SidebarTab: React.FC<SidebarTabProps> = ({
 );
 
 export default function SideBar() {
+	const [, , removeCookie] = useCookies(["sessionToken"]);
+	const userIsAdmin = ParseClient.User.current()?.get("username") === "admin"; //Dirtiest hard coding ever
+	const router = useRouter();
 	const [isLogOutModalOpen, setLogOutModalOpen] = useState(false);
+	const [loggingOut, setLoggingOut] = useState(false);
 	const openLogOutModal = useCallback(() => {
 		setLogOutModalOpen(true);
 	}, []);
 	const closeLogOutModal = useCallback(() => {
 		setLogOutModalOpen(false);
 	}, []);
+	const onLogOut = useCallback(async () => {
+		setLoggingOut(true);
+		try {
+			await ParseClient.User.logOut();
+			removeCookie("sessionToken");
+			setLogOutModalOpen(false);
+			router.replace("/login");
+		} catch (error: any) {
+			alert(error.message);
+		}
+		setLoggingOut(false);
+	}, [router]);
 	const pathname = usePathname();
 	const [tabValue, setTabValue] = useState<number>(() => {
 		switch (pathname) {
@@ -113,11 +138,20 @@ export default function SideBar() {
 								},
 							}}
 						>
-							<SidebarTab
-								href="/management"
-								src={dashboard}
-								label="Management"
-							/>
+							{userIsAdmin && (
+								<SidebarTab
+									href="/users"
+									icon={<People />}
+									label="Users"
+								/>
+							)}
+							{!userIsAdmin && (
+								<SidebarTab
+									href="/management"
+									src={dashboard}
+									label="Management"
+								/>
+							)}
 							<SidebarTab
 								href="/account"
 								src={account}
@@ -134,8 +168,10 @@ export default function SideBar() {
 			</nav>
 			{isLogOutModalOpen && (
 				<LogoutModal
+					loading={loggingOut}
 					open={isLogOutModalOpen}
 					onClose={closeLogOutModal}
+					onLogOut={onLogOut}
 				/>
 			)}
 		</>

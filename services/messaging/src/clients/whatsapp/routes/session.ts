@@ -1,6 +1,10 @@
 import { Router } from "express";
 import { WhatsappClient } from "../whatsapp";
-import { startSession, stopSession } from "../controllers/session";
+import {
+	restartSession,
+	startSession,
+	stopSession,
+} from "../controllers/session";
 import { asyncify, map } from "async";
 
 const router = Router();
@@ -69,6 +73,18 @@ router.post("/:session/start", async (req, res) => {
 		res.status(500).json({ error: e });
 	}
 });
+router.post("/:session/restart", async (req, res) => {
+	const { session } = req.params;
+	if (!session) {
+		res.status(400).json({ error: "Session is required" });
+	}
+	try {
+		const state = await restartSession(session);
+		res.json(state);
+	} catch (e) {
+		res.status(500).json({ error: e });
+	}
+});
 router.post("/:session/stop", async (req, res) => {
 	const { session } = req.params;
 	if (!session) {
@@ -101,6 +117,27 @@ router.get("/:session/status", async (req, res) => {
 		res.json({
 			status: state,
 		});
+	} catch (e) {
+		res.status(500).json({ error: e });
+	}
+});
+router.get("/:session/qrCode", async (req, res) => {
+	const { session } = req.params;
+	if (!session) {
+		res.status(400).json({ error: "Session is required" });
+	}
+
+	const whatsapp = WhatsappClient.get(session);
+
+	if (!whatsapp) {
+		res.json({
+			status: "NOT_ACTIVE",
+		});
+		return;
+	}
+	try {
+		const qrcode = await whatsapp.getQRCode();
+		res.json(qrcode);
 	} catch (e) {
 		res.status(500).json({ error: e });
 	}

@@ -11,6 +11,11 @@ export default function Router() {
 
 	useEffectOnce(() => {
 		if (user) {
+			if (user.get("username") === "admin") {
+				//TODO: Find a better way to deal with this
+				replace("/users");
+				return;
+			}
 			replace("/management");
 		} else {
 			replace("/login");

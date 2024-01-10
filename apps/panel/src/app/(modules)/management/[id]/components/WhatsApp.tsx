@@ -2,10 +2,10 @@ import Parse from "parse";
 import { Button, CircularProgress } from "@mui/material";
 import { useBoolean } from "usehooks-ts";
 import WhatsappConnectModal from "@/app/(modules)/management/[id]/components/WhatsAppConnectModal/WhatsappConnectModal";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import React from "react";
 import { WhatsAppConnectionStatus } from "@/app/(modules)/management/[id]/components/WhatsAppConnectionStatus";
 import { WhatsappTestMessage } from "@/app/(modules)/management/[id]/components/WhatsappTestMessage";
+import { useWhatsappClient } from "@/hooks/whatsapp";
 
 export function WhatsApp({ instance }: { instance: Parse.Object }) {
 	const {
@@ -13,19 +13,9 @@ export function WhatsApp({ instance }: { instance: Parse.Object }) {
 		setTrue: onOpen,
 		setFalse: onClose,
 	} = useBoolean(false);
-	const fetchClient = async () => {
-		return (
-			(await new Parse.Query("WhatsappClient")
-				.equalTo("dhis2Instance", instance)
-				.first()) ?? null
-		);
-	};
 
-	const { data, isLoading, isError, error, refetch } = useSuspenseQuery({
-		queryKey: ["whatsapp", instance.id],
-		queryFn: fetchClient,
-		retry: false,
-	});
+	const { isError, error, data, refetch, isLoading } =
+		useWhatsappClient(instance);
 
 	if (isLoading) {
 		return <CircularProgress size={32} />;
@@ -42,7 +32,7 @@ export function WhatsApp({ instance }: { instance: Parse.Object }) {
 					<span className="font-bold">
 						Whatsapp Connection Status:
 					</span>
-					<WhatsAppConnectionStatus instance={instance} data={data} />
+					<WhatsAppConnectionStatus whatsappClient={data} />
 					<WhatsappTestMessage instance={data} />
 				</div>
 			</div>

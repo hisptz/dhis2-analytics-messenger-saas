@@ -26,6 +26,7 @@ const signupFormSchema = z.object({
 	password: z
 		.string()
 		.min(8, "Password should have at least 8 characters")
+		.regex(/[a-z]/, "Password should have at least one small letter")
 		.regex(/[A-Z]/, "Password should have at least one capital letter")
 		.regex(/\d/, "Password should have at least one number"),
 	consent: z

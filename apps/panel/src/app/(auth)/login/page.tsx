@@ -1,8 +1,6 @@
 "use client";
 import { Button, Divider } from "@mui/material";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-
 import { z } from "zod";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,6 +9,9 @@ import { LoadingButton } from "@mui/lab";
 import { ParseClient } from "@/utils/parse/client";
 import { RHFPasswordInput } from "@/components/RHFPasswordInput";
 import { useCustomAlert } from "../../hooks/useCustomAlert";
+import { useState } from "react";
+import ForgetPasswordModal from "./components/ForgetPasswordModal";
+import { useCookies } from "react-cookie";
 
 const loginSchema = z.object({
 	username: z.string({ required_error: "Username is required" }),
@@ -24,6 +25,8 @@ const loginSchema = z.object({
 export type LoginData = z.infer<typeof loginSchema>;
 
 export default function Login() {
+	const [forgetPasswordOpen, setForgetPasswordOpen] = useState(false);
+	const [, setCookie] = useCookies(["sessionToken"]);
 	const router = useRouter();
 	const form = useForm<LoginData>({
 		resolver: zodResolver(loginSchema),
@@ -36,6 +39,7 @@ export default function Login() {
 				data.password,
 			);
 			if (user) {
+				setCookie("sessionToken", user.getSessionToken());
 				router.replace("/");
 			}
 		} catch (e: any) {
@@ -48,6 +52,10 @@ export default function Login() {
 				type: "error",
 			});
 		}
+	};
+
+	const onResetPassword = () => {
+		setForgetPasswordOpen(true);
 	};
 
 	const { replace } = useRouter();
@@ -85,13 +93,16 @@ export default function Login() {
 							/>
 							<span className="text-sm">
 								Forgot your password?{" "}
-								<Link
+								<span
 									color="#008edd"
-									className="text-primary-500 underline"
-									href="/"
+									className="text-primary-500 pointer underline"
+									style={{
+										cursor: "pointer",
+									}}
+									onClick={onResetPassword}
 								>
 									Click here
-								</Link>
+								</span>
 							</span>
 						</div>
 						<LoadingButton
@@ -118,6 +129,10 @@ export default function Login() {
 						Sign up
 					</Button>
 				</div>
+				<ForgetPasswordModal
+					open={forgetPasswordOpen}
+					onClose={() => setForgetPasswordOpen(false)}
+				/>
 			</div>
 		</div>
 	);

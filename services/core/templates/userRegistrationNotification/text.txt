@@ -1,0 +1,8 @@
+A new user has registered to the DHIS2 analytics messenger panel and awaits for your approval
+
+User details:
+ Name: {{fullName}}
+ Username: {{username}}
+ Email: {{email}}
+ Email verified: {{emailVerified}}
+ Phone number: {{phoneNumber}}

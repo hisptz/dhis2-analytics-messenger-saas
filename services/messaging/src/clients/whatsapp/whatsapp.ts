@@ -23,6 +23,7 @@ import { asyncify, mapSeries } from "async";
 import Parse from "parse/node";
 import logger from "../../services/logging";
 import { config } from "dotenv";
+import { ScrapQrcode } from "@wppconnect-team/wppconnect/dist/api/model/qrcode";
 
 config();
 
@@ -67,6 +68,7 @@ export class WhatsappClient extends BaseClient<Whatsapp> {
 			},
 			debug: false,
 			updatesLog: false,
+			logQR: false,
 		});
 		if (whatsapp) {
 			this.client = whatsapp;
@@ -76,6 +78,13 @@ export class WhatsappClient extends BaseClient<Whatsapp> {
 			return this;
 		}
 		throw Error(`Could not initialize WhatsApp session ${this.session}`);
+	}
+
+	async restart() {
+		const success = await this.client.close();
+		if (success) {
+			await this.client.start();
+		}
 	}
 
 	async stop(): Promise<WhatsappClient> {
@@ -147,6 +156,16 @@ export class WhatsappClient extends BaseClient<Whatsapp> {
 		return await this.client.getConnectionState();
 	}
 
+	setQRCodeCallback(callback: () => void): void {
+		if (this.client) {
+			this.client.onInterfaceChange(callback);
+		}
+	}
+
+	setStateCallback(callback: (state: SocketState) => void): void {
+		this.client?.onStateChange(callback);
+	}
+
 	getChatId(contact: WhatsappContact): string {
 		const { type, identifier } = contact;
 		if (type === "individual") {
@@ -158,6 +177,10 @@ export class WhatsappClient extends BaseClient<Whatsapp> {
 				? identifier
 				: `${contact.identifier}@g.us`;
 		}
+	}
+
+	async getQRCode(): Promise<ScrapQrcode> {
+		return this.client.getQrCode();
 	}
 
 	async getGroups(): Promise<Array<Chat>> {
@@ -178,7 +201,7 @@ export class WhatsappClient extends BaseClient<Whatsapp> {
 	}
 
 	setupMessageCallback(): void {
-		this.client.onMessage(async (message) => {
+		this.client?.onMessage(async (message) => {
 			const session = this.session;
 			if (message.type !== "chat") {
 				//Ignore the message
