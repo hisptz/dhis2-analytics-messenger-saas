@@ -5,6 +5,7 @@ import { initServices } from "./services/init";
 import { startWhatsappServices } from "./services/whatsapp";
 import { initializeSchedules } from "./services/scheduling";
 import logger from "./services/logging";
+import { initializeAdmin } from "./utils/parse";
 
 config();
 
@@ -19,6 +20,7 @@ initServices(app).then(() => {
 	app.listen(`${port}`, async () => {
 		await startWhatsappServices();
 		await initializeSchedules();
+		await initializeAdmin();
 		logger.info(`All services started successfully`);
 		logger.info(`Server running at http://localhost:${port}`);
 		logger.info(

@@ -1,4 +1,4 @@
-import "./init";
+import "./user";
 import "./token";
 import "./whatsapp";
 import "./messaging";

@@ -29,8 +29,8 @@ export default function Dashboard() {
 	}
 	if (isEmpty(results)) {
 		return (
-			<div className=" bg-white h-screen flex">
-				<div className="flex flex-col items-start justify-start p-3   text-2xl text-primary-500 w-full">
+			<div className=" bg-white h-screen flex w-full">
+				<div className="flex flex-col items-start justify-start text-2xl text-primary-500 w-full">
 					<div className="text-left font-bold">
 						Instances Management
 					</div>
@@ -64,7 +64,7 @@ export default function Dashboard() {
 
 	return (
 		<div className=" flex">
-			<div className="flex flex-col items-start justify-start p-3    text-primary-500 w-full">
+			<div className="flex flex-col items-start justify-start text-primary-500 w-full">
 				<h1 className="text-left font-bold text-2xl mb-2">
 					Instances Management
 				</h1>
@@ -90,7 +90,7 @@ export default function Dashboard() {
 						onFormSubmit={onInstanceAdd}
 					/>
 				)}
-				<div className=" flex flex-row items-center  w-full py-6 px-auto gap-[64px] text-sm text-black font-m3-label-large">
+				<div className="flex flex-row  w-full py-6 px-auto gap-[64px] text-sm text-black font-m3-label-large">
 					<div>
 						{results?.map((instance) => (
 							<StatusCard

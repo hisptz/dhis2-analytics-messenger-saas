@@ -1,37 +1,12 @@
 import Parse from "parse";
-import { WifiOff } from "@mui/icons-material";
+import { Wifi, WifiOff } from "@mui/icons-material";
 import React from "react";
-import {
-	useMutation,
-	useQueryClient,
-	useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { LoadingButton } from "@mui/lab";
 import { capitalize } from "lodash";
-import WhatsappConnectModal from "@/app/(modules)/management/[id]/components/WhatsAppConnectModal/WhatsappConnectModal";
 import { useBoolean } from "usehooks-ts";
-
-export function useWhatsAppConnectionStatus(data: Parse.Object) {
-	const fetchStatus = async () => {
-		const session = data.get("sessionId");
-		const url = `${process.env.NEXT_PUBLIC_MESSAGING_URL}/clients/whatsapp/session/${session}/status`;
-		const response = await fetch(url);
-
-		return (await response.json()) ?? null;
-	};
-
-	return useSuspenseQuery({
-		refetchOnWindowFocus: true,
-		queryKey: ["whatsapp", data.id, "status"],
-		queryFn: fetchStatus,
-		refetchInterval: 2 * 60 * 1000,
-		retryDelay: 2000,
-		retry: (retries, error) => {
-			if (retries > 10) return false;
-			return true;
-		},
-	});
-}
+import { useWhatsappClientStatus } from "@/hooks/whatsapp";
+import { WhatsappQRCodeView } from "@/components/WhatsappQRCodeView";
 
 export function useManageWhatsappConnectionStatus(data: Parse.Object) {
 	const session = data.get("sessionId");
@@ -49,7 +24,8 @@ export function useManageWhatsappConnectionStatus(data: Parse.Object) {
 	const { mutateAsync, isPending, error, isError } = useMutation({
 		mutationKey: ["whatsapp", data.id, "status"],
 		mutationFn: mutate,
-		onSuccess: async () => {
+		onSuccess: async (data, variables) => {
+			console.log(variables);
 			data.set("enabled", !data.get("enabled"));
 			await data.save();
 			await queryClient.invalidateQueries({
@@ -60,10 +36,12 @@ export function useManageWhatsappConnectionStatus(data: Parse.Object) {
 
 	const connect = async () => mutateAsync(`start`);
 	const disconnect = async () => mutateAsync(`stop`);
+	const restart = async () => mutateAsync(`restart`);
 
 	return {
 		connect,
 		disconnect,
+		restart,
 		isPending,
 		error,
 		isError,
@@ -71,105 +49,110 @@ export function useManageWhatsappConnectionStatus(data: Parse.Object) {
 }
 
 export function WhatsAppConnectionStatus({
-	data,
-	instance,
+	whatsappClient,
+	hideControls,
 }: {
-	data: Parse.Object;
-	instance: Parse.Object;
+	whatsappClient: Parse.Object;
+	hideControls?: boolean;
 }) {
 	const {
 		value: open,
 		setTrue: onOpen,
 		setFalse: onClose,
 	} = useBoolean(false);
-	const {
-		isLoading,
-		data: status,
-		error,
-		isError,
-		refetch,
-	} = useWhatsAppConnectionStatus(data);
+	const { status } = useWhatsappClientStatus(whatsappClient);
 
 	const {
-		connect,
-		disconnect,
+		restart,
 		error: manageError,
 		isError: hasManageError,
 		isPending,
-	} = useManageWhatsappConnectionStatus(data);
+	} = useManageWhatsappConnectionStatus(whatsappClient);
 
-	if (isLoading) {
-		return <div>Loading...</div>;
-	}
+	const onRestart = async () => {
+		await restart();
+		onOpen();
+	};
 
-	if (isError) {
-		return <div>{error?.message ?? ""}</div>;
-	}
-
-	if (status.status.includes("UNPAIRED")) {
+	if (status === "CONNECTED") {
 		return (
 			<div className="flex flex-row gap-4">
-				{open && (
-					<WhatsappConnectModal
-						client={data}
-						onConnectComplete={() => refetch()}
-						open={open}
-						onClose={onClose}
-						instance={instance}
-					/>
-				)}
-				<div className="text-red-600 bg-red-100 rounded-lg text-xs flex space-x-1 p-1 m-auto">
-					<WifiOff color="error" sx={{ fontSize: 15 }} />
-					<h1 className="">{capitalize(status.status)}</h1>
+				<div className="text-green-800 bg-green-100 rounded-lg text-xs flex space-x-1 p-1 m-auto">
+					<Wifi color="success" sx={{ fontSize: 15 }} />
+					<h1 className="">{capitalize(status)}</h1>
 				</div>
-				<LoadingButton
-					color="success"
-					onClick={onOpen}
-					loadingIndicator={"Connecting"}
-					loading={isPending}
-					variant="text"
-				>
-					Connect
-				</LoadingButton>
 			</div>
 		);
 	}
 
-	if (status.status === "NOT_ACTIVE") {
+	if (status === "UNPAIRED") {
+		return (
+			<div className="flex flex-row gap-4">
+				{open && (
+					<WhatsappQRCodeView
+						client={whatsappClient}
+						open={open}
+						onClose={onClose}
+					/>
+				)}
+				<div className="text-red-600 bg-red-100 rounded-lg text-xs flex space-x-1 p-1 m-auto">
+					<WifiOff color="error" sx={{ fontSize: 15 }} />
+					<h1 className="">{capitalize(status)}</h1>
+				</div>
+				{!hideControls && (
+					<LoadingButton
+						color="success"
+						onClick={onOpen}
+						loadingIndicator={"Connecting"}
+						loading={isPending}
+						variant="text"
+					>
+						Pair
+					</LoadingButton>
+				)}
+			</div>
+		);
+	}
+
+	if (status === "UNPAIRED_IDLE") {
 		return (
 			<div className="flex flex-row gap-4">
 				<div className="text-red-600 bg-red-100 rounded-lg text-xs flex space-x-1 p-1 m-auto">
 					<WifiOff color="error" sx={{ fontSize: 15 }} />
-					<h1 className="">{capitalize(status.status)}</h1>
+					<h1 className="">{capitalize(status)}</h1>
 				</div>
-				<LoadingButton
-					color="success"
-					onClick={connect}
-					loadingIndicator={"Connecting"}
-					loading={isPending}
-					variant="text"
-				>
-					Connect
-				</LoadingButton>
+				{!hideControls && (
+					<LoadingButton
+						color="success"
+						onClick={onRestart}
+						loadingIndicator={"Connecting"}
+						loading={isPending}
+						variant="text"
+					>
+						Pair
+					</LoadingButton>
+				)}
 			</div>
 		);
 	}
 
 	return (
 		<div className="flex flex-row gap-4">
-			<div className="text-green-800 bg-green-100 rounded-lg text-xs flex space-x-1 p-1 m-auto">
-				<WifiOff color="success" sx={{ fontSize: 15 }} />
-				<h1 className="">{capitalize(status.status)}</h1>
+			<div className="text-red-600 bg-red-100 rounded-lg text-xs flex space-x-1 p-1 m-auto">
+				<WifiOff color="error" sx={{ fontSize: 15 }} />
+				<h1 className="">{capitalize(status)}</h1>
 			</div>
-			<LoadingButton
-				color="error"
-				onClick={disconnect}
-				loadingIndicator={"Disconnecting"}
-				loading={isPending}
-				variant="text"
-			>
-				Disconnect
-			</LoadingButton>
+			{!hideControls && (
+				<LoadingButton
+					color="success"
+					onClick={onRestart}
+					loadingIndicator={"Connecting"}
+					loading={isPending}
+					variant="text"
+				>
+					Restart
+				</LoadingButton>
+			)}
 		</div>
 	);
 }

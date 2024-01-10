@@ -37,7 +37,7 @@ export function TestMessageModal({
 
 	const onSubmit = async (data: Message) => {
 		try {
-			const response = await Parse.Cloud.run("sendTestWhatsappMessage", {
+			const response = await Parse.Cloud.run("sendTestOutgoingMessage", {
 				...data,
 				clientType: "whatsapp",
 				clientId: instance.id,

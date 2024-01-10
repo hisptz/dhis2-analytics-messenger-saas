@@ -13,18 +13,49 @@ const fields: ParseField[] = [
 		name: "phoneNumber",
 		type: "String",
 	},
+	{
+		name: "approved",
+		type: "Boolean",
+		options: {
+			defaultValue: false,
+		},
+	},
+	{
+		name: "approvedBy",
+		type: "Pointer",
+		targetClass: "_User",
+	},
 ];
 
 export const userSchema = {
 	className: "_User",
 	fields: fromPairs(fields.map(({ name, ...rest }) => [name, rest])),
 	classLevelPermissions: {
-		find: { "*": true },
-		count: { "*": true },
-		get: { "*": true },
-		update: { requiresAuthentication: true },
+		find: { "requiresAuthentication": true, "role:admin": true },
+		count: { "requiresAuthentication": true, "role:admin": true },
+		get: { "requiresAuthentication": true, "role:admin": true },
+		update: {
+			"requiresAuthentication": true,
+			"role:admin": true,
+		},
 		create: { "*": true },
 		delete: { requiresAuthentication: true },
+		addField: {},
+	},
+};
+
+export const roleSchema = {
+	className: "_Role",
+	classLevelPermissions: {
+		find: { requiresAuthentication: true },
+		count: {},
+		get: { requiresAuthentication: true },
+		update: {
+			"requiresAuthentication": true,
+			"role:admin": true,
+		},
+		create: {},
+		delete: {},
 		addField: {},
 	},
 };

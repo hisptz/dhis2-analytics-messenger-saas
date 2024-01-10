@@ -6,7 +6,6 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import ThemeRegistry from "@/utils/ThemeRegistry";
 import { ParseInitializer } from "@/components/Parse";
-import { initializeParse } from "@parse/react-ssr";
 import { CustomSnackbarProvider } from "../components/CustomSnackbarProvider";
 import { ReactQueryProvider } from "../components/ReactQueryProvider";
 
@@ -14,13 +13,6 @@ export const metadata: Metadata = {
 	title: "DHIS2 Analytics Messenger Panel",
 	description: "DHIS2 Analytics Messenger Panel",
 };
-
-const serverUrl =
-	process.env.NEXT_PUBLIC_PARSE_BASE_URL ?? "http://localhost:4000";
-const appId = process.env.NEXT_PUBLIC_PARSE_APP_ID ?? "DAM-AUTH";
-
-initializeParse(serverUrl, appId, "");
-
 export default function RootLayout({
 	children,
 }: {

@@ -5,7 +5,7 @@ import { authTokenSchema } from "../dbSchemas/authToken";
 import { analyticsJobSchema } from "../dbSchemas/push";
 import ParseDashboard from "parse-dashboard";
 import { config } from "dotenv";
-import { userSchema } from "../dbSchemas/user";
+import { roleSchema, userSchema } from "../dbSchemas/user";
 
 import { DHIS2AuthAdapter } from "./auth";
 import { emailAPICallback } from "./email";
@@ -35,6 +35,7 @@ export const parseServer = new ParseServer({
 	schema: {
 		definitions: [
 			userSchema,
+			roleSchema,
 			dhis2InstanceSchema,
 			whatsappClientSchema,
 			authTokenSchema,
@@ -54,6 +55,14 @@ export const parseServer = new ParseServer({
 					htmlPath: `${templatesFolder}/verification/verification_email.html`,
 					textPath: `${templatesFolder}/verification/text.txt`,
 					subjectPath: `${templatesFolder}/verification/subject.txt`,
+				},
+				passwordResetEmail: {
+					textPath: `${templatesFolder}/passwordReset/text.txt`,
+					subjectPath: `${templatesFolder}/passwordReset/subject.txt`,
+				},
+				userRegistrationNotification: {
+					subjectPath: `${templatesFolder}/userRegistrationNotification/subject.txt`,
+					textPath: `${templatesFolder}/userRegistrationNotification/text.txt`,
 				},
 			},
 			apiCallback: emailAPICallback,
