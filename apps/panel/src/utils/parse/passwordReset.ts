@@ -1,7 +1,8 @@
 "use server";
 
-import { ParseServer } from "@/utils/parse/server";
 import { redirect } from "next/navigation";
+
+const serverUrl = process.env.NEXT_PARSE_BASE_URL ?? "http://localhost:4000";
 
 export async function submitResetPasswordRequest(
 	data: Record<string, any>,
@@ -9,7 +10,8 @@ export async function submitResetPasswordRequest(
 ) {
 	const formData = new URLSearchParams(data);
 
-	const url = `${ParseServer.serverURL}/apps/${id}/request_password_reset`;
+	const url = `${serverUrl}/apps/${id}/request_password_reset`;
+	console.log({ url });
 	const response = await fetch(url, {
 		method: "POST",
 		body: formData,
