@@ -49,25 +49,25 @@ export function useManageWhatsappConnectionStatus(data: Parse.Object) {
 }
 
 export function WhatsAppConnectionStatus({
-	data,
-	instance,
+	whatsappClient,
+	hideControls,
 }: {
-	data: Parse.Object;
-	instance: Parse.Object;
+	whatsappClient: Parse.Object;
+	hideControls?: boolean;
 }) {
 	const {
 		value: open,
 		setTrue: onOpen,
 		setFalse: onClose,
 	} = useBoolean(false);
-	const { status } = useWhatsappClientStatus(data);
+	const { status } = useWhatsappClientStatus(whatsappClient);
 
 	const {
 		restart,
 		error: manageError,
 		isError: hasManageError,
 		isPending,
-	} = useManageWhatsappConnectionStatus(data);
+	} = useManageWhatsappConnectionStatus(whatsappClient);
 
 	const onRestart = async () => {
 		await restart();
@@ -90,7 +90,7 @@ export function WhatsAppConnectionStatus({
 			<div className="flex flex-row gap-4">
 				{open && (
 					<WhatsappQRCodeView
-						client={data}
+						client={whatsappClient}
 						open={open}
 						onClose={onClose}
 					/>
@@ -99,15 +99,17 @@ export function WhatsAppConnectionStatus({
 					<WifiOff color="error" sx={{ fontSize: 15 }} />
 					<h1 className="">{capitalize(status)}</h1>
 				</div>
-				<LoadingButton
-					color="success"
-					onClick={onOpen}
-					loadingIndicator={"Connecting"}
-					loading={isPending}
-					variant="text"
-				>
-					Pair
-				</LoadingButton>
+				{!hideControls && (
+					<LoadingButton
+						color="success"
+						onClick={onOpen}
+						loadingIndicator={"Connecting"}
+						loading={isPending}
+						variant="text"
+					>
+						Pair
+					</LoadingButton>
+				)}
 			</div>
 		);
 	}
@@ -119,15 +121,17 @@ export function WhatsAppConnectionStatus({
 					<WifiOff color="error" sx={{ fontSize: 15 }} />
 					<h1 className="">{capitalize(status)}</h1>
 				</div>
-				<LoadingButton
-					color="success"
-					onClick={onRestart}
-					loadingIndicator={"Connecting"}
-					loading={isPending}
-					variant="text"
-				>
-					Pair
-				</LoadingButton>
+				{!hideControls && (
+					<LoadingButton
+						color="success"
+						onClick={onRestart}
+						loadingIndicator={"Connecting"}
+						loading={isPending}
+						variant="text"
+					>
+						Pair
+					</LoadingButton>
+				)}
 			</div>
 		);
 	}
@@ -138,15 +142,17 @@ export function WhatsAppConnectionStatus({
 				<WifiOff color="error" sx={{ fontSize: 15 }} />
 				<h1 className="">{capitalize(status)}</h1>
 			</div>
-			<LoadingButton
-				color="success"
-				onClick={onRestart}
-				loadingIndicator={"Connecting"}
-				loading={isPending}
-				variant="text"
-			>
-				Restart
-			</LoadingButton>
+			{!hideControls && (
+				<LoadingButton
+					color="success"
+					onClick={onRestart}
+					loadingIndicator={"Connecting"}
+					loading={isPending}
+					variant="text"
+				>
+					Restart
+				</LoadingButton>
+			)}
 		</div>
 	);
 }

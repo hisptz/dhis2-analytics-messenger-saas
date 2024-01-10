@@ -1,9 +1,10 @@
 import React from "react";
-import WifiOffIcon from "@mui/icons-material/WifiOff";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Parse from "parse";
 import instanceLogo from "@/assets/group-5.svg";
+import { useWhatsappClient } from "@/hooks/whatsapp";
+import { WhatsAppConnectionStatus } from "@/app/(modules)/management/[id]/components/WhatsAppConnectionStatus";
 
 export interface StatusCardProps {
 	instance: Parse.Object;
@@ -11,6 +12,7 @@ export interface StatusCardProps {
 
 export default function StatusCard({ instance }: StatusCardProps) {
 	const router = useRouter();
+	const { data } = useWhatsappClient(instance);
 
 	const handleCardClick = () => {
 		router.push(`/management/${instance.id}`);
@@ -40,15 +42,24 @@ export default function StatusCard({ instance }: StatusCardProps) {
 						{instance.get("url")}
 					</a>
 				</div>
-
-				<div className="flex items-center space-x-2">
-					<span className="text-gray-700 font-bold">Status:</span>
-
-					<div className="text-red-600 bg-red-100 rounded-lg text-xs flex space-x-1 p-1">
-						<WifiOffIcon color="error" sx={{ fontSize: 15 }} />
-						<h1 className="">Offline</h1>
+				{data ? (
+					<div className="flex items-center space-x-2">
+						<span className="text-gray-700 font-bold">
+							WhatsApp status:
+						</span>
+						<WhatsAppConnectionStatus
+							hideControls
+							whatsappClient={data}
+						/>
 					</div>
-				</div>
+				) : (
+					<div className="flex items-center space-x-2">
+						<span className="text-gray-700 font-bold">
+							WhatsApp status:
+						</span>
+						<span>Please wait</span>
+					</div>
+				)}
 			</div>
 		</div>
 	);

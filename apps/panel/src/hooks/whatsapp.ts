@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { io } from "socket.io-client";
+import Parse from "parse";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 export function useWhatsappClientStatus(client: Parse.Object) {
 	const [status, setStatus] = useState();
@@ -30,5 +32,29 @@ export function useWhatsappClientStatus(client: Parse.Object) {
 		status,
 		qrCode,
 		error,
+	};
+}
+
+export function useWhatsappClient(instance: Parse.Object) {
+	const fetchClient = async () => {
+		return (
+			(await new Parse.Query("WhatsappClient")
+				.equalTo("dhis2Instance", instance)
+				.first()) ?? null
+		);
+	};
+
+	const { data, isLoading, isError, error, refetch } = useSuspenseQuery({
+		queryKey: ["whatsapp", instance.id],
+		queryFn: fetchClient,
+		retry: false,
+	});
+
+	return {
+		data,
+		isLoading,
+		isError,
+		error,
+		refetch,
 	};
 }
