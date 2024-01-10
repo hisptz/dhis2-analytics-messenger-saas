@@ -8,8 +8,6 @@ import ThemeRegistry from "@/utils/ThemeRegistry";
 import { ParseInitializer } from "@/components/Parse";
 import { initializeParse } from "@parse/react-ssr";
 import { ReactQueryProvider } from "@/components/ReactQueryProvider";
-import { AlertContextProvider } from "../Context/AlertStore";
-import CustomAlertStack from "../components/AlertProvider/AlertProvider";
 
 export const metadata: Metadata = {
 	title: "DHIS2 Analytics Messenger Panel",
@@ -32,12 +30,7 @@ export default function RootLayout({
 			<body>
 				<ParseInitializer />
 				<ThemeRegistry options={{ key: "mui-theme" }}>
-					<ReactQueryProvider>
-						<AlertContextProvider>
-							{children}
-							<CustomAlertStack />
-						</AlertContextProvider>
-					</ReactQueryProvider>
+					<ReactQueryProvider>{children}</ReactQueryProvider>
 				</ThemeRegistry>
 			</body>
 		</html>

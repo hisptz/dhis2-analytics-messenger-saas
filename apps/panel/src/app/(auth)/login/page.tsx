@@ -37,7 +37,6 @@ export default function Login() {
 				router.replace("/");
 			}
 		} catch (e: any) {
-			console.log(e);
 			if (e.code === 205) {
 				router.replace(`/verifyEmail?username=${data.username}`);
 				return;
