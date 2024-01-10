@@ -10,6 +10,7 @@ import { RHFTextInput } from "@/components/RHFTextInput";
 import { LoadingButton } from "@mui/lab";
 import { ParseClient } from "@/utils/parse/client";
 import { RHFPasswordInput } from "@/components/RHFPasswordInput";
+import { useCustomAlert } from "../../hooks/useCustomAlert";
 
 const loginSchema = z.object({
 	username: z.string({ required_error: "Username is required" }),
@@ -27,6 +28,7 @@ export default function Login() {
 	const form = useForm<LoginData>({
 		resolver: zodResolver(loginSchema),
 	});
+	const { show: showAlert } = useCustomAlert();
 	const onLogin = async (data: LoginData) => {
 		try {
 			const user = await ParseClient.User.logIn(
@@ -41,7 +43,10 @@ export default function Login() {
 				router.replace(`/verifyEmail?username=${data.username}`);
 				return;
 			}
-			alert(e.message);
+			showAlert({
+				message: e.message,
+				type: "error",
+			});
 		}
 	};
 
