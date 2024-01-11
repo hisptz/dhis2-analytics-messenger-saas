@@ -90,15 +90,13 @@ export default function Dashboard() {
 						onFormSubmit={onInstanceAdd}
 					/>
 				)}
-				<div className="flex flex-row  w-full py-6 px-auto gap-[64px] text-sm text-black font-m3-label-large">
-					<div>
-						{results?.map((instance) => (
-							<StatusCard
-								key={`${instance.id}-card`}
-								instance={instance}
-							/>
-						))}
-					</div>
+				<div className="flex flex-row  w-full py-6 px-auto gap-[16px] text-sm text-black font-m3-label-large">
+					{results?.map((instance) => (
+						<StatusCard
+							key={`${instance.id}-card`}
+							instance={instance}
+						/>
+					))}
 				</div>
 			</div>
 		</div>
