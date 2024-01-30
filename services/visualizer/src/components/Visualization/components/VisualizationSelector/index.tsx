@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { useVisualizationType } from "../VisualizationTypeProvider";
 import { useAnalyticsData } from "../AnalyticsDataProvider";
 import { CircularLoader } from "@dhis2/ui";
@@ -7,15 +7,22 @@ import { filter, find, findIndex, forEach, mapValues, set } from "lodash";
 import { Dimension, useDimensions } from "../DimensionsProvider";
 import i18n from "@dhis2/d2-i18n";
 import {
-	ChartAnalytics,
+	ALL_DYNAMIC_DIMENSION_ITEMS,
+	Analytics,
+	createVisualization,
+	PivotTable,
+} from "@dhis2/analytics";
+import {
 	ChartConfig,
-	CustomPivotTable,
 	CustomPivotTableOptions,
 	Map,
 	MapProps,
 } from "@hisptz/dhis2-analytics";
 import { VisualizationConfig } from "../../index";
 import { OrgUnitSelection } from "@hisptz/dhis2-utils";
+import { useVisualization } from "../../../../hooks/config";
+import { useParams } from "react-router-dom";
+import { useDataEngine } from "@dhis2/app-runtime";
 
 export interface VisualizationSelectorProps {
 	config: VisualizationConfig;
@@ -61,10 +68,15 @@ export function getOrgUnitSelectionFromIds(ous: string[]) {
 export function PivotTableRenderer({
 	options,
 }: {
-	options: CustomPivotTableOptions & {};
+	options: CustomPivotTableOptions;
 }) {
 	const [layout] = useLayout();
 	const { analytics } = useAnalyticsData();
+	const { id } = useParams();
+	const { data } = useVisualization(id as string);
+	const engine = useDataEngine();
+
+	const analyticsEngine = Analytics.getAnalytics(engine);
 
 	const sanitizedLayout = useMemo(() => {
 		return mapValues(layout, (dimension) =>
@@ -75,29 +87,102 @@ export function PivotTableRenderer({
 		);
 	}, [layout]);
 
-	if (!analytics) {
+	if (!analytics || !data) {
 		return null;
 	}
 
 	return (
-		<CustomPivotTable
-			tableProps={{
-				scrollHeight: options.scrollHeight ?? "100%",
-				scrollWidth: options.scrollWidth ?? "100%",
-				width: options.width ?? "100%",
+		<PivotTable
+			visualization={{
+				...data,
+				rows: data.rows.map((row: any) => ({
+					...row,
+					dimension: row.id,
+				})),
+				columns: data.columns.map((row: any) => ({
+					...row,
+					dimension: row.id,
+				})),
 			}}
-			analytics={analytics}
-			config={{ layout: sanitizedLayout, options }}
+			data={new analyticsEngine.response(analytics)}
+			legendSets={[]}
+			renderCounter={10}
+			onToggleContextualMenu={console.log}
 		/>
 	);
 }
 
+const removeItemAllFromAxisItems = (
+	axis: { items: Record<string, any>; [key: string]: any }[],
+) =>
+	(axis || []).map((ai) => ({
+		...ai,
+		items:
+			ai?.items?.filter(
+				(item: { id: string }) =>
+					item.id !== ALL_DYNAMIC_DIMENSION_ITEMS,
+			) ?? [],
+	}));
+
 export function ChartRenderer({ options }: { options: ChartConfig }) {
+	const { id } = useParams();
+	const engine = useDataEngine();
+	const { data } = useVisualization(id as string);
+	const ref = useRef<HTMLDivElement>(null);
+
+	const analyticsEngine = Analytics.getAnalytics(engine);
+
 	const { analytics } = useAnalyticsData();
+
+	console.log({
+		data,
+		analytics,
+		modified: [new analyticsEngine.response(analytics)],
+	});
+
+	const { config, visualization } = useMemo(() => {
+		if (data) {
+			return createVisualization(
+				[new analyticsEngine.response(analytics)],
+				{
+					...data,
+					columns: data.columns.map((column: any) => ({
+						...column,
+						id: column.id,
+					})),
+					rows: data.rows.map((column: any) => ({
+						...column,
+						id: column.id,
+					})),
+					filters: data.filters.map((column: any) => ({
+						...column,
+						id: column.id,
+					})),
+				},
+				ref.current,
+				{
+					...data,
+					columns: removeItemAllFromAxisItems(data.columns),
+					rows: removeItemAllFromAxisItems(data.rows),
+					filters: removeItemAllFromAxisItems(data.filters),
+				},
+				undefined,
+				undefined,
+				"highcharts",
+			);
+		}
+		return {};
+	}, [analytics, data, analyticsEngine]);
+
+	console.log({
+		config,
+		visualization,
+	});
+
 	if (!analytics) {
 		return null;
 	}
-	return <ChartAnalytics analytics={analytics} config={{ ...options }} />;
+	return <div ref={ref} />;
 }
 
 export function MapRenderer({

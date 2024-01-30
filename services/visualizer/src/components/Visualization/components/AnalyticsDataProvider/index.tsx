@@ -55,6 +55,8 @@ export function AnalyticsDataProvider({ children }: DataProviderProps) {
 		const url = `analytics`;
 		const params = {
 			includeMetadataDetails: "true",
+			includeNumDen: "true",
+			displayProperty: "NAME",
 			dimension: Object.keys(dimensions)
 				.map(
 					(dimension) =>

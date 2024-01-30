@@ -1,5 +1,4 @@
 import { useParams, useSearchParams } from "react-router-dom";
-import { getDHIS2Client } from "../utils/dhis2Client";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import {
@@ -15,25 +14,27 @@ import {
 } from "../utils/visualization";
 import { ChartConfig } from "@hisptz/dhis2-analytics";
 import { Layout } from "../components/Visualization/components/LayoutProvider";
+import { useDHIS2Client } from "./dhis2Client";
 
-export function useVisualizationConfig() {
-	const { id } = useParams();
-	const [searchParams] = useSearchParams();
-	const dhis2URL = searchParams.get("dhis2URL");
-	const dhis2PAT = searchParams.get("dhis2PAT");
-	const height = searchParams.get("height") ?? "1080";
-
+export function useVisualization(id: string) {
+	const client = useDHIS2Client();
 	const fetchData = async () => {
-		const url = `/visualizations/${id}`;
-		const client = getDHIS2Client(dhis2URL as string, dhis2PAT as string);
+		const url = `/visualizations/${id}?fields=*`;
 		const response = await client.get(url);
 		return JSON.parse(response.data);
 	};
 
-	const { data, isLoading, error } = useQuery({
+	return useQuery({
 		queryKey: [id],
 		queryFn: fetchData,
 	});
+}
+export function useVisualizationConfig() {
+	const { id } = useParams();
+	const [searchParams] = useSearchParams();
+	const height = searchParams.get("height") ?? "1080";
+
+	const { data, isLoading, error } = useVisualization(id as string);
 
 	const dimensions = useMemo(() => {
 		if (!data) return;

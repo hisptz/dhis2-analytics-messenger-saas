@@ -26,7 +26,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
 				<QueryClientProvider client={queryClient}>
 					<BrowserRouter>
 						<Routes>
-							<Route element={<App />} path={"/:id"} />
+							<Route element={<App />} path={":type/:id"} />
 						</Routes>
 					</BrowserRouter>
 				</QueryClientProvider>
