@@ -11,6 +11,7 @@ import { useBoolean } from "usehooks-ts";
 import { LoadingButton } from "@mui/lab";
 import { RHFPasswordInput } from "@/components/RHFPasswordInput";
 import { ParseClient } from "@/utils/parse/client";
+import { useCustomAlert } from "../../hooks/useCustomAlert";
 
 const signupFormSchema = z.object({
 	fullName: z
@@ -40,6 +41,7 @@ export type SignFormData = z.infer<typeof signupFormSchema>;
 
 export default function SignUpSide() {
 	const router = useRouter();
+	const { show: showAlert } = useCustomAlert();
 	const { value: showPassword, toggle: toggleShowPassword } =
 		useBoolean(false);
 	const onSignup = async ({
@@ -60,7 +62,10 @@ export default function SignUpSide() {
 				router.replace(`/verifyEmail?username=${username}`);
 			}
 		} catch (e: any) {
-			alert(e.message);
+			showAlert({
+				message: e.message,
+				type: "error",
+			});
 		}
 	};
 

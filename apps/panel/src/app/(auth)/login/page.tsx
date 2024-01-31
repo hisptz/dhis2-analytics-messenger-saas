@@ -8,6 +8,7 @@ import { RHFTextInput } from "@/components/RHFTextInput";
 import { LoadingButton } from "@mui/lab";
 import { ParseClient } from "@/utils/parse/client";
 import { RHFPasswordInput } from "@/components/RHFPasswordInput";
+import { useCustomAlert } from "../../hooks/useCustomAlert";
 import { useState } from "react";
 import ForgetPasswordModal from "./components/ForgetPasswordModal";
 import { useCookies } from "react-cookie";
@@ -30,6 +31,7 @@ export default function Login() {
 	const form = useForm<LoginData>({
 		resolver: zodResolver(loginSchema),
 	});
+	const { show: showAlert } = useCustomAlert();
 	const onLogin = async (data: LoginData) => {
 		try {
 			const user = await ParseClient.User.logIn(
@@ -45,8 +47,10 @@ export default function Login() {
 				router.replace(`/verifyEmail?username=${data.username}`);
 				return;
 			}
-			console.error(e);
-			alert(e.message);
+			showAlert({
+				message: e.message,
+				type: "error",
+			});
 		}
 	};
 

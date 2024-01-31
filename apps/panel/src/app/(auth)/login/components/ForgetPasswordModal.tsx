@@ -13,6 +13,7 @@ import {
 	DialogTitle,
 } from "@mui/material";
 import { ParseClient } from "@/utils/parse/client";
+import { useCustomAlert } from "@/app/hooks/useCustomAlert";
 
 const forgetPasswordSchema = z.object({
 	email: z.string().email(),
@@ -22,6 +23,7 @@ export type ForgetPasswordData = z.infer<typeof forgetPasswordSchema>;
 
 export default function ForgetPasswordModal(props: any) {
 	const { open, onClose } = props;
+	const { show: showAlert } = useCustomAlert();
 	const form = useForm<ForgetPasswordData>({
 		resolver: zodResolver(forgetPasswordSchema),
 	});
@@ -30,11 +32,17 @@ export default function ForgetPasswordModal(props: any) {
 		const { email } = data;
 		try {
 			await ParseClient.User.requestPasswordReset(email);
-			alert(
-				"Email is sent successfully, check your email to reset password",
-			);
+			showAlert({
+				message:
+					"Email is sent successfully, check your email to reset password",
+				type: "success",
+			});
+			onClose();
 		} catch (error: any) {
-			alert("Error: " + error.code + " " + error.message);
+			showAlert({
+				message: "Error: " + error.code + " " + error.message,
+				type: "error",
+			});
 		}
 	};
 

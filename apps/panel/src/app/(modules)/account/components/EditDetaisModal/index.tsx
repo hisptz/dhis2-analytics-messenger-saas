@@ -11,6 +11,7 @@ import { RHFTextInput } from "@/components/RHFTextInput";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useCustomAlert } from "../../../../hooks/useCustomAlert";
 
 const editSchema = z.object({
 	username: z.string().min(4, "Username should have at least 4 characters"),
@@ -20,6 +21,7 @@ export type EditData = z.infer<typeof editSchema>;
 
 export default function EditDetailsModal(props: any) {
 	const [editing, setEditing] = useState(false);
+	const { show: showAlert } = useCustomAlert();
 	const currentUser = Parse.User.current();
 
 	const { open, onClose } = props;
@@ -35,16 +37,19 @@ export default function EditDetailsModal(props: any) {
 
 			await currentUser.save().then(
 				(updatedUser) => {
-					alert(
-						`${updatedUser.get(
+					showAlert({
+						message: `${updatedUser.get(
 							"fullName",
 						)}'s details updated successfully`,
-					);
-
+						type: "success",
+					});
 					onClose();
 				},
 				(error: any) => {
-					alert(error.message);
+					showAlert({
+						message: error.message,
+						type: "error",
+					});
 				},
 			);
 			setEditing(false);

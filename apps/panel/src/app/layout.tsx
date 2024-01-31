@@ -6,7 +6,8 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import ThemeRegistry from "@/utils/ThemeRegistry";
 import { ParseInitializer } from "@/components/Parse";
-import { ReactQueryProvider } from "@/components/ReactQueryProvider";
+import { CustomSnackbarProvider } from "../components/CustomSnackbarProvider";
+import { ReactQueryProvider } from "../components/ReactQueryProvider";
 
 export const metadata: Metadata = {
 	title: "DHIS2 Analytics Messenger Panel",
@@ -22,7 +23,9 @@ export default function RootLayout({
 			<body>
 				<ParseInitializer />
 				<ThemeRegistry options={{ key: "mui-theme" }}>
-					<ReactQueryProvider>{children}</ReactQueryProvider>
+					<CustomSnackbarProvider>
+						<ReactQueryProvider>{children}</ReactQueryProvider>
+					</CustomSnackbarProvider>
 				</ThemeRegistry>
 			</body>
 		</html>

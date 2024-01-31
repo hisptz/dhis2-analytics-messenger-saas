@@ -10,6 +10,7 @@ import { z } from "zod";
 import Parse from "parse";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RHFPasswordInput } from "@/components/RHFPasswordInput";
+import { useCustomAlert } from "../../../../hooks/useCustomAlert";
 
 const passwordSchema = z.object({
 	oldPassword: z
@@ -26,6 +27,7 @@ const passwordSchema = z.object({
 export type PasswordData = z.infer<typeof passwordSchema>;
 export default function ChangePasswordModal(props: any) {
 	const [updating, setUpdating] = useState(false);
+	const { show: showAlert } = useCustomAlert();
 	const { open, onClose } = props;
 	const form = useForm<PasswordData>({
 		resolver: zodResolver(passwordSchema),
@@ -37,9 +39,11 @@ export default function ChangePasswordModal(props: any) {
 		const { username } = currentUser?.attributes ?? {};
 
 		if (!username) {
-			alert(
-				"Failed to fetch current user, hence can not change passwords!",
-			);
+			showAlert({
+				message:
+					"Failed to fetch current user, hence can not change passwords!",
+				type: "error",
+			});
 			return;
 		}
 		const { newPassword, oldPassword } = data;
@@ -50,22 +54,29 @@ export default function ChangePasswordModal(props: any) {
 				await user.save().then(
 					(updatedUser) => {
 						setUpdating(false);
-						alert(
-							`${updatedUser.get(
+						showAlert({
+							message: `${updatedUser.get(
 								"fullName",
 							)}'s password updated successfully`,
-						);
+							type: "success",
+						});
 						onClose();
 					},
 					(error: any) => {
 						setUpdating(false);
-						alert(error.message);
+						showAlert({
+							message: error.message,
+							type: "error",
+						});
 					},
 				);
 			}
 		} catch (error: any) {
 			setUpdating(false);
-			alert(error.message);
+			showAlert({
+				message: error.message,
+				type: "error",
+			});
 		}
 	};
 

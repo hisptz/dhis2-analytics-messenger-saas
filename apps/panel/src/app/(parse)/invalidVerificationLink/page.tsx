@@ -4,9 +4,11 @@ import { useSearchParams } from "next/navigation";
 import { ParseClient } from "@/utils/parse/client";
 import { useMutation } from "@tanstack/react-query";
 import { LoadingButton } from "@mui/lab";
+import { useCustomAlert } from "../../hooks/useCustomAlert";
 
 export default function InvalidVerificationLink() {
 	const params = useSearchParams();
+	const { show: showAlert } = useCustomAlert();
 	const handleVerifyEmail = async () => {
 		try {
 			const username = params.get("username");
@@ -16,10 +18,15 @@ export default function InvalidVerificationLink() {
 					username,
 				},
 			);
-			console.log(response);
-			alert("A verification email has been sent to your email");
+			showAlert({
+				message: `A verification email has been sent to your email`,
+				type: "success",
+			});
 		} catch (e: any) {
-			alert(`Could not resend verification: ${e.message}`);
+			showAlert({
+				message: `Could not resend verification: ${e.message}`,
+				type: "error",
+			});
 			console.error(e);
 		}
 	};

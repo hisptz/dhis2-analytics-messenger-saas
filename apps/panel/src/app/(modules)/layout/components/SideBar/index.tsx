@@ -14,6 +14,7 @@ import account from "@/assets/person.svg";
 import logout from "@/assets/logout.svg";
 import { useCookies } from "react-cookie";
 import { People } from "@mui/icons-material";
+import { useCustomAlert } from "../../../../hooks/useCustomAlert";
 
 interface SidebarTabProps {
 	href?: string;
@@ -63,6 +64,7 @@ const SidebarTab: React.FC<SidebarTabProps> = ({
 );
 
 export default function SideBar() {
+	const { show: showAlert } = useCustomAlert();
 	const [, , removeCookie] = useCookies(["sessionToken"]);
 	const userIsAdmin = ParseClient.User.current()?.get("username") === "admin"; //Dirtiest hard coding ever
 	const router = useRouter();
@@ -82,7 +84,10 @@ export default function SideBar() {
 			setLogOutModalOpen(false);
 			router.replace("/login");
 		} catch (error: any) {
-			alert(error.message);
+			showAlert({
+				message: error.message,
+				type: "error",
+			});
 		}
 		setLoggingOut(false);
 	}, [router]);

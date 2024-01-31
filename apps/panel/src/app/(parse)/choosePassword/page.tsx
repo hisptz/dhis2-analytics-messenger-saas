@@ -7,6 +7,7 @@ import { LoadingButton } from "@mui/lab";
 import { useSearchParams } from "next/navigation";
 import { submitResetPasswordRequest } from "@/utils/parse/passwordReset";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useCustomAlert } from "../../hooks/useCustomAlert";
 
 const passwordResetFormSchema = z.object({
 	password: z
@@ -21,6 +22,7 @@ type PasswordResetFormData = z.infer<typeof passwordResetFormSchema>;
 
 export default function ChoosePassword() {
 	const params = useSearchParams();
+	const { show: showAlert } = useCustomAlert();
 	const { value: showPassword, toggle: toggleShowPassword } =
 		useBoolean(false);
 	const form = useForm<PasswordResetFormData>({
@@ -47,7 +49,11 @@ export default function ChoosePassword() {
 				appId: id as string,
 			});
 		} catch (e) {
-			alert("Invalid link. Please try requesting your password again");
+			showAlert({
+				message:
+					"Invalid link. Please try requesting your password again",
+				type: "error",
+			});
 			console.error(e);
 		}
 	};

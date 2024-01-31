@@ -3,7 +3,7 @@ import { io } from "socket.io-client";
 import Parse from "parse";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
-export function useWhatsappClientStatus(client: Parse.Object) {
+export function useWhatsappClientStatus(client: Parse.Object | null) {
 	const [status, setStatus] = useState();
 	const [error, setError] = useState();
 	const [qrCode, setQrCode] = useState();
