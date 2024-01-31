@@ -13,7 +13,7 @@ import {
 	DialogTitle,
 } from "@mui/material";
 import { ParseClient } from "@/utils/parse/client";
-import { useCustomAlert } from "../../../hooks/useCustomAlert";
+import { useCustomAlert } from "@/app/hooks/useCustomAlert";
 
 const forgetPasswordSchema = z.object({
 	email: z.string().email(),
@@ -37,6 +37,7 @@ export default function ForgetPasswordModal(props: any) {
 					"Email is sent successfully, check your email to reset password",
 				type: "success",
 			});
+			onClose();
 		} catch (error: any) {
 			showAlert({
 				message: "Error: " + error.code + " " + error.message,
