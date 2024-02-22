@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<build-type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uuid="46e1ea97-e5aa-4e53-a83a-a8186919e7d2" xsi:noNamespaceSchemaLocation="https://www.jetbrains.com/teamcity/schemas/2021.1/project-config.xsd">
+  <name>Docker builds</name>
+  <description>Docker build of all the SaaS services</description>
+  <settings>
+    <parameters>
+      <param name="env.NEXT_PUBLIC_CONTEXT_PATH" value="/dam" />
+      <param name="env.NEXT_PUBLIC_MESSAGING_MOUNT_PATH" value="/dam/messaging/api/socket.io" />
+      <param name="env.NEXT_PUBLIC_MESSAGING_URL" value="https://dev.hisptz.com/dam/messaging/api" />
+      <param name="env.NEXT_PUBLIC_PARSE_APP_ID" value="DAM-AUTH" />
+      <param name="env.NEXT_PUBLIC_PARSE_BASE_URL" value="https://dev.hisptz.com/dam/core/api" spec="text display='normal' label='BASE_URL' validationMode='not_empty'" />
+      <param name="system.SERVER_HOSTNAME" value="dev.hisptz.com" />
+      <param name="system.SERVER_SSH_PORT" value="822" />
+    </parameters>
+    <build-runners>
+      <runner id="RUNNER_10" name="Docker build panel" type="DockerCommand">
+        <parameters>
+          <param name="command.args" value="--build-arg NEXT_PUBLIC_PARSE_BASE_URL --build-arg NEXT_PUBLIC_PARSE_APP_ID --build-arg NEXT_PUBLIC_CONTEXT_PATH --build-arg NEXT_PUBLIC_MESSAGING_URL --build-arg NEXT_PUBLIC_MESSAGING_MOUNT_PATH" />
+          <param name="docker.command.type" value="build" />
+          <param name="docker.image.namesAndTags" value="hisptanzania/dam-saas-panel:latest" />
+          <param name="docker.push.remove.image" value="true" />
+          <param name="dockerImage.platform" value="linux" />
+          <param name="dockerfile.contextDir" value="." />
+          <param name="dockerfile.path" value="apps/panel/Dockerfile" />
+          <param name="dockerfile.source" value="PATH" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_12" name="Docker push panel" type="DockerCommand">
+        <parameters>
+          <param name="docker.command.type" value="push" />
+          <param name="docker.image.namesAndTags" value="hisptanzania/dam-saas-panel:latest" />
+          <param name="docker.push.remove.image" value="true" />
+          <param name="dockerfile.source" value="PATH" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_18" name="Docker build core" type="DockerCommand">
+        <parameters>
+          <param name="docker.command.type" value="build" />
+          <param name="docker.image.namesAndTags" value="hisptanzania/dam-saas-core:latest" />
+          <param name="docker.push.remove.image" value="true" />
+          <param name="dockerImage.platform" value="linux" />
+          <param name="dockerfile.contextDir" value="." />
+          <param name="dockerfile.path" value="services/core/Dockerfile" />
+          <param name="dockerfile.source" value="PATH" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_20" name="Docker push core" type="DockerCommand">
+        <parameters>
+          <param name="docker.command.type" value="push" />
+          <param name="docker.image.namesAndTags" value="hisptanzania/dam-saas-core:latest" />
+          <param name="docker.push.remove.image" value="true" />
+          <param name="dockerfile.source" value="PATH" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_11" name="Docker build messaging" type="DockerCommand">
+        <parameters>
+          <param name="docker.command.type" value="build" />
+          <param name="docker.image.namesAndTags" value="hisptanzania/dam-saas-messaging:latest" />
+          <param name="docker.push.remove.image" value="true" />
+          <param name="dockerImage.platform" value="linux" />
+          <param name="dockerfile.contextDir" value="." />
+          <param name="dockerfile.path" value="services/messaging/Dockerfile" />
+          <param name="dockerfile.source" value="PATH" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_13" name="Docker push messaging" type="DockerCommand">
+        <parameters>
+          <param name="docker.command.type" value="push" />
+          <param name="docker.image.namesAndTags" value="hisptanzania/dam-saas-messaging:latest" />
+          <param name="docker.push.remove.image" value="true" />
+          <param name="dockerfile.source" value="PATH" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_21" name="Docker build visualizer" type="DockerCommand">
+        <parameters>
+          <param name="docker.command.type" value="build" />
+          <param name="docker.image.namesAndTags" value="hisptanzania/dam-saas-visualizer:latest" />
+          <param name="docker.push.remove.image" value="true" />
+          <param name="dockerImage.platform" value="linux" />
+          <param name="dockerfile.contextDir" value="." />
+          <param name="dockerfile.path" value="services/visualizer/Dockerfile" />
+          <param name="dockerfile.source" value="PATH" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_22" name="Docker push visualizer" type="DockerCommand">
+        <parameters>
+          <param name="docker.command.type" value="push" />
+          <param name="docker.image.namesAndTags" value="hisptanzania/dam-saas-visualizer:latest" />
+          <param name="docker.push.remove.image" value="true" />
+          <param name="dockerfile.source" value="PATH" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_25" name="Restart containers" type="ssh-exec-runner">
+        <parameters>
+          <param name="jetbrains.buildServer.deployer.targetUrl" value="%system.SERVER_HOSTNAME%" />
+          <param name="jetbrains.buildServer.deployer.username" value="gnnko" />
+          <param name="jetbrains.buildServer.sshexec.authMethod" value="UPLOADED_KEY" />
+          <param name="jetbrains.buildServer.sshexec.command" value="lxc exec dam -- bash -c  &quot;docker compose --file /home/ubuntu/docker-compose.yml up -d  --pull always&quot;" />
+          <param name="jetbrains.buildServer.sshexec.port" value="%system.SERVER_SSH_PORT%" />
+          <param name="teamcity.step.mode" value="default" />
+          <param name="teamcitySshKey" value="Permanent key" />
+        </parameters>
+      </runner>
+    </build-runners>
+    <vcs-settings>
+      <vcs-entry-ref root-id="hisptz_Dhis2AnalyticsMessengerSaas_GitGithubComHisptzDhis2analyticsMessengerSaasGitRefsHeadsDevelop" />
+    </vcs-settings>
+    <requirements />
+    <build-triggers>
+      <build-trigger id="TRIGGER_8" type="vcsTrigger">
+        <parameters>
+          <param name="branchFilter" value="+:develop" />
+          <param name="enableQueueOptimization" value="true" />
+          <param name="quietPeriodMode" value="DO_NOT_USE" />
+        </parameters>
+      </build-trigger>
+    </build-triggers>
+    <build-extensions>
+      <extension id="perfmon" type="perfmon">
+        <parameters>
+          <param name="teamcity.perfmon.feature.enabled" value="true" />
+        </parameters>
+      </extension>
+      <extension id="DockerSupport" type="DockerSupport">
+        <parameters>
+          <param name="cleanupPushed" value="true" />
+          <param name="login2registry" value="PROJECT_EXT_4" />
+          <param name="loginCheckbox" value="on" />
+        </parameters>
+      </extension>
+    </build-extensions>
+    <cleanup />
+  </settings>
+</build-type>
+
