@@ -50,7 +50,21 @@ export function PluginVisualization() {
 				window: ref.current?.contentWindow,
 			},
 			() => {
+				console.log(pluginProps);
 				return pluginProps;
+			},
+		);
+
+		return () => listener.cancel();
+	}, [pluginProps]);
+	useEffect(() => {
+		const listener = postRobot.on(
+			"installationStatus",
+			{
+				window: ref.current?.contentWindow,
+			},
+			(status) => {
+				console.log(status);
 			},
 		);
 

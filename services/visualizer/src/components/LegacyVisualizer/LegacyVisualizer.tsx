@@ -1,22 +1,23 @@
-import { useSearchParams } from "react-router-dom";
-import { useVisualizationConfig } from "../../hooks/config";
+import { useParams, useSearchParams } from "react-router-dom";
 import { CssReset } from "@dhis2/ui";
-import { Visualization } from "../Visualization";
+import { Visualization } from "./components/Visualization";
+import { useVisualization } from "../../hooks/config";
 
 export function LegacyVisualizer() {
 	const [searchParams] = useSearchParams();
 	const height = searchParams.get("height") ?? "1080";
 	const width = searchParams.get("width") ?? "1920";
-	const { loading, visualizationProps, displayName, error } =
-		useVisualizationConfig();
-
-	if (loading) {
+	const { id } = useParams();
+	const { isLoading, isError, data, error } = useVisualization(id);
+	if (isLoading) {
 		return <div>Loading...</div>;
 	}
 
-	if (error) {
-		return <div>{error.message}</div>;
+	if (isError) {
+		return <div id="errro">{error.message}</div>;
 	}
+
+	console.log(data);
 
 	return (
 		<div
@@ -31,7 +32,6 @@ export function LegacyVisualizer() {
 			}}
 		>
 			<CssReset />
-			<h2 style={{ flexGrow: 0 }}>{displayName}</h2>
 			<div
 				style={{
 					flexGrow: 1,
@@ -44,7 +44,7 @@ export function LegacyVisualizer() {
 					justifyContent: "stretch",
 				}}
 			>
-				<Visualization {...visualizationProps} />
+				<Visualization visualization={data} />
 			</div>
 		</div>
 	);
