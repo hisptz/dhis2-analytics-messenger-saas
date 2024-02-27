@@ -1,77 +1,175 @@
-import { useParams, useSearchParams } from "react-router-dom";
-import { getDHIS2Client } from "../utils/dhis2Client";
-import { useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { useQueries, useQuery, UseQueryResult } from "@tanstack/react-query";
+import { useDHIS2Client } from "./dhis2Client";
+import { cloneDeep, get, isEmpty } from "lodash";
 import {
-	getCategoryOptionGroupSets,
-	getCategoryOptions,
-	getConfig,
-	getDataItems,
-	getDefaultType,
-	getLayout,
-	getOrganisationUnitGroupSetDimensions,
-	getOrgUnits,
-	getPeriods,
-} from "../utils/visualization";
-import { ChartConfig } from "@hisptz/dhis2-analytics";
-import { Layout } from "../components/Visualization/components/LayoutProvider";
+	getDisabledOptions,
+	getOptionsFromVisualization,
+	getRequestOptions,
+} from "../utils/options";
+import {
+	apiFetchAnalytics,
+	apiFetchAnalyticsForYearOverYear,
+	computeGenericPeriodNames,
+	computeGenericPeriodNamesFromMatrix,
+	computeYoYMatrix,
+	getRelativePeriodTypeUsed,
+} from "../utils/data";
+import {
+	DIMENSION_ID_PERIOD,
+	isYearOverYear,
+	layoutGetDimensionItems,
+} from "@dhis2/analytics";
+import { removeItemAllFromAxisItems } from "../utils/visualization";
+import { fields } from "../constants";
 
-export function useVisualizationConfig() {
-	const { id } = useParams();
-	const [searchParams] = useSearchParams();
-	const dhis2URL = searchParams.get("dhis2URL");
-	const dhis2PAT = searchParams.get("dhis2PAT");
-	const height = searchParams.get("height") ?? "1080";
-
+export function useVisualization(id?: string) {
+	const client = useDHIS2Client();
 	const fetchData = async () => {
-		const url = `/visualizations/${id}`;
-		const client = getDHIS2Client(dhis2URL as string, dhis2PAT as string);
+		if (!id) return;
+		const url = `/visualizations/${id}?fields=${fields}`;
 		const response = await client.get(url);
-		return JSON.parse(response.data);
+		return response.data;
 	};
 
-	const { data, isLoading, error } = useQuery({
+	return useQuery({
 		queryKey: [id],
 		queryFn: fetchData,
 	});
+}
 
-	const dimensions = useMemo(() => {
-		if (!data) return;
-		return {
-			dx: getDataItems(data),
-			pe: getPeriods(data),
-			ou: getOrgUnits(data),
-			...getCategoryOptions(data),
-			...getOrganisationUnitGroupSetDimensions(data),
-			...getCategoryOptionGroupSets(data),
-		};
-	}, [data]);
-
-	const layout = useMemo(() => {
-		if (!data) return;
-		return getLayout(data) as Layout;
-	}, [data]);
-	const config = useMemo(() => {
-		if (!data) return;
-		return getConfig(data, {
-			height: parseInt(height as string) - (64 + 16),
-		}) as unknown as ChartConfig;
-	}, [data]);
-	const defaultVisualizationType = useMemo(() => {
-		if (!data) return;
-		return getDefaultType(data);
-	}, [data]);
-	const displayName = data?.displayName ?? "";
-
-	return {
-		visualizationProps: {
-			layout,
-			config,
-			dimensions,
-			defaultVisualizationType,
-		},
-		loading: isLoading,
-		displayName,
-		error,
+export function useVisualizationData(visualization: Record<string, any>) {
+	const client = useDHIS2Client();
+	const fetchLegendSets = async () => {
+		const legendSetIds = visualization.legendSets?.map(
+			(x: { id: string }) => x.id,
+		);
+		if (isEmpty(legendSetIds)) return [];
+		const url = `/legendSets/?filter=id:in:[${legendSetIds.join(",")}]`;
+		const response = await client.get(url);
+		return response.data.legendSets ?? [];
 	};
+	const fetchOrgUnitLevels = async () => {
+		const url = `/organisationUnitLevels?fields=*`;
+		const response = await client.get(url);
+		return response.data.organisationUnitLevels;
+	};
+	const fetchData = async () => {
+		const disabledOptions = getDisabledOptions({
+			visType: visualization.type,
+			options: getOptionsFromVisualization(visualization),
+		});
+
+		const filteredVisualization = cloneDeep(visualization);
+
+		Object.keys(disabledOptions).forEach(
+			(option) => delete filteredVisualization[option],
+		);
+
+		const adaptedVisualization: Record<string, any> = {
+			...filteredVisualization,
+			columns: removeItemAllFromAxisItems(visualization.columns as any),
+			rows: removeItemAllFromAxisItems(visualization.rows as any),
+			filters: removeItemAllFromAxisItems(visualization.filters as any),
+		};
+		const options = getRequestOptions({
+			visualization: adaptedVisualization,
+			filters: {},
+		});
+
+		const extraOptions = {
+			dashboard: true,
+		};
+
+		if (isYearOverYear(adaptedVisualization.type)) {
+			const { responses, yearlySeriesLabels } =
+				await apiFetchAnalyticsForYearOverYear({
+					client,
+					visualization: adaptedVisualization,
+					options,
+				});
+
+			const peItems = layoutGetDimensionItems(
+				adaptedVisualization,
+				DIMENSION_ID_PERIOD,
+			);
+
+			const relativePeriodTypeUsed = getRelativePeriodTypeUsed(peItems);
+
+			const periodKeyAxisIndexMatrix = computeYoYMatrix(
+				responses,
+				relativePeriodTypeUsed,
+			);
+			const periodKeyAxisIndexMap = periodKeyAxisIndexMatrix.reduce(
+				(map: { [x: string]: any }, periodKeys: any[], index: any) => {
+					periodKeys.forEach((periodKey) => (map[periodKey] = index));
+
+					return map;
+				},
+				{},
+			);
+
+			const xAxisLabels = relativePeriodTypeUsed
+				? computeGenericPeriodNamesFromMatrix(
+						periodKeyAxisIndexMatrix,
+						relativePeriodTypeUsed,
+				  )
+				: computeGenericPeriodNames(responses);
+
+			return {
+				responses,
+				extraOptions: {
+					...extraOptions,
+					yearlySeries: yearlySeriesLabels,
+					xAxisLabels,
+					periodKeyAxisIndexMap,
+				},
+			};
+		}
+
+		return {
+			responses: await apiFetchAnalytics({
+				client,
+				visualization: adaptedVisualization,
+				options,
+			}),
+			extraOptions,
+		};
+	};
+
+	return useQueries({
+		queries: [
+			{
+				queryKey: ["legendSets"],
+				queryFn: fetchLegendSets,
+			},
+			{
+				queryKey: ["organisationUnitLevels"],
+				queryFn: fetchOrgUnitLevels,
+			},
+			{
+				queryKey: ["data"],
+				queryFn: fetchData,
+			},
+		],
+		combine: (results) => {
+			return {
+				isLoading: results.reduce((acc, curr) => {
+					return curr.isLoading || acc;
+				}, false),
+				isError: results.reduce((acc, curr) => {
+					return curr.isError || acc;
+				}, false),
+				data: {
+					legendSets: get(results, 0)?.data,
+					orgUnitLevels: get(results, 1)?.data,
+					data: get<UseQueryResult>(results, 2)?.data,
+				},
+				error: {
+					legendSets: get(results, 0)?.error,
+					orgUnitLevels: get(results, 1)?.error,
+					data: get(results, 2)?.error,
+				},
+			};
+		},
+	});
 }

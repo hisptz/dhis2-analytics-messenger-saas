@@ -11,7 +11,6 @@ export async function submitResetPasswordRequest(
 	const formData = new URLSearchParams(data);
 
 	const url = `${serverUrl}/apps/${id}/request_password_reset`;
-	console.log({ url });
 	const response = await fetch(url, {
 		method: "POST",
 		body: formData,
