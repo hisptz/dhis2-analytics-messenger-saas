@@ -11,10 +11,12 @@ const height = 1080;
 
 export async function getVisualization({
 	id,
+	type = "visualization",
 	dhis2PAT,
 	dhis2URL,
 }: {
 	id: string;
+	type?: "visualization" | "map";
 	dhis2URL: string;
 	dhis2PAT: string;
 }) {
@@ -40,7 +42,7 @@ export async function getVisualization({
 		height: width.toString(),
 	});
 	try {
-		await page.goto(`${visualizerURL}/${id}?${params.toString()}`);
+		await page.goto(`${visualizerURL}/${type}/${id}?${params.toString()}`);
 		await Promise.race([
 			page.waitForSelector(".highcharts-container", {
 				visible: true,
@@ -51,6 +53,11 @@ export async function getVisualization({
 				timeout: 20000,
 			}),
 			page.waitForSelector(".tablescrollbox", {
+				visible: true,
+				timeout: 20000,
+			}),
+
+			page.waitForSelector('[data-test="visualization-container"]', {
 				visible: true,
 				timeout: 20000,
 			}),
