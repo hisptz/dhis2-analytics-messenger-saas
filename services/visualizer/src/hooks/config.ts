@@ -43,10 +43,10 @@ export function useVisualizationData(visualization: Record<string, any>) {
 		const legendSetIds = visualization.legendSets?.map(
 			(x: { id: string }) => x.id,
 		);
-		if (isEmpty(legendSetIds)) return null;
+		if (isEmpty(legendSetIds)) return [];
 		const url = `/legendSets/?filter=id:in:[${legendSetIds.join(",")}]`;
 		const response = await client.get(url);
-		return response.data.legendSets;
+		return response.data.legendSets ?? [];
 	};
 	const fetchOrgUnitLevels = async () => {
 		const url = `/organisationUnitLevels?fields=*`;

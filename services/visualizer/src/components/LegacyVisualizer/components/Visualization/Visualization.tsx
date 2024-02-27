@@ -46,6 +46,7 @@ export function Visualization({
 				visualization={visualization}
 				extraOptions={{
 					...(data.data as any).extraOptions,
+					legendSets: data.legendSets,
 				}}
 			/>
 		);
