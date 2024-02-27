@@ -1,12 +1,9 @@
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { CssReset } from "@dhis2/ui";
 import { Visualization } from "./components/Visualization";
 import { useVisualization } from "../../hooks/config";
 
 export function LegacyVisualizer() {
-	const [searchParams] = useSearchParams();
-	const height = searchParams.get("height") ?? "1080";
-	const width = searchParams.get("width") ?? "1920";
 	const { id } = useParams();
 	const { isLoading, isError, data, error } = useVisualization(id);
 	if (isLoading) {
@@ -25,10 +22,10 @@ export function LegacyVisualizer() {
 			style={{
 				display: "flex",
 				flexDirection: "column",
-				height: parseInt(height),
-				width: parseInt(width),
 				textAlign: "center",
 				padding: 16,
+				width: "100%",
+				height: "100%",
 			}}
 		>
 			<CssReset />

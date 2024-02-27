@@ -20,7 +20,7 @@ export function Visualization({
 
 	if (isError) {
 		return (
-			<div>
+			<div id="error-container">
 				{error?.legendSets?.message ||
 					error?.orgUnitLevels?.message ||
 					error?.data?.message}
@@ -28,9 +28,9 @@ export function Visualization({
 		);
 	}
 
-	if (data) {
-		if (visualization.type === VIS_TYPE_PIVOT_TABLE) {
-			return (
+	return (
+		<div style={{ width: "100%", height: "100%" }} id="vis-container">
+			{visualization.type === VIS_TYPE_PIVOT_TABLE ? (
 				<PivotTable
 					visualization={visualization}
 					data={head((data.data as any)?.responses)}
@@ -38,17 +38,16 @@ export function Visualization({
 					renderCounter={0}
 					onToggleContextualMenu={() => {}}
 				/>
-			);
-		}
-		return (
-			<Chart
-				data={(data.data as any).responses}
-				visualization={visualization}
-				extraOptions={{
-					...(data.data as any).extraOptions,
-					legendSets: data.legendSets,
-				}}
-			/>
-		);
-	}
+			) : (
+				<Chart
+					data={(data.data as any).responses}
+					visualization={visualization}
+					extraOptions={{
+						...(data.data as any).extraOptions,
+						legendSets: data.legendSets,
+					}}
+				/>
+			)}
+		</div>
+	);
 }
