@@ -258,19 +258,19 @@ export class WhatsappClient extends BaseClient<Whatsapp> {
 				return await mapSeries(
 					chatIds,
 					asyncify(async (to: string) =>
-						this.client.sendText(to, message.text),
+						this.client.sendText(to, message.text, {
+							footer: "Thanks!",
+						}),
 					),
 				);
 			case "image":
 				return await mapSeries(
 					chatIds,
 					asyncify(async (to: string) =>
-						this.client.sendImageFromBase64(
-							to,
-							message.image,
-							"",
-							message.text,
-						),
+						this.client.sendFile(to, message.image, {
+							caption: message.text,
+							filename: to,
+						}),
 					),
 				);
 			default:

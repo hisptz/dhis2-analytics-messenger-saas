@@ -42,7 +42,6 @@ export function TestMessageModal({
 				clientType: "whatsapp",
 				clientId: instance.id,
 			});
-			console.log(response);
 		} catch (e) {
 			console.log(e);
 		}

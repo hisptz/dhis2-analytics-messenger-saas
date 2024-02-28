@@ -32,11 +32,7 @@ export async function apiFetchAnalytics({
 		.withParameters(options)
 		.withIncludeNumDen(visualization.type === VIS_TYPE_PIVOT_TABLE);
 
-	console.log(req);
-
 	const rawResponse = await analyticsEngine.aggregate.get(req);
-
-	console.log({ data: rawResponse });
 
 	return [new analyticsEngine.response(rawResponse)];
 }

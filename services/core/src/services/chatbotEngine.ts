@@ -391,10 +391,6 @@ export class ChatbotEngine {
 					? await axiosInstance.post(url)
 					: await axiosInstance.get(url);
 			if ([200, 304].includes(response.status)) {
-				//set data to data key
-				console.log({
-					response: response,
-				});
 				return response;
 			}
 		} catch (e: any) {
@@ -559,9 +555,6 @@ export class ChatbotEngine {
 			dhis2URL,
 			dhis2PAT,
 			id: this.sanitizeText(visualizationId),
-		});
-		console.log({
-			visualization,
 		});
 		await this.updateSessionData(dataKey, visualization);
 		if (nextState) {

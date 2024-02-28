@@ -84,7 +84,6 @@ export class DHIS2AuthAdapter {
 				},
 			};
 		} catch (e) {
-			console.log(e);
 			throw new Parse.Error(
 				Parse.Error.VALIDATION_ERROR,
 				"Invalid token",

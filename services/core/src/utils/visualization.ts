@@ -6,9 +6,6 @@ config();
 
 const visualizerURL = process.env.VISUALIZER_URL ?? "http://localhost:5173";
 
-const width = 1920;
-const height = 1080;
-
 export async function getVisualization({
 	id,
 	type = "visualization",
@@ -28,18 +25,12 @@ export async function getVisualization({
 			"--disable-web-security",
 			"--disable-setuid-sandbox",
 		],
-		defaultViewport: {
-			width,
-			height,
-		},
 	});
 	logger.info(`Opening visualization service at: ${visualizerURL}`);
 	const page = await browser.newPage();
 	const params = new URLSearchParams({
 		dhis2PAT,
 		dhis2URL,
-		width: width.toString(),
-		height: width.toString(),
 	});
 	try {
 		await page.goto(`${visualizerURL}/${type}/${id}?${params.toString()}`);
@@ -67,10 +58,12 @@ export async function getVisualization({
 			type: "jpeg",
 			quality: 100,
 			fullPage: true,
+			captureBeyondViewport: false,
+			fromSurface: true,
 		})) as Buffer;
 		await browser.close();
 		if (imageBuffer) {
-			return `data:image/png;base64,${imageBuffer.toString("base64")}`;
+			return `data:image/jpeg;base64,${imageBuffer.toString("base64")}`;
 		}
 	} catch (e) {
 		const imageBuffer = (await page?.screenshot()) as Buffer;

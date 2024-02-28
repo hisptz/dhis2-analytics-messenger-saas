@@ -39,8 +39,6 @@ export async function startWhatsappServices() {
 		);
 
 		if (response.status === 200) {
-			const state = response.data;
-			console.log(state);
 			logger.info(`Whatsapp clients started successfully.`);
 		} else {
 			console.log(response.data);

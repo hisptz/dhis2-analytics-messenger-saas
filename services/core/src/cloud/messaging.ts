@@ -6,7 +6,7 @@ import {
 	ANALYTICS_JOB_STATUS_CLASSNAME,
 } from "../dbSchemas/push";
 import { getVisualization } from "../utils/visualization";
-import { mapSeries } from "async";
+import { mapLimit, mapSeries } from "async";
 
 async function sendWhatsAppMessage({
 	user,
@@ -28,7 +28,6 @@ async function sendWhatsAppMessage({
 
 		return response.data;
 	} catch (e) {
-		console.log(e);
 		throw Error(`Client with ID ${clientId} could not be found. `);
 	}
 }
@@ -51,7 +50,6 @@ async function sendWhatsAppMessageFromSchedule({
 
 		return response.data;
 	} catch (e) {
-		console.log(e);
 		throw Error(`Client with ID ${clientId} could not be found. `);
 	}
 }
@@ -129,8 +127,9 @@ Parse.Cloud.define("runAnalyticsPushJob", async (request) => {
 	const dhis2URL = jobConfig.get("dhis2Instance").get("url");
 	const dhis2PAT = jobConfig.get("dhis2Instance").get("pat");
 
-	const images = await mapSeries(
+	const images = await mapLimit(
 		jobConfig.get("visualizations"),
+		5,
 		async (visualization: { id: string }) => {
 			return await getVisualization({
 				dhis2URL,

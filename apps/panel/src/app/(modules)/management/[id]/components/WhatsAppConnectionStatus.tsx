@@ -25,7 +25,6 @@ export function useManageWhatsappConnectionStatus(data: Parse.Object) {
 		mutationKey: ["whatsapp", data.id, "status"],
 		mutationFn: mutate,
 		onSuccess: async (data, variables) => {
-			console.log(variables);
 			data.set("enabled", !data.get("enabled"));
 			await data.save();
 			await queryClient.invalidateQueries({

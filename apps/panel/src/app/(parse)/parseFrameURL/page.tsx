@@ -9,13 +9,6 @@ export default function VerifyEmailSuccess() {
 	const username = params.get("username");
 	const link = params.get("link");
 
-	console.log({
-		token,
-		apps,
-		username,
-		link,
-	});
-
 	return (
 		<div>
 			<h1>Parse frame url</h1>

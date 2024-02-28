@@ -52,7 +52,6 @@ export class CustomDataEngine {
 				responses.map((res) => res.data),
 				names,
 			);
-			console.log(reducedResponses);
 			if (onComplete) {
 				onComplete(reducedResponses);
 			}
